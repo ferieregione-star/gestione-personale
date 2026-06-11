@@ -664,3 +664,144 @@ body.theme-employee{--bg:#f8fafc}
     padding:0!important;
   }
 }
+
+/* v36 piano ferie: nomi impilati e popup tap stabile */
+.plan-card-white{
+  min-height:190px!important;
+  height:auto!important;
+  cursor:pointer!important;
+}
+.plan-card-white:focus{
+  outline:3px solid #93c5fd;
+  outline-offset:2px;
+}
+.plan-names{
+  display:block!important;
+  padding-right:4px;
+  padding-bottom:18px;
+}
+.plan-person{
+  display:block!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  width:100%!important;
+  text-align:left!important;
+  font-size:12px!important;
+  line-height:1.18!important;
+  margin-bottom:2px!important;
+}
+.plan-card-split{
+  display:block!important;
+}
+.plan-card-split>div{
+  border-right:0!important;
+  padding:0!important;
+  text-align:left!important;
+}
+.plan-day-backdrop{
+  z-index:500!important;
+}
+.plan-day-backdrop .modal{
+  z-index:501!important;
+}
+
+@media(max-width:760px){
+  .plan-card-white{
+    min-height:0!important;
+    height:auto!important;
+    position:relative!important;
+    z-index:1;
+    cursor:pointer!important;
+    -webkit-tap-highlight-color:rgba(37,99,235,.2);
+  }
+  .plan-card-white *{
+    pointer-events:none!important;
+  }
+  .plan-day-backdrop{
+    position:fixed!important;
+    inset:0!important;
+    display:grid!important;
+    place-items:end stretch!important;
+    padding:0!important;
+    background:rgba(15,23,42,.48)!important;
+  }
+  .plan-day-backdrop .ios-sheet{
+    width:100%!important;
+    max-height:88vh!important;
+    border-radius:28px 28px 0 0!important;
+  }
+}
+
+/* v37 piano ferie definitivo */
+.plan-card-white{
+  min-height:190px!important;
+  height:auto!important;
+  cursor:pointer!important;
+  overflow:hidden!important;
+}
+.plan-card-white:focus{
+  outline:3px solid #93c5fd;
+  outline-offset:2px;
+}
+.plan-names{
+  display:block!important;
+  padding-right:4px;
+  padding-bottom:18px;
+}
+.plan-person{
+  display:block!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  width:100%!important;
+  text-align:left!important;
+  font-size:12px!important;
+  line-height:1.18!important;
+  margin-bottom:2px!important;
+}
+.plan-card-split{
+  display:block!important;
+}
+.plan-card-split>div{
+  border-right:0!important;
+  padding:0!important;
+  text-align:left!important;
+}
+.plan-day-backdrop{
+  z-index:500!important;
+}
+.plan-day-backdrop .modal{
+  z-index:501!important;
+}
+
+@media(max-width:760px){
+  .plan-card-white{
+    aspect-ratio:1/1!important;
+    min-height:0!important;
+    height:auto!important;
+    position:relative!important;
+    z-index:1;
+    cursor:pointer!important;
+    -webkit-tap-highlight-color:rgba(37,99,235,.2);
+  }
+  .plan-card-white *{
+    pointer-events:none!important;
+  }
+  .plan-card-white .plan-names{
+    display:none!important;
+  }
+  .plan-day-backdrop{
+    position:fixed!important;
+    inset:0!important;
+    display:grid!important;
+    place-items:end stretch!important;
+    padding:0!important;
+    background:rgba(15,23,42,.48)!important;
+  }
+  .plan-day-backdrop .ios-sheet{
+    width:100%!important;
+    max-height:88vh!important;
+    border-radius:28px 28px 0 0!important;
+  }
+}

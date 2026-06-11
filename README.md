@@ -77,3 +77,17 @@ service cloud.firestore {
 - Corretto definitivamente popup piano ferie al tap da mobile.
 - Uniformati nomi Prevenzione/Veterinaria su una riga.
 - Card piano ferie desktop più alte e testo ridotto/ellissi.
+
+
+## v36
+- Piano ferie: popup mobile reso stabile tramite data attribute.
+- Desktop: nomi ferie impilati, prima area blu poi area rossa, in ordine alfabetico.
+- Rimossa divisione destra/sinistra nelle card del piano ferie.
+
+
+## v37
+- Versione completa aggiornata.
+- Piano ferie mobile: popup al tap sulla card.
+- Piano ferie desktop: nomi uno sotto l'altro, prima area blu poi area rossa, ordine alfabetico.
+- Rimossa visualizzazione destra/sinistra nelle card del piano ferie.
+- Cache PWA aggiornata a v37.
