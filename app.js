@@ -65,7 +65,7 @@ function scheduleCloudSave(){
 
 let liveChannel=null;
 try{
-  liveChannel=new BroadcastChannel("gestione_personale_v33_live");
+  liveChannel=new BroadcastChannel("gestione_personale_v34_live");
   liveChannel.onmessage=()=>reloadFromStorage();
 }catch(e){}
 function reloadFromStorage(){
@@ -86,10 +86,10 @@ window.addEventListener("focus",reloadFromStorage);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)reloadFromStorage()});
 setInterval(()=>{if(currentUser)reloadFromStorage()},1000);
 
-const VERSION="v33";
-const STORE="gestione_personale_v33";
+const VERSION="v34";
+const STORE="gestione_personale_v34";
 const LEGACY_STORES=["gestione_personale_v26","ufficioflex_gestionale_v25","ufficioflex_gestionale_v24","ufficioflex_gestionale_v23"];
-const DATA_SCHEMA_VERSION=33;
+const DATA_SCHEMA_VERSION=34;
 const STATUS={present:{label:"In servizio",short:"S",cls:"present",color:"#16a34a"},smart:{label:"Smart working",short:"SW",cls:"smart",color:"#2563eb"},ferie:{label:"Ferie",short:"F",cls:"ferie",color:"#f97316"},malattia:{label:"Malattia",short:"M",cls:"malattia",color:"#ef4444"},permesso:{label:"Permesso",short:"P",cls:"permesso",color:"#7c3aed"},altro:{label:"Altro",short:"A",cls:"altro",color:"#64748b"}};
 const ROLE_LABELS={admin:"Super admin",employee:"Dipendente",viewer:"Dirigente",sector_manager:"Referente"};
 const INITIAL_SECTORS=[{id:"prevenzione",name:"Settore 4",hasAreas:true},{id:"territorio",name:"Settore 7",hasAreas:true}];
@@ -175,6 +175,21 @@ function areaColor(id){return db.areas.find(a=>a.id===id)?.color||"#64748b"}
 function sectorById(id){return db.sectors.find(s=>s.id===id)}
 function areasOfSector(sectorId){return db.areas.filter(a=>a.sectorId===sectorId)}
 function fullName(u){return `${u.name} ${u.surname||""}`.trim()}
+function abbreviatePart(part,isLast=false){
+  part=(part||"").trim();
+  if(!part)return "";
+  if(part.length>8)return part.slice(0,8)+".";
+  return part;
+}
+function shortPersonName(u){
+  let names=(u.name||"").trim().split(/\s+/).filter(Boolean);
+  let surnames=(u.surname||"").trim().split(/\s+/).filter(Boolean);
+  let first=abbreviatePart(names[0]||"");
+  let otherNames=names.slice(1).map(x=>x[0]?.toLowerCase()+".").join(" ");
+  let firstSurname=abbreviatePart(surnames[0]||"");
+  let otherSurnames=surnames.slice(1).map(x=>x[0]?.toLowerCase()+".").join(" ");
+  return [first,otherNames,firstSurname,otherSurnames].filter(Boolean).join(" ");
+}
 
 function makeInitials(n,s){return `${(n||"")[0]||""}${(s||"")[0]||""}`.toUpperCase()||"UT"}
 function initialCandidates(name,surname){
@@ -598,10 +613,37 @@ function rejectPasswordRequest(id){let r=db.requests.find(x=>x.id===id);if(!r)re
 
 
 
-function openPlanDay(date,sectorId,areaId){selectedPlanDate=date;selectedPlanSectorId=sectorId;selectedPlanAreaForModal=areaId;planModalOpen=true;render();}
-function closePlanDay(){planModalOpen=false;selectedPlanDate=null;render();}
-function renderPlanDayModal(){if(!planModalOpen||!selectedPlanDate)return "";let sectorId=selectedPlanSectorId||selectedSectorId||currentUser.sectorId,areaId=selectedPlanAreaForModal||selectedPlanArea||"all";let people=planPeople(sectorId,areaId);let holidays=people.filter(u=>eventFor(selectedPlanDate,u.id)==="ferie");let present=people.filter(u=>eventFor(selectedPlanDate,u.id)!=="ferie");return `<div class="modal-backdrop plan-mobile-modal" onclick="if(event.target.className.includes('modal-backdrop'))closePlanDay()"><div class="modal ios-sheet"><div class="modal-grabber"></div><div class="modal-head"><div><h2>${fmt(selectedPlanDate)}</h2><p class="small">Piano ferie - ${areaId==="all"?sectorName(sectorId):areaName(areaId)}</p></div><button class="close" onclick="closePlanDay()">Chiudi</button></div><div class="card day-list-card"><h3 class="section-title">In ferie</h3>${holidays.length?holidays.map(u=>personRow(u,selectedPlanDate,false)).join(""):`<p class="small">Nessuno in ferie.</p>`}</div><div class="card day-list-card"><h3 class="section-title">Non in ferie</h3>${present.length?present.map(u=>personRow(u,selectedPlanDate,false)).join(""):`<p class="small">Nessuno.</p>`}</div></div></div>`;}
-
+function openPlanDay(date,sectorId,areaId){
+  selectedPlanDate=date;
+  selectedPlanSectorId=sectorId;
+  selectedPlanAreaForModal=areaId;
+  planModalOpen=true;
+  render();
+}
+function closePlanDay(){
+  planModalOpen=false;
+  selectedPlanDate=null;
+  render();
+}
+function renderPlanDayModal(){
+  if(!planModalOpen||!selectedPlanDate)return "";
+  let sectorId=selectedPlanSectorId||selectedSectorId||currentUser.sectorId;
+  let areaId=selectedPlanAreaForModal||selectedPlanArea||"all";
+  let people=planPeople(sectorId,areaId);
+  let holidays=people.filter(u=>eventFor(selectedPlanDate,u.id)==="ferie");
+  let present=people.filter(u=>eventFor(selectedPlanDate,u.id)!=="ferie");
+  return `<div class="modal-backdrop plan-mobile-modal" onclick="if(event.target.classList.contains('modal-backdrop'))closePlanDay()">
+    <div class="modal ios-sheet">
+      <div class="modal-grabber"></div>
+      <div class="modal-head">
+        <div><h2>${fmt(selectedPlanDate)}</h2><p class="small">Piano ferie - ${areaId==="all"?sectorName(sectorId):areaName(areaId)}</p></div>
+        <button class="close" onclick="closePlanDay()">Chiudi</button>
+      </div>
+      <div class="card day-list-card"><h3 class="section-title">In ferie</h3>${holidays.length?holidays.map(u=>personRow(u,selectedPlanDate,false)).join(""):`<p class="small">Nessuno in ferie.</p>`}</div>
+      <div class="card day-list-card"><h3 class="section-title">Non in ferie</h3>${present.length?present.map(u=>personRow(u,selectedPlanDate,false)).join(""):`<p class="small">Nessuno.</p>`}</div>
+    </div>
+  </div>`;
+}
 function planSectorSelect(){
   if(currentUser.role!=="admin")return "";
   return `<select onchange="selectedSectorId=this.value;selectedPlanArea='all';render()">${db.sectors.map(s=>`<option value="${s.id}" ${selectedSectorId===s.id?'selected':''}>${s.name}</option>`).join("")}</select>`;
@@ -689,13 +731,13 @@ function renderPlanGrid(month,sectorId,areaId){
     let fill=pct?`<div class="plan-fill" style="width:${pct}%;background:${pctColor(pct)}"></div>`:"";
     let names="";
     if(combined){
-      let left=onHoliday.filter(u=>u.areaId==="prev").map(u=>`<div class="plan-person" style="color:${areaColor(u.areaId)}">${fullName(u)}</div>`).join("");
-      let right=onHoliday.filter(u=>u.areaId==="vet").map(u=>`<div class="plan-person" style="color:${areaColor(u.areaId)}">${fullName(u)}</div>`).join("");
+      let left=onHoliday.filter(u=>u.areaId==="prev").map(u=>`<div class="plan-person" style="color:${areaColor(u.areaId)}">${shortPersonName(u)}</div>`).join("");
+      let right=onHoliday.filter(u=>u.areaId==="vet").map(u=>`<div class="plan-person" style="color:${areaColor(u.areaId)}">${shortPersonName(u)}</div>`).join("");
       names = onHoliday.length ? `<div class="plan-card-split"><div>${left}</div><div>${right}</div></div>` : "";
     }else{
-      names = onHoliday.map(u=>`<div class="plan-person" style="color:${areaColor(u.areaId)}">${fullName(u)}</div>`).join("");
+      names = onHoliday.map(u=>`<div class="plan-person" style="color:${areaColor(u.areaId)}">${shortPersonName(u)}</div>`).join("");
     }
-    return `<button class="plan-card-white" onclick="openPlanDay(\`${date}\`,\`${sectorId}\`,\`${areaId}\`)"><div class="plan-fill-wrap">${fill}</div><div class="plan-day-num">${day}</div><div class="plan-names">${names}</div>${pct?`<div class="plan-percent">${pct}%</div>`:""}</button>`;
+    return `<button type="button" class="plan-card-white" onclick="openPlanDay(\'${date}\',\'${sectorId}\',\'${areaId}\')"><div class="plan-fill-wrap">${fill}</div><div class="plan-day-num">${day}</div><div class="plan-names">${names}</div>${pct?`<div class="plan-percent">${pct}%</div>`:""}</button>`;
   }).join("")}</div>`;
 }
 

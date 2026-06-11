@@ -64,3 +64,10 @@ service cloud.firestore {
 - Accreditamento rimosso dai predefiniti.
 - Super admin può creare nuovi settori e aree.
 - Etichetta utente aggiornata.
+
+
+## v34
+- Corretto popup al tap sulle card del piano ferie mobile.
+- Nomi abbreviati nelle card piano ferie.
+- Evitata sovrapposizione percentuale/data/barra in mobile.
+- Aumentata altezza card desktop piano ferie.

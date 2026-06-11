@@ -530,3 +530,76 @@ body.theme-employee{--bg:#f8fafc}
   .plan-card-white .plan-percent{position:absolute!important;left:6px!important;right:6px!important;bottom:18px!important;text-align:center!important;font-size:11px!important;font-weight:950!important}
   .plan-card-white .plan-fill-wrap{left:6px!important;right:6px!important;bottom:6px!important;height:7px!important}
 }
+
+/* v34 fix piano ferie leggibilità */
+.plan-card-white{
+  cursor:pointer;
+  min-height:148px!important;
+  padding:14px 14px 28px!important;
+  overflow:hidden!important;
+}
+.plan-card-white .plan-names{
+  font-size:14px!important;
+  line-height:1.28!important;
+  overflow:hidden!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+}
+.plan-card-split{
+  gap:10px!important;
+}
+.plan-card-split>div{
+  min-width:0;
+}
+.plan-person{
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  display:block;
+}
+.plan-percent{
+  bottom:24px!important;
+  background:rgba(255,255,255,.78);
+  border-radius:6px;
+  padding:0 3px;
+}
+
+@media(max-width:760px){
+  .plan-card-white{
+    aspect-ratio:1/1!important;
+    min-height:0!important;
+    padding:7px!important;
+    position:relative;
+  }
+  .plan-card-white .plan-day-num{
+    position:absolute!important;
+    left:8px!important;
+    top:7px!important;
+    font-size:15px!important;
+    line-height:1!important;
+    margin:0!important;
+    z-index:2;
+  }
+  .plan-card-white .plan-percent{
+    position:absolute!important;
+    left:5px!important;
+    right:5px!important;
+    top:50%!important;
+    bottom:auto!important;
+    transform:translateY(-50%)!important;
+    text-align:center!important;
+    font-size:12px!important;
+    background:transparent!important;
+    padding:0!important;
+    z-index:2;
+  }
+  .plan-card-white .plan-fill-wrap{
+    left:7px!important;
+    right:7px!important;
+    bottom:8px!important;
+    height:8px!important;
+  }
+  .plan-mobile-modal{
+    display:grid!important;
+  }
+}
