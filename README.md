@@ -48,3 +48,10 @@ service cloud.firestore {
   }
 }
 ```
+
+
+## v32
+- Layout mobile calendario rifatto stile app: 5 card quadrate per settimana.
+- Cambio mese sulla stessa riga.
+- Inserimento ferie/SW in cima al popup sia mobile che desktop.
+- Desktop lasciato invariato nella logica.

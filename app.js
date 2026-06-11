@@ -65,7 +65,7 @@ function scheduleCloudSave(){
 
 let liveChannel=null;
 try{
-  liveChannel=new BroadcastChannel("gestione_personale_v31_live");
+  liveChannel=new BroadcastChannel("gestione_personale_v32_live");
   liveChannel.onmessage=()=>reloadFromStorage();
 }catch(e){}
 function reloadFromStorage(){
@@ -86,10 +86,10 @@ window.addEventListener("focus",reloadFromStorage);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)reloadFromStorage()});
 setInterval(()=>{if(currentUser)reloadFromStorage()},1000);
 
-const VERSION="v31";
-const STORE="gestione_personale_v31";
+const VERSION="v32";
+const STORE="gestione_personale_v32";
 const LEGACY_STORES=["gestione_personale_v26","ufficioflex_gestionale_v25","ufficioflex_gestionale_v24","ufficioflex_gestionale_v23"];
-const DATA_SCHEMA_VERSION=31;
+const DATA_SCHEMA_VERSION=32;
 const STATUS={present:{label:"In servizio",short:"S",cls:"present",color:"#16a34a"},smart:{label:"Smart working",short:"SW",cls:"smart",color:"#2563eb"},ferie:{label:"Ferie",short:"F",cls:"ferie",color:"#f97316"},malattia:{label:"Malattia",short:"M",cls:"malattia",color:"#ef4444"},permesso:{label:"Permesso",short:"P",cls:"permesso",color:"#7c3aed"},altro:{label:"Altro",short:"A",cls:"altro",color:"#64748b"}};
 const ROLE_LABELS={admin:"Super admin",employee:"Dipendente",viewer:"Dirigente",sector_manager:"Referente"};
 const INITIAL_SECTORS=[{id:"prevenzione",name:"Prevenzione",hasAreas:true},{id:"territorio",name:"Territorio",hasAreas:false},{id:"accreditamento",name:"Accreditamento",hasAreas:false}];
@@ -385,13 +385,37 @@ function changeMonth(delta){viewMonth+=delta;if(viewMonth<0){viewMonth=11;viewYe
 function openDay(date){selectedDate=date;modalOpen=true;render()}
 function closeModal(){modalOpen=false;render()}
 function renderCalendar(){let days="",hmap=holidaysFor(viewYear),blanks=(new Date(viewYear,viewMonth,1).getDay()+6)%7;for(let i=0;i<Math.min(blanks,5);i++)days+=`<div class="day blank"><div class="empty-day">—</div></div>`;for(let d=1;d<=daysInMonth();d++){let date=dateKey(d),dow=new Date(date+"T00:00:00").getDay();if(dow===0||dow===6)continue;let hol=hmap[date],errs=smartRuleErrorsForDay(date),abs=hol?[]:visibleUsers().filter(u=>isAbsent(eventFor(date,u.id))),dots=abs.map(u=>{let st=eventFor(date,u.id),s=STATUS[st];return`<span class="person-dot" title="${fullName(u)} - ${s.label}" style="background:${s.color}">${s.short}</span>`}).join("");days+=`<button class="day ${selectedDate===date?'selected':''} ${hol?'holiday':''} ${errs.length?'rule-error':''}" onclick="openDay('${date}')"><div class="day-num">${d}</div>${errs.length?`<div class="danger-mark">!</div>`:""}${hol?`<div class="holiday-name">${hol}</div>`:""}<div class="dot-row">${dots||`<span class="empty-day">${hol?"Festivo":"Nessun assente"}</span>`}</div></button>`}let errs=smartRuleErrorsForDay(selectedDate),modal=modalOpen?renderDayModal():"";layout(`<div class="top"><h1>${contextTitle()}</h1><div class="sector-filter">${selectorControls()}</div></div>${errs.length?`<div class="warning">⚠️ ${errs.join("<br>")}</div>`:""}<div class="calendar-wrap"><div class="calendar-toolbar"><button class="btn secondary" onclick="changeMonth(-1)">← Mese precedente</button><div class="month-title">${monthName()}</div><button class="btn secondary" onclick="changeMonth(1)">Mese successivo →</button></div><div class="calendar-head"><div>LUN</div><div>MAR</div><div>MER</div><div>GIO</div><div>VEN</div></div><div class="calendar">${days}</div></div><div class="card" style="margin-top:16px"><div class="top"><h3 class="section-title">Riepilogo ${fmt(selectedDate)}</h3><span class="pill">${isHoliday(selectedDate)||"Giorno lavorativo"}</span></div>${isBlockedDay(selectedDate)?`<p class="small">Giorno non lavorativo.</p>`:visibleUsers().map(u=>personRow(u,selectedDate,canModifyUserEvents(u.id))).join("")}</div>${modal}`)}
-function renderDayModal(){let hol=isHoliday(selectedDate)||isWeekend(selectedDate),errs=smartRuleErrorsForDay(selectedDate),people=isBlockedDay(selectedDate)?[]:visibleUsers(),canAdd=!isBlockedDay(selectedDate)&&people.some(u=>canModifyUserEvents(u.id));return`<div class="modal-backdrop" onclick="if(event.target.className==='modal-backdrop')closeModal()"><div class="modal"><div class="modal-head"><h2>Riepilogo ${fmt(selectedDate)}</h2><button class="close" onclick="closeModal()">Chiudi</button></div>${hol?`<div class="warning">Giorno non lavorativo. Non puoi inserire nulla.</div>`:""}${errs.length?`<div class="warning">⚠️ ${errs.join("<br>")}</div>`:""}<div class="card">${people.length?people.map(u=>personRow(u,selectedDate,canModifyUserEvents(u.id))).join(""):`<p class="small">Nessun riepilogo.</p>`}</div>${canAdd?renderInlineEventForm():""}</div></div>`}
+function renderDayModal(){
+  let hol=isHoliday(selectedDate)||isWeekend(selectedDate),
+      errs=smartRuleErrorsForDay(selectedDate),
+      people=isBlockedDay(selectedDate)?[]:visibleUsers(),
+      canAdd=!isBlockedDay(selectedDate)&&people.some(u=>canModifyUserEvents(u.id));
+  return `<div class="modal-backdrop" onclick="if(event.target.className==='modal-backdrop')closeModal()">
+    <div class="modal ios-sheet">
+      <div class="modal-grabber"></div>
+      <div class="modal-head">
+        <div>
+          <h2>${fmt(selectedDate)}</h2>
+          <p class="small modal-subtitle">${hol?"Giorno non lavorativo":"Riepilogo presenze e assenze"}</p>
+        </div>
+        <button class="close" onclick="closeModal()">Chiudi</button>
+      </div>
+      ${hol?`<div class="warning">Giorno non lavorativo. Non puoi inserire nulla.</div>`:""}
+      ${errs.length?`<div class="warning">⚠️ ${errs.join("<br>")}</div>`:""}
+      ${canAdd?`<div class="quick-action">${renderInlineEventForm()}</div>`:""}
+      <div class="card day-list-card">
+        <h3 class="section-title">Chi c'è e chi no</h3>
+        ${people.length?people.map(u=>personRow(u,selectedDate,canModifyUserEvents(u.id))).join(""):`<p class="small">Nessun riepilogo.</p>`}
+      </div>
+    </div>
+  </div>`;
+}
 function renderInlineEventForm(){
   let people=visibleUsers().filter(u=>canModifyUserEvents(u.id));
   if(currentUser.role==="employee"){
-    return `<div class="card"><h3 class="section-title">Inserisci o modifica la tua giornata</h3><div class="form-grid"><div><label>Tipo</label><select id="eventStatus"><option value="smart">Smart working</option><option value="ferie">Ferie</option><option value="malattia">Malattia</option><option value="permesso">Permesso</option><option value="altro">Altro</option><option value="present">In servizio / rimuovi assenza</option></select></div></div><button class="btn primary" onclick="saveEventFromPopup()">Salva</button><p id="eventError" class="error"></p></div>`;
+    return `<div class="card insert-card"><h3 class="section-title">Inserisci / modifica</h3><div class="quick-form"><select id="eventStatus"><option value="smart">Smart working</option><option value="ferie">Ferie</option><option value="malattia">Malattia</option><option value="permesso">Permesso</option><option value="altro">Altro</option><option value="present">In servizio / rimuovi assenza</option></select><button class="btn primary" onclick="saveEventFromPopup()">Salva</button></div><p id="eventError" class="error"></p></div>`;
   }
-  return `<div class="card"><h3 class="section-title">Aggiungi o modifica giornata</h3><div class="form-grid"><div><label>Dipendente</label><select id="eventUser">${people.map(u=>`<option value="${u.id}">${fullName(u)} - ${areaName(u.areaId)}</option>`).join("")}</select></div><div><label>Tipo</label><select id="eventStatus"><option value="smart">Smart working</option><option value="ferie">Ferie</option><option value="malattia">Malattia</option><option value="permesso">Permesso</option><option value="altro">Altro</option><option value="present">In servizio / rimuovi assenza</option></select></div></div><button class="btn primary" onclick="saveEventFromPopup()">Salva</button><p id="eventError" class="error"></p></div>`;
+  return `<div class="card insert-card"><h3 class="section-title">Inserisci / modifica</h3><div class="quick-form manager"><select id="eventUser">${people.map(u=>`<option value="${u.id}">${fullName(u)} - ${areaName(u.areaId)}</option>`).join("")}</select><select id="eventStatus"><option value="smart">Smart working</option><option value="ferie">Ferie</option><option value="malattia">Malattia</option><option value="permesso">Permesso</option><option value="altro">Altro</option><option value="present">In servizio / rimuovi assenza</option></select><button class="btn primary" onclick="saveEventFromPopup()">Salva</button></div><p id="eventError" class="error"></p></div>`;
 }
 function saveEventFromPopup(){
   let userId=document.getElementById("eventUser")?document.getElementById("eventUser").value:currentUser.id;
