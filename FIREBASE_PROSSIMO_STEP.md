@@ -1,24 +1,10 @@
-# Prossimo step: dati condivisi online
+# Firebase prossimo step
 
-Per rendere i dati condivisi tra più persone, GitHub Pages non basta.
+La v31 usa ancora un documento unico Firestore:
 
-Serve collegare l'app a un database, per esempio Firebase Firestore.
+`gestionePersonale/main`
 
-Schema dati consigliato:
-
-- `users`
-- `events`
-- `notifications`
-- `requests`
-- `audit`
-- `settings/sectors`
-- `settings/areas`
-- `ruleViolations`
-
-Regole:
-- super admin: legge/scrive tutto
-- referente: legge il settore, modifica solo aree abilitate
-- dipendente: legge settore, modifica solo se stesso
-- dirigente: sola lettura, nessuna notifica
-
-Questa parte va fatta quando avrai deciso di passare dal prototipo statico al gestionale online reale.
+Dopo i test conviene passare a:
+- Authentication reale
+- collezioni separate
+- regole sicure per super admin, referente, dirigente e dipendente

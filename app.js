@@ -65,7 +65,7 @@ function scheduleCloudSave(){
 
 let liveChannel=null;
 try{
-  liveChannel=new BroadcastChannel("gestione_personale_v30_live");
+  liveChannel=new BroadcastChannel("gestione_personale_v31_live");
   liveChannel.onmessage=()=>reloadFromStorage();
 }catch(e){}
 function reloadFromStorage(){
@@ -86,10 +86,10 @@ window.addEventListener("focus",reloadFromStorage);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)reloadFromStorage()});
 setInterval(()=>{if(currentUser)reloadFromStorage()},1000);
 
-const VERSION="v30";
-const STORE="gestione_personale_v30";
+const VERSION="v31";
+const STORE="gestione_personale_v31";
 const LEGACY_STORES=["gestione_personale_v26","ufficioflex_gestionale_v25","ufficioflex_gestionale_v24","ufficioflex_gestionale_v23"];
-const DATA_SCHEMA_VERSION=30;
+const DATA_SCHEMA_VERSION=31;
 const STATUS={present:{label:"In servizio",short:"S",cls:"present",color:"#16a34a"},smart:{label:"Smart working",short:"SW",cls:"smart",color:"#2563eb"},ferie:{label:"Ferie",short:"F",cls:"ferie",color:"#f97316"},malattia:{label:"Malattia",short:"M",cls:"malattia",color:"#ef4444"},permesso:{label:"Permesso",short:"P",cls:"permesso",color:"#7c3aed"},altro:{label:"Altro",short:"A",cls:"altro",color:"#64748b"}};
 const ROLE_LABELS={admin:"Super admin",employee:"Dipendente",viewer:"Dirigente",sector_manager:"Referente"};
 const INITIAL_SECTORS=[{id:"prevenzione",name:"Prevenzione",hasAreas:true},{id:"territorio",name:"Territorio",hasAreas:false},{id:"accreditamento",name:"Accreditamento",hasAreas:false}];
@@ -485,6 +485,7 @@ function renderNotifications(){markNotificationsRead();let notes=visibleNotifica
 
 
 
+
 function renderAdmin(){
   const pending=pendingRegistrations();
   let newUsers=pending.map(u=>`<div class="person">
@@ -517,7 +518,9 @@ function renderAdmin(){
       <div class="card"><h3 class="section-title">Registrazioni da approvare</h3>${newUsers||`<p class="small">Nessuna registrazione in attesa.</p>`}</div>
       <div class="card"><h3 class="section-title">Password e notifiche</h3>${pwdReqs||""}${adminNotes||`<p class="small">Nessuna richiesta password o notifica.</p>`}</div>
     </div>
-    ${renderSwitchUserPanel()}<div class="card"><h3 class="section-title">Backup dati</h3><div class="actions"><button class="btn primary" onclick="exportData()">Esporta backup JSON</button><button class="btn secondary" onclick="triggerImportData()">Importa backup JSON</button></div><p class="small">Usalo prima di pubblicare nuove versioni o modificare logiche/CSS.</p></div>${renderSwitchUserPanel()}<div class="card"><h3 class="section-title">Backup dati</h3><div class="actions"><button class="btn primary" onclick="exportData()">Esporta backup JSON</button><button class="btn secondary" onclick="triggerImportData()">Importa backup JSON</button></div><p class="small">Usalo prima di pubblicare nuove versioni o modificare logiche/CSS.</p></div>${renderSwitchUserPanel()}<div class="card"><h3 class="section-title">Storico</h3>${audit}<button class="btn danger" onclick="resetDemo()">Reset demo</button></div>`);
+    ${renderSwitchUserPanel()}
+    <div class="card"><h3 class="section-title">Backup dati</h3><div class="actions"><button class="btn primary" onclick="exportData()">Esporta backup JSON</button><button class="btn secondary" onclick="triggerImportData()">Importa backup JSON</button></div><p class="small">Usalo prima di pubblicare nuove versioni o modificare logiche/CSS.</p></div>
+    <div class="card"><h3 class="section-title">Storico</h3>${audit}<button class="btn danger" onclick="resetDemo()">Reset demo</button></div>`);
 }
 function approveRegistration(userId){
   let u=db.users.find(x=>x.id===userId);
