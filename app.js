@@ -65,7 +65,7 @@ function scheduleCloudSave(){
 
 let liveChannel=null;
 try{
-  liveChannel=new BroadcastChannel("gestione_personale_v29_live");
+  liveChannel=new BroadcastChannel("gestione_personale_v30_live");
   liveChannel.onmessage=()=>reloadFromStorage();
 }catch(e){}
 function reloadFromStorage(){
@@ -86,10 +86,10 @@ window.addEventListener("focus",reloadFromStorage);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)reloadFromStorage()});
 setInterval(()=>{if(currentUser)reloadFromStorage()},1000);
 
-const VERSION="v29";
-const STORE="gestione_personale_v29";
+const VERSION="v30";
+const STORE="gestione_personale_v30";
 const LEGACY_STORES=["gestione_personale_v26","ufficioflex_gestionale_v25","ufficioflex_gestionale_v24","ufficioflex_gestionale_v23"];
-const DATA_SCHEMA_VERSION=29;
+const DATA_SCHEMA_VERSION=30;
 const STATUS={present:{label:"In servizio",short:"S",cls:"present",color:"#16a34a"},smart:{label:"Smart working",short:"SW",cls:"smart",color:"#2563eb"},ferie:{label:"Ferie",short:"F",cls:"ferie",color:"#f97316"},malattia:{label:"Malattia",short:"M",cls:"malattia",color:"#ef4444"},permesso:{label:"Permesso",short:"P",cls:"permesso",color:"#7c3aed"},altro:{label:"Altro",short:"A",cls:"altro",color:"#64748b"}};
 const ROLE_LABELS={admin:"Super admin",employee:"Dipendente",viewer:"Dirigente",sector_manager:"Referente"};
 const INITIAL_SECTORS=[{id:"prevenzione",name:"Prevenzione",hasAreas:true},{id:"territorio",name:"Territorio",hasAreas:false},{id:"accreditamento",name:"Accreditamento",hasAreas:false}];
@@ -111,7 +111,11 @@ const seedUsers=[
 {id:"dir-acc",email:"dirigente.accreditamento@demo.it",password:"1234",name:"Dirigente",surname:"Accreditamento",role:"viewer",sectorId:"accreditamento",areaId:"accreditamento",visibleSectorIds:["accreditamento"],editableAreaIds:[],c01:0,c02:0,approved:true,initials:"DA",color:"#dc2626"}
 ];
 const seedEvents={"2025-06-10":{"pre-1":"ferie","pre-3":"ferie","pre-2":"ferie"},"2025-06-11":{"pre-4":"ferie"},"2025-07-01":{"pre-1":"smart","pre-2":"ferie"},"2025-07-02":{"pre-4":"smart"},"2025-07-15":{"pre-1":"smart","pre-3":"smart","pre-2":"smart"},"2025-08-04":{"pre-4":"ferie","pre-6":"ferie"},"2025-09-02":{"pre-1":"ferie"},"2025-12-22":{"pre-2":"ferie","pre-3":"ferie"},"2026-01-05":{"pre-4":"ferie"},"2026-04-02":{"pre-1":"ferie","pre-6":"ferie"}};
-let db=loadDb(),currentUser=null,page="calendar",selectedDate="2025-07-15",viewYear=2025,viewMonth=6,modalOpen=false,selectedSectorId="prevenzione",selectedAreaFilter="all",selectedEmployeeId=null,selectedPlanPeriod="estate",selectedPlanArea="all",app=document.getElementById("app");
+let db=loadDb();
+let currentUser=null;
+let adminUser=null;
+let mobileMenuOpen=false;
+let page="calendar",selectedDate="2025-07-15",viewYear=2025,viewMonth=6,modalOpen=false,selectedSectorId="prevenzione",selectedAreaFilter="all",selectedEmployeeId=null,selectedPlanPeriod="estate",selectedPlanArea="all",app=document.getElementById("app");
 function freshDb(){return{meta:{version:VERSION,schema:DATA_SCHEMA_VERSION},sectors:INITIAL_SECTORS,areas:INITIAL_AREAS,users:seedUsers,events:seedEvents,requests:[],notifications:[],audit:[],lastRead:{},ruleViolations:{}}}
 function loadDb(){
   try{
@@ -236,7 +240,6 @@ function notificationText(actor,target,status,date){
   return `${fullName(actor)} ${action} di ${fullName(target)} per il giorno ${fmt(date)}`;
 }
 
-function validateSmartRule(date,userId){if(isBlockedDay(date))return{ok:false,message:"Non puoi inserire smart working su sabato, domenica o festivo."};let u=db.users.find(x=>x.id===userId);if(!u)return{ok:false,message:"Dipendente non trovato."};let wk=weekDates(date),employeeSmart=wk.filter(d=>eventFor(d,userId)==="smart"&&d!==date);if(employeeSmart.length)return{ok:false,message:`${fullName(u)} ha già uno smart working nella settimana (${fmt(employeeSmart[0])}).`};let sectorSmart=db.users.filter(x=>x.approved&&isWorker(x)&&x.sectorId===u.sectorId&&x.id!==userId&&eventFor(date,x.id)==="smart").length;if(sectorSmart>=3)return{ok:false,message:"Limite settore superato: massimo 3 smart working complessivi nello stesso giorno."};let areaSmartSameDay=db.users.filter(x=>x.approved&&isWorker(x)&&x.areaId===u.areaId&&x.id!==userId&&eventFor(date,x.id)==="smart").length;if(areaSmartSameDay>=2)return{ok:false,message:"Limite area superato: massimo 2 smart working della stessa area nello stesso giorno."};let hasDouble=wk.some(d=>d!==date&&db.users.filter(x=>x.approved&&isWorker(x)&&x.areaId===u.areaId&&eventFor(d,x.id)==="smart").length>=2);if(hasDouble&&areaSmartSameDay>=1)return{ok:false,message:"Questa area ha già usato il giorno settimanale con 2 persone in smart working. Negli altri giorni massimo 1."};return{ok:true,message:"OK"}}
 function smartRuleWarnings(date,userId){
   let warnings=[];
   if(isBlockedDay(date))return warnings;
@@ -368,6 +371,7 @@ function bellButton(){
 function contextTitle(){return`GESTIONALE - ${sectorName(selectedSectorId)}${selectedAreaFilter!=="all"?" / "+areaName(selectedAreaFilter):""}`}
 function selectorControls(){if(currentUser.role==="admin")return`<div class="sector-filter"><label>Settore</label><select onchange="selectedSectorId=this.value;selectedAreaFilter='all';selectedPlanArea='all';render()">${db.sectors.map(s=>`<option value="${s.id}" ${selectedSectorId===s.id?'selected':''}>${s.name}</option>`).join("")}</select><label>Area</label><select onchange="selectedAreaFilter=this.value;selectedPlanArea=this.value;render()"><option value="all" ${selectedAreaFilter==="all"?'selected':''}>Tutte</option>${areasOfSector(selectedSectorId).map(a=>`<option value="${a.id}" ${selectedAreaFilter===a.id?'selected':''}>${a.name}</option>`).join("")}</select></div>`;if(currentUser.role==="viewer"){let sectors=db.sectors.filter(s=>(currentUser.visibleSectorIds||[]).includes(s.id));return`<div class="sector-filter"><label>Settore</label><select onchange="selectedSectorId=this.value;selectedAreaFilter='all';selectedPlanArea='all';render()">${sectors.map(s=>`<option value="${s.id}" ${selectedSectorId===s.id?'selected':''}>${s.name}</option>`).join("")}</select></div>`}return""}
 function layout(content){
+  if(typeof currentUser==="undefined"||!currentUser){return renderLogin();}
   applyTheme();
   document.body.classList.remove("page-calendar","page-plan","page-profile","page-people","page-registercolleague","page-reports","page-admin","page-notifications");
   document.body.classList.add("page-"+page);
@@ -659,6 +663,6 @@ function triggerImportData(){
   };
   input.click();
 }
-function render(){if(!currentUser)return renderLogin();if(page==="calendar")return renderCalendar();if(page==="plan")return renderPlan();if(page==="profile")return renderProfile();if(page==="notifications")return renderNotifications();if(page==="people")return renderPeople();if(page==="registercolleague")return renderRegisterColleague();if(page==="reports")return renderReports();if(page==="admin")return renderAdmin(); setTimeout(afterRender,0)}
+function render(){if(!currentUser)return renderLogin();if(page==="calendar")return renderCalendar();if(page==="plan")return renderPlan();if(page==="profile")return renderProfile();if(page==="notifications")return renderNotifications();if(page==="people")return renderPeople();if(page==="registercolleague")return renderRegisterColleague();if(page==="reports")return renderReports();if(page==="admin")return renderAdmin()}
 initFirebaseSync();
 renderLogin();
