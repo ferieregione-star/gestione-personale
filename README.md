@@ -71,3 +71,9 @@ service cloud.firestore {
 - Nomi abbreviati nelle card piano ferie.
 - Evitata sovrapposizione percentuale/data/barra in mobile.
 - Aumentata altezza card desktop piano ferie.
+
+
+## v35
+- Corretto definitivamente popup piano ferie al tap da mobile.
+- Uniformati nomi Prevenzione/Veterinaria su una riga.
+- Card piano ferie desktop più alte e testo ridotto/ellissi.

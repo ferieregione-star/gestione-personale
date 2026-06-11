@@ -65,7 +65,7 @@ function scheduleCloudSave(){
 
 let liveChannel=null;
 try{
-  liveChannel=new BroadcastChannel("gestione_personale_v34_live");
+  liveChannel=new BroadcastChannel("gestione_personale_v35_live");
   liveChannel.onmessage=()=>reloadFromStorage();
 }catch(e){}
 function reloadFromStorage(){
@@ -86,10 +86,10 @@ window.addEventListener("focus",reloadFromStorage);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)reloadFromStorage()});
 setInterval(()=>{if(currentUser)reloadFromStorage()},1000);
 
-const VERSION="v34";
-const STORE="gestione_personale_v34";
+const VERSION="v35";
+const STORE="gestione_personale_v35";
 const LEGACY_STORES=["gestione_personale_v26","ufficioflex_gestionale_v25","ufficioflex_gestionale_v24","ufficioflex_gestionale_v23"];
-const DATA_SCHEMA_VERSION=34;
+const DATA_SCHEMA_VERSION=35;
 const STATUS={present:{label:"In servizio",short:"S",cls:"present",color:"#16a34a"},smart:{label:"Smart working",short:"SW",cls:"smart",color:"#2563eb"},ferie:{label:"Ferie",short:"F",cls:"ferie",color:"#f97316"},malattia:{label:"Malattia",short:"M",cls:"malattia",color:"#ef4444"},permesso:{label:"Permesso",short:"P",cls:"permesso",color:"#7c3aed"},altro:{label:"Altro",short:"A",cls:"altro",color:"#64748b"}};
 const ROLE_LABELS={admin:"Super admin",employee:"Dipendente",viewer:"Dirigente",sector_manager:"Referente"};
 const INITIAL_SECTORS=[{id:"prevenzione",name:"Settore 4",hasAreas:true},{id:"territorio",name:"Settore 7",hasAreas:true}];
@@ -175,7 +175,7 @@ function areaColor(id){return db.areas.find(a=>a.id===id)?.color||"#64748b"}
 function sectorById(id){return db.sectors.find(s=>s.id===id)}
 function areasOfSector(sectorId){return db.areas.filter(a=>a.sectorId===sectorId)}
 function fullName(u){return `${u.name} ${u.surname||""}`.trim()}
-function abbreviatePart(part,isLast=false){
+function abbreviatePart(part){
   part=(part||"").trim();
   if(!part)return "";
   if(part.length>8)return part.slice(0,8)+".";
@@ -185,48 +185,11 @@ function shortPersonName(u){
   let names=(u.name||"").trim().split(/\s+/).filter(Boolean);
   let surnames=(u.surname||"").trim().split(/\s+/).filter(Boolean);
   let first=abbreviatePart(names[0]||"");
-  let otherNames=names.slice(1).map(x=>x[0]?.toLowerCase()+".").join(" ");
+  let otherNames=names.slice(1).map(x=>(x[0]||"").toLowerCase()+".").join(" ");
   let firstSurname=abbreviatePart(surnames[0]||"");
-  let otherSurnames=surnames.slice(1).map(x=>x[0]?.toLowerCase()+".").join(" ");
+  let otherSurnames=surnames.slice(1).map(x=>(x[0]||"").toLowerCase()+".").join(" ");
   return [first,otherNames,firstSurname,otherSurnames].filter(Boolean).join(" ");
 }
-
-function makeInitials(n,s){return `${(n||"")[0]||""}${(s||"")[0]||""}`.toUpperCase()||"UT"}
-function initialCandidates(name,surname){
-  name=(name||"").trim().toUpperCase();
-  surname=(surname||"").trim().toUpperCase();
-  let out=[];
-  if(name && surname){
-    for(let i=0;i<surname.length;i++)out.push(name[0]+surname[i]);
-    for(let i=1;i<name.length;i++)out.push(name.slice(0,2));
-    for(let i=1;i<name.length;i++)out.push(name[0]+name[i]);
-    out.push(surname[0]+name[0]);
-  }
-  if(name.length>=2)out.push(name.slice(0,2));
-  if(surname.length>=2)out.push(surname.slice(0,2));
-  out.push((name[0]||"U")+(surname[0]||"T"));
-  return [...new Set(out.filter(x=>x.length===2))];
-}
-function createInitialsForUser(name,surname,excludeId=null){
-  const used=new Set(db.users.filter(u=>u.id!==excludeId).map(u=>u.initials));
-  const candidates=initialCandidates(name,surname);
-  for(const c of candidates){if(!used.has(c))return c}
-  let n=1;
-  while(used.has(String(n).padStart(2,"0")))n++;
-  return String(n).padStart(2,"0");
-}
-function refreshAllInitials(){
-  const seen=new Set();
-  db.users.forEach(u=>{
-    const candidates=initialCandidates(u.name,u.surname);
-    let chosen=candidates.find(c=>!seen.has(c)) || candidates[0] || "UT";
-    let i=1;
-    while(seen.has(chosen)){chosen=String(i++).padStart(2,"0")}
-    u.initials=chosen;
-    seen.add(chosen);
-  });
-}
-
 function uid(prefix="id"){return prefix+"-"+Date.now()+"-"+Math.floor(Math.random()*9999)}
 function fmt(date){return date.split("-").reverse().join("/")}
 function dateKey(day){return`${viewYear}-${String(viewMonth+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`}
@@ -632,7 +595,7 @@ function renderPlanDayModal(){
   let people=planPeople(sectorId,areaId);
   let holidays=people.filter(u=>eventFor(selectedPlanDate,u.id)==="ferie");
   let present=people.filter(u=>eventFor(selectedPlanDate,u.id)!=="ferie");
-  return `<div class="modal-backdrop plan-mobile-modal" onclick="if(event.target.classList.contains('modal-backdrop'))closePlanDay()">
+  return `<div class="modal-backdrop plan-day-backdrop" onclick="if(event.target.classList.contains('plan-day-backdrop'))closePlanDay()">
     <div class="modal ios-sheet">
       <div class="modal-grabber"></div>
       <div class="modal-head">
@@ -640,7 +603,7 @@ function renderPlanDayModal(){
         <button class="close" onclick="closePlanDay()">Chiudi</button>
       </div>
       <div class="card day-list-card"><h3 class="section-title">In ferie</h3>${holidays.length?holidays.map(u=>personRow(u,selectedPlanDate,false)).join(""):`<p class="small">Nessuno in ferie.</p>`}</div>
-      <div class="card day-list-card"><h3 class="section-title">Non in ferie</h3>${present.length?present.map(u=>personRow(u,selectedPlanDate,false)).join(""):`<p class="small">Nessuno.</p>`}</div>
+      <div class="card day-list-card"><h3 class="section-title">In servizio</h3>${present.length?present.map(u=>personRow(u,selectedPlanDate,false)).join(""):`<p class="small">Nessuno in servizio.</p>`}</div>
     </div>
   </div>`;
 }

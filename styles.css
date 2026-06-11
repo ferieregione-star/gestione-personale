@@ -603,3 +603,64 @@ body.theme-employee{--bg:#f8fafc}
     display:grid!important;
   }
 }
+
+/* v35 piano ferie popup + nomi su una riga */
+.plan-card-white{
+  min-height:170px!important;
+  overflow:hidden!important;
+}
+.plan-card-split{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:8px!important;
+}
+.plan-card-split>div{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+.plan-card-split>div:first-child{
+  padding-right:8px!important;
+}
+.plan-card-split>div:last-child{
+  padding-left:8px!important;
+  text-align:right!important;
+}
+.plan-person{
+  font-size:12.5px!important;
+  line-height:1.22!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  max-width:100%!important;
+}
+.plan-card-white .plan-names{
+  font-size:12.5px!important;
+  line-height:1.22!important;
+  overflow:hidden!important;
+}
+.plan-day-backdrop{
+  z-index:120!important;
+}
+.plan-day-backdrop .modal{
+  z-index:121!important;
+}
+
+@media(max-width:760px){
+  .plan-card-white{
+    min-height:0!important;
+    touch-action:manipulation;
+  }
+  .plan-card-white .plan-percent{
+    pointer-events:none;
+  }
+  .plan-card-white .plan-fill-wrap{
+    pointer-events:none;
+  }
+  .plan-card-white .plan-day-num{
+    pointer-events:none;
+  }
+  .plan-day-backdrop{
+    display:grid!important;
+    place-items:end stretch!important;
+    padding:0!important;
+  }
+}
