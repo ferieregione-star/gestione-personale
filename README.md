@@ -55,3 +55,12 @@ service cloud.firestore {
 - Cambio mese sulla stessa riga.
 - Inserimento ferie/SW in cima al popup sia mobile che desktop.
 - Desktop lasciato invariato nella logica.
+
+
+## v33
+- Piano ferie mobile come calendario: 5 card per riga, barra e percentuale; dettaglio al tap.
+- Settore 4: aree Prevenzione/Veterinaria.
+- Settore 7: aree Territorio/Convenzionata.
+- Accreditamento rimosso dai predefiniti.
+- Super admin può creare nuovi settori e aree.
+- Etichetta utente aggiornata.
