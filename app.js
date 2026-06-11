@@ -1,8 +1,72 @@
 
 let lastDbSnapshot="";
+
+// ===== Firebase live sync v28 =====
+// Prima versione multiutente: sincronizza l'intero gestionale in un documento Firestore.
+// Documento: gestionePersonale/main
+let cloudDb=null;
+let cloudDocRef=null;
+let cloudReady=false;
+let cloudSaving=false;
+let cloudSaveTimer=null;
+let cloudApplying=false;
+
+function initFirebaseSync(){
+  try{
+    if(!window.firebase || !window.GESTIONE_FIREBASE_CONFIG){
+      console.warn("Firebase non configurato: uso dati locali.");
+      return;
+    }
+    if(!firebase.apps.length)firebase.initializeApp(window.GESTIONE_FIREBASE_CONFIG);
+    cloudDb=firebase.firestore();
+    cloudDocRef=cloudDb.collection("gestionePersonale").doc("main");
+
+    cloudDocRef.onSnapshot(async snap=>{
+      if(cloudSaving)return;
+      if(!snap.exists){
+        await cloudDocRef.set({db:migrateDb(db),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+        cloudReady=true;
+        return;
+      }
+      const data=snap.data();
+      if(!data || !data.db)return;
+      cloudApplying=true;
+      db=migrateDb(data.db);
+      const raw=JSON.stringify(db);
+      localStorage.setItem(STORE,raw);
+      lastDbSnapshot=raw;
+      if(currentUser){
+        currentUser=db.users.find(u=>u.id===currentUser.id)||currentUser;
+        render();
+      }
+      cloudApplying=false;
+      cloudReady=true;
+    },err=>{
+      console.error("Errore Firestore:",err);
+      alert("Errore collegamento Firestore. Controlla le regole Firebase.");
+    });
+  }catch(e){
+    console.error("Firebase init error:",e);
+  }
+}
+function scheduleCloudSave(){
+  if(cloudApplying || !cloudDocRef)return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer=setTimeout(async()=>{
+    try{
+      cloudSaving=true;
+      await cloudDocRef.set({db:migrateDb(db),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    }catch(e){
+      console.error("Salvataggio cloud fallito:",e);
+    }finally{
+      setTimeout(()=>cloudSaving=false,300);
+    }
+  },250);
+}
+
 let liveChannel=null;
 try{
-  liveChannel=new BroadcastChannel("gestione_personale_v27_live");
+  liveChannel=new BroadcastChannel("gestione_personale_v28_live");
   liveChannel.onmessage=()=>reloadFromStorage();
 }catch(e){}
 function reloadFromStorage(){
@@ -23,10 +87,10 @@ window.addEventListener("focus",reloadFromStorage);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)reloadFromStorage()});
 setInterval(()=>{if(currentUser)reloadFromStorage()},1000);
 
-const VERSION="v27";
-const STORE="gestione_personale_v27";
+const VERSION="v28";
+const STORE="gestione_personale_v28";
 const LEGACY_STORES=["gestione_personale_v26","ufficioflex_gestionale_v25","ufficioflex_gestionale_v24","ufficioflex_gestionale_v23"];
-const DATA_SCHEMA_VERSION=27;
+const DATA_SCHEMA_VERSION=28;
 const STATUS={present:{label:"In servizio",short:"S",cls:"present",color:"#16a34a"},smart:{label:"Smart working",short:"SW",cls:"smart",color:"#2563eb"},ferie:{label:"Ferie",short:"F",cls:"ferie",color:"#f97316"},malattia:{label:"Malattia",short:"M",cls:"malattia",color:"#ef4444"},permesso:{label:"Permesso",short:"P",cls:"permesso",color:"#7c3aed"},altro:{label:"Altro",short:"A",cls:"altro",color:"#64748b"}};
 const ROLE_LABELS={admin:"Super admin",employee:"Dipendente",viewer:"Dirigente",sector_manager:"Referente"};
 const INITIAL_SECTORS=[{id:"prevenzione",name:"Prevenzione",hasAreas:true},{id:"territorio",name:"Territorio",hasAreas:false},{id:"accreditamento",name:"Accreditamento",hasAreas:false}];
@@ -83,7 +147,7 @@ function migrateDb(data){
   data.ruleViolations=data.ruleViolations||{};
   return data;
 }
-function saveDb(){const raw=JSON.stringify(db);localStorage.setItem(STORE,raw);lastDbSnapshot=raw;try{if(liveChannel)liveChannel.postMessage({type:"update",t:Date.now()})}catch(e){}}
+function saveDb(){const raw=JSON.stringify(db);localStorage.setItem(STORE,raw);lastDbSnapshot=raw;try{if(liveChannel)liveChannel.postMessage({type:"update",t:Date.now()})}catch(e){}; scheduleCloudSave();}
 function resetDemo(){localStorage.removeItem(STORE);db=freshDb();currentUser=null;renderLogin("Demo resettata.")}
 function sectorName(id){return id==="*"?"Tutti":(db.sectors.find(s=>s.id===id)?.name||id)}
 function areaName(id){return id==="all"?"Tutte":id==="*"?"Tutte":(db.areas.find(a=>a.id===id)?.name||id)}
@@ -546,4 +610,5 @@ function triggerImportData(){
   input.click();
 }
 function render(){if(!currentUser)return renderLogin();if(page==="calendar")return renderCalendar();if(page==="plan")return renderPlan();if(page==="profile")return renderProfile();if(page==="notifications")return renderNotifications();if(page==="people")return renderPeople();if(page==="registercolleague")return renderRegisterColleague();if(page==="reports")return renderReports();if(page==="admin")return renderAdmin(); setTimeout(afterRender,0)}
+initFirebaseSync();
 renderLogin();

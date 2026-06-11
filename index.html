@@ -1,12 +1,27 @@
 <!doctype html>
-<html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Gestione Personale</title><link rel="stylesheet" href="styles.css">
+<html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Gestione Personale Firebase Live</title><link rel="stylesheet" href="styles.css">
   <meta name="theme-color" content="#0b1f3a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Gestione Personale">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-</head><body><div id="app"></div><script src="app.js"></script>
+</head><body><div id="app"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script>
+  window.GESTIONE_FIREBASE_CONFIG = {
+    apiKey: "AIzaSyCkMCGwXiUkoQIKlKWwrzpRvT03LaeE248",
+    authDomain: "gestione-personale-e2fd0.firebaseapp.com",
+    projectId: "gestione-personale-e2fd0",
+    storageBucket: "gestione-personale-e2fd0.firebasestorage.app",
+    messagingSenderId: "942817368916",
+    appId: "1:942817368916:web:9777683063d6aa3959c6c1",
+    measurementId: "G-PLJ9DZNC40"
+  };
+</script>
+
+  <script src="app.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

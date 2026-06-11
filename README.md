@@ -1,89 +1,59 @@
-# Gestione Personale - PWA GitHub Ready
+# Gestione Personale v28 - Firebase Live
 
-Questa cartella è pronta per essere pubblicata su GitHub Pages come PWA installabile su iPhone e Android.
+Questa versione è collegata a Firebase Firestore e sincronizza i dati tra più dispositivi.
 
-## Importante sui dati condivisi
+## Cosa fa
 
-GitHub Pages pubblica solo file statici. Quindi:
+- PWA installabile su iPhone e Android
+- Dati condivisi tra utenti
+- Ferie / smart working sincronizzati
+- Notifiche e piano ferie condivisi
+- Backup JSON ancora disponibile
 
-- con questa versione i dati sono salvati nel browser del dispositivo tramite `localStorage`;
-- se Mario entra dal suo telefono e Roberta dal suo PC, senza database esterno non vedono gli stessi dati;
-- per uso reale multiutente serve un database online, ad esempio Firebase, Supabase o un backend dedicato.
+## Prima configurazione Firestore
 
-Questa versione è pronta per GitHub e installabile come PWA, ma per dati condivisi in tempo reale bisogna aggiungere un backend.
+Per testare subito, nelle regole Firestore incolla TEMPORANEAMENTE queste regole:
 
-## Come pubblicarla su GitHub Pages
+```js
+rules_version = '2';
 
-1. Vai su https://github.com
-2. Crea un nuovo repository, ad esempio `gestione-personale`
-3. Carica tutti i file di questa cartella:
-   - `index.html`
-   - `app.js`
-   - `styles.css`
-   - `manifest.json`
-   - `sw.js`
-   - cartella `icons`
-4. Vai in **Settings**
-5. Vai in **Pages**
-6. In **Build and deployment** scegli:
-   - Source: `Deploy from a branch`
-   - Branch: `main`
-   - Folder: `/root`
-7. Salva.
-8. Dopo qualche minuto GitHub ti darà il link pubblico.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /gestionePersonale/main {
+      allow read, write: if true;
+    }
+  }
+}
+```
 
-## Come installarla su iPhone
+Queste regole sono aperte: servono solo per testare il collegamento.
 
-1. Apri il link GitHub Pages da Safari.
-2. Premi il pulsante Condividi.
-3. Premi **Aggiungi alla schermata Home**.
-4. Apri l’app dall’icona.
+## Regole definitive
 
-## Come installarla su Android
+Dopo il test si passa a Firebase Authentication e regole sicure per:
+- super admin
+- referente
+- dirigente
+- dipendente
 
-1. Apri il link con Chrome.
-2. Premi i tre puntini.
-3. Premi **Installa app** oppure **Aggiungi a schermata Home**.
+## Pubblicazione GitHub Pages
 
-## Come non perdere i dati quando aggiorni l’app
+Carica tutti questi file nel repository:
 
-Prima di caricare una nuova versione:
+- index.html
+- app.js
+- styles.css
+- manifest.json
+- sw.js
+- icons/
+- README.md
 
-1. Entra come super admin.
-2. Vai in **Admin**.
-3. Premi **Esporta backup JSON**.
-4. Conserva il file.
+Poi GitHub Pages pubblicherà l'app come prima.
 
-Dopo aver pubblicato una nuova versione:
+## Nota importante
 
-1. Entra come super admin.
-2. Vai in **Admin**.
-3. Premi **Importa backup JSON**.
-4. Seleziona il file salvato.
+Questa v28 usa Firestore come documento unico condiviso:
+`gestionePersonale/main`
 
-La nuova versione contiene una piccola migrazione dati per recuperare dati dalle versioni precedenti se sono nello stesso browser.
-
-## Per uso reale multiutente
-
-Per far usare l’app contemporaneamente a più persone, serve collegarla a un database online.
-
-Soluzione consigliata:
-- Firebase Authentication per login reale
-- Firebase Firestore per dati condivisi
-- Firebase Hosting oppure GitHub Pages per i file statici
-
-Da fare nella prossima fase:
-1. Creare progetto Firebase.
-2. Creare Firestore.
-3. Spostare `db` da `localStorage` a Firestore.
-4. Usare regole di sicurezza per admin/referente/dipendente/dirigente.
-5. Mantenere export/import backup.
-
-## File principali
-
-- `index.html`: pagina principale
-- `app.js`: logica gestionale
-- `styles.css`: grafica responsive
-- `manifest.json`: configurazione PWA
-- `sw.js`: funzionamento offline/installabile
-- `icons`: icone app
+È il modo più veloce per trasformare il prototipo locale in multiutente live.
+Quando confermi che funziona, conviene passare alla v29 con collezioni separate e regole di sicurezza più precise.
