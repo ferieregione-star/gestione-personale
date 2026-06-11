@@ -22,7 +22,6 @@ function initFirebaseSync(){
     cloudDocRef=cloudDb.collection("gestionePersonale").doc("main");
 
     cloudDocRef.onSnapshot(async snap=>{
-      if(cloudSaving)return;
       if(!snap.exists){
         await cloudDocRef.set({db:migrateDb(db),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
         cloudReady=true;
@@ -66,7 +65,7 @@ function scheduleCloudSave(){
 
 let liveChannel=null;
 try{
-  liveChannel=new BroadcastChannel("gestione_personale_v28_live");
+  liveChannel=new BroadcastChannel("gestione_personale_v29_live");
   liveChannel.onmessage=()=>reloadFromStorage();
 }catch(e){}
 function reloadFromStorage(){
@@ -87,10 +86,10 @@ window.addEventListener("focus",reloadFromStorage);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)reloadFromStorage()});
 setInterval(()=>{if(currentUser)reloadFromStorage()},1000);
 
-const VERSION="v28";
-const STORE="gestione_personale_v28";
+const VERSION="v29";
+const STORE="gestione_personale_v29";
 const LEGACY_STORES=["gestione_personale_v26","ufficioflex_gestionale_v25","ufficioflex_gestionale_v24","ufficioflex_gestionale_v23"];
-const DATA_SCHEMA_VERSION=28;
+const DATA_SCHEMA_VERSION=29;
 const STATUS={present:{label:"In servizio",short:"S",cls:"present",color:"#16a34a"},smart:{label:"Smart working",short:"SW",cls:"smart",color:"#2563eb"},ferie:{label:"Ferie",short:"F",cls:"ferie",color:"#f97316"},malattia:{label:"Malattia",short:"M",cls:"malattia",color:"#ef4444"},permesso:{label:"Permesso",short:"P",cls:"permesso",color:"#7c3aed"},altro:{label:"Altro",short:"A",cls:"altro",color:"#64748b"}};
 const ROLE_LABELS={admin:"Super admin",employee:"Dipendente",viewer:"Dirigente",sector_manager:"Referente"};
 const INITIAL_SECTORS=[{id:"prevenzione",name:"Prevenzione",hasAreas:true},{id:"territorio",name:"Territorio",hasAreas:false},{id:"accreditamento",name:"Accreditamento",hasAreas:false}];
@@ -264,19 +263,31 @@ function validateSmartRule(date,userId){
   if(warnings.length)return{ok:true,warning:warnings.join(" ")};
   return{ok:true,message:"OK"};
 }
-function smartRuleErrorsForDay(date){
+function computedSmartRuleErrors(date){
   if(isBlockedDay(date))return[];
   let errors=[];
-  if(db.ruleViolations&&db.ruleViolations[date])errors.push(db.ruleViolations[date]);
   for(let s of db.sectors){
     let c=db.users.filter(u=>u.approved&&isWorker(u)&&u.sectorId===s.id&&eventFor(date,u.id)==="smart").length;
-    if(c>3)errors.push(`Regola violata - Settore ${s.name}: ${c} smart working, massimo consigliato 3`);
+    if(c>3)errors.push(`Settore ${s.name}: ${c} smart working, massimo consigliato 3`);
   }
   for(let a of db.areas){
     let c=db.users.filter(u=>u.approved&&isWorker(u)&&u.areaId===a.id&&eventFor(date,u.id)==="smart").length;
-    if(c>2)errors.push(`Regola violata - Area ${a.name}: ${c} smart working, massimo consigliato 2`);
+    if(c>2)errors.push(`Area ${a.name}: ${c} smart working, massimo consigliato 2`);
   }
-  return [...new Set(errors)];
+  for(let a of db.areas){
+    let doubles=weekDates(date).filter(d=>db.users.filter(u=>u.approved&&isWorker(u)&&u.areaId===a.id&&eventFor(d,u.id)==="smart").length>=2);
+    if(doubles.length>1)errors.push(`Area ${a.name}: più di un giorno nella settimana con 2 persone in smart working`);
+  }
+  return errors;
+}
+function smartRuleErrorsForDay(date){
+  return computedSmartRuleErrors(date).map((e,i)=>`Errore ${i+1}: ${e}`);
+}
+function refreshRuleViolations(date){
+  if(!db.ruleViolations)db.ruleViolations={};
+  const errs=smartRuleErrorsForDay(date);
+  if(errs.length)db.ruleViolations[date]=errs;
+  else delete db.ruleViolations[date];
 }
 function applyTheme(){
   document.body.classList.remove("theme-admin","theme-referente","theme-employee","theme-dirigente");
@@ -317,7 +328,37 @@ function sendForgotPassword(){
   saveDb();
   document.getElementById("forgotMsg").textContent="Richiesta inviata.";
 }
-function nav(id){page=id;modalOpen=false;render()}
+function nav(id){page=id;modalOpen=false;mobileMenuOpen=false;render()}
+
+function startImpersonation(userId){
+  if(currentUser.role!=="admin"&&!adminUser)return;
+  if(!adminUser)adminUser=currentUser;
+  const u=db.users.find(x=>x.id===userId);
+  if(!u||u.role==="admin")return;
+  currentUser=u;
+  selectedSectorId=u.sectorId;
+  selectedAreaFilter="all";
+  selectedPlanArea="all";
+  page="calendar";
+  mobileMenuOpen=false;
+  render();
+}
+function stopImpersonation(){
+  if(!adminUser)return;
+  currentUser=adminUser;
+  adminUser=null;
+  selectedSectorId="prevenzione";
+  selectedAreaFilter="all";
+  selectedPlanArea="all";
+  page="admin";
+  render();
+}
+function renderSwitchUserPanel(){
+  if(currentUser.role!=="admin"&&!adminUser)return "";
+  const list=db.users.filter(u=>u.approved&&u.role!=="admin").map(u=>`<button class="switch-user-row" onclick="startImpersonation('${u.id}')"><span>${fullName(u)}</span><small>${roleLabel(u.role)} · ${sectorName(u.sectorId)} / ${areaName(u.areaId)}</small></button>`).join("");
+  return `<div class="card switch-card"><h3 class="section-title">Cambio utente</h3>${adminUser?`<div class="warning">Stai visualizzando come ${fullName(currentUser)}. <button class="btn secondary" onclick="stopImpersonation()">Torna super admin</button></div>`:""}<div class="switch-list">${list}</div></div>`;
+}
+function toggleMobileMenu(){mobileMenuOpen=!mobileMenuOpen;render();}
 function navButton(id,label){let b="";if(id==="admin"&&pendingAdminCount()>0)b=`<span class="nav-badge">${pendingAdminCount()}</span>`;return`<button class="${page===id?'active':''}" onclick="nav('${id}')">${label}${b}</button>`}
 function bellButton(){
   if(!currentUser||(currentUser.role!=="sector_manager"&&currentUser.role!=="employee"))return "";
@@ -330,7 +371,8 @@ function layout(content){
   applyTheme();
   document.body.classList.remove("page-calendar","page-plan","page-profile","page-people","page-registercolleague","page-reports","page-admin","page-notifications");
   document.body.classList.add("page-"+page);
-  app.innerHTML=`<div class="app"><aside class="sidebar"><div class="brand"><div class="brand-icon">📅</div><div><strong>Gestione Personale</strong></div></div><div class="nav">${navButton("calendar","📅 Calendario")}${navButton("plan","🗓️ Piano ferie")}${navButton("profile","👤 Dati personali")}${canManageUsers()?navButton("people","👥 Dipendenti"):""}${canRegisterColleagues()?navButton("registercolleague","➕ Registra collega"):""}${navButton("reports","📊 Riepilogo")}${canManageUsers()?navButton("admin","⚙️ Admin"):""}</div><div class="userbox small"><b>${fullName(currentUser)}</b><br>${roleLabel(currentUser.role)}<br>${currentUser.role==="admin"?"Super admin":""}<button class="btn secondary full" onclick="logout()">Esci</button></div></aside><main class="main"><div class="global-bell-wrap no-print">${bellButton()}</div>${content}</main></div>`;
+  const navHtml=`<div class="brand"><div class="brand-icon">📅</div><div><strong>Gestione Personale</strong></div></div><div class="nav">${navButton("calendar","📅 Calendario")}${navButton("plan","🗓️ Piano ferie")}${navButton("profile","👤 Dati personali")}${canManageUsers()?navButton("people","👥 Dipendenti"):""}${canRegisterColleagues()?navButton("registercolleague","➕ Registra collega"):""}${navButton("reports","📊 Riepilogo")}${canManageUsers()?navButton("admin","⚙️ Admin"):""}</div><div class="userbox small"><b>${fullName(currentUser)}</b><br>${roleLabel(currentUser.role)}${adminUser?`<br><button class="btn secondary full" onclick="stopImpersonation()">Torna super admin</button>`:""}<button class="btn secondary full" onclick="logout()">Esci</button></div>`;
+  app.innerHTML=`<div class="mobile-appbar no-print"><button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button><strong>Gestione Personale</strong><div>${bellButton()}</div></div>${mobileMenuOpen?`<div class="mobile-overlay" onclick="toggleMobileMenu()"></div>`:""}<div class="app ${mobileMenuOpen?'menu-open':''}"><aside class="sidebar">${navHtml}</aside><main class="main"><div class="global-bell-wrap no-print desktop-bell">${bellButton()}</div>${adminUser?`<div class="impersonation-banner no-print">Modalità super admin: stai visualizzando come <b>${fullName(currentUser)}</b></div>`:""}${content}</main></div>`;
 }
 function avatarClass(u){return u.role==="viewer"?"viewer":u.role==="sector_manager"?"referente":""}
 function nameClass(u){return u.role==="viewer"?"name-viewer":u.role==="sector_manager"?"name-referente":""}
@@ -347,24 +389,32 @@ function renderInlineEventForm(){
   }
   return `<div class="card"><h3 class="section-title">Aggiungi o modifica giornata</h3><div class="form-grid"><div><label>Dipendente</label><select id="eventUser">${people.map(u=>`<option value="${u.id}">${fullName(u)} - ${areaName(u.areaId)}</option>`).join("")}</select></div><div><label>Tipo</label><select id="eventStatus"><option value="smart">Smart working</option><option value="ferie">Ferie</option><option value="malattia">Malattia</option><option value="permesso">Permesso</option><option value="altro">Altro</option><option value="present">In servizio / rimuovi assenza</option></select></div></div><button class="btn primary" onclick="saveEventFromPopup()">Salva</button><p id="eventError" class="error"></p></div>`;
 }
-function saveEventFromPopup(){let userId=document.getElementById("eventUser")?document.getElementById("eventUser").value:currentUser.id,st=document.getElementById("eventStatus").value,date=selectedDate,u=db.users.find(x=>x.id===userId);let swWarning="";
+function saveEventFromPopup(){
+  let userId=document.getElementById("eventUser")?document.getElementById("eventUser").value:currentUser.id;
+  let st=document.getElementById("eventStatus").value,date=selectedDate,u=db.users.find(x=>x.id===userId);
   if(st==="smart"){
     let v=validateSmartRule(date,userId);
     if(!v.ok){document.getElementById("eventError").textContent=v.message;return}
-    swWarning=v.warning||"";
   }
-  if(isBlockedDay(date)){document.getElementById("eventError").textContent="Non puoi inserire su sabato, domenica o giorno festivo.";return}if(!canModifyUserEvents(userId)){document.getElementById("eventError").textContent="Non puoi modificare questo utente.";return}if(!db.events[date])db.events[date]={};if(st==="present"){
-    delete db.events[date][userId];
-    if(db.ruleViolations)delete db.ruleViolations[date];
-  }else{
-    db.events[date][userId]=st;
-    if(st==="smart"&&swWarning){
-      if(!db.ruleViolations)db.ruleViolations={};
-      db.ruleViolations[date]=`⚠️ Regola smart working violata: ${swWarning}`;
-    }
-  }
-  addAudit(`${STATUS[st].label} per ${fullName(u)} il ${fmt(date)}`);pushNotification({text:notificationText(currentUser,u,st,date),scope:"sector",sectorId:u.sectorId,actorId:currentUser.id,type:"event"});saveDb();render()}
-function removeEvent(date,userId){if(isBlockedDay(date)||!canModifyUserEvents(userId))return;let u=db.users.find(x=>x.id===userId);if(db.events[date])delete db.events[date][userId];pushNotification({text:notificationText(currentUser,u,"present",date),scope:"sector",sectorId:u.sectorId,actorId:currentUser.id,type:"event"});addAudit(`Rimossa assenza di ${fullName(u)} il ${fmt(date)}`);saveDb();render()}
+  if(isBlockedDay(date)){document.getElementById("eventError").textContent="Non puoi inserire su sabato, domenica o giorno festivo.";return}
+  if(!canModifyUserEvents(userId)){document.getElementById("eventError").textContent="Non puoi modificare questo utente.";return}
+  if(!db.events[date])db.events[date]={};
+  if(st==="present")delete db.events[date][userId];
+  else db.events[date][userId]=st;
+  refreshRuleViolations(date);
+  addAudit(`${STATUS[st].label} per ${fullName(u)} il ${fmt(date)}`);
+  pushNotification({text:notificationText(currentUser,u,st,date),scope:"sector",sectorId:u.sectorId,actorId:currentUser.id,type:"event"});
+  saveDb();render();
+}
+function removeEvent(date,userId){
+  if(isBlockedDay(date)||!canModifyUserEvents(userId))return;
+  let u=db.users.find(x=>x.id===userId);
+  if(db.events[date])delete db.events[date][userId];
+  refreshRuleViolations(date);
+  pushNotification({text:notificationText(currentUser,u,"present",date),scope:"sector",sectorId:u.sectorId,actorId:currentUser.id,type:"event"});
+  addAudit(`Rimossa assenza di ${fullName(u)} il ${fmt(date)}`);
+  saveDb();render();
+}
 function renderProfile(){let u=currentUser;layout(`<div class="top"><h1>DATI PERSONALI</h1><span class="pill">${roleLabel(u.role)}</span></div><div class="grid two"><div class="card"><h3 class="section-title">I miei dati</h3><div class="form-grid"><div><label>Nome</label><input id="profileName" value="${u.name}"></div><div><label>Cognome</label><input id="profileSurname" value="${u.surname||""}"></div><div><label>Email</label><input value="${u.email}" disabled></div><div><label>Settore</label><input value="${sectorName(u.sectorId)}" disabled></div><div><label>Area</label><input value="${areaName(u.areaId)}" disabled></div><div><label>Ruolo</label><input value="${roleLabel(u.role)}" disabled></div></div><button class="btn primary" onclick="saveProfile()">Salva nome e cognome</button></div><div class="card"><h3 class="section-title">Richiesta cambio password</h3><label>Nuova password richiesta</label><input id="requestedPassword" type="password"><button class="btn secondary" onclick="requestPasswordChange()">Invia richiesta</button><p id="profileMsg" class="small"></p></div></div>`)}
 function saveProfile(){currentUser.name=document.getElementById("profileName").value.trim();currentUser.surname=document.getElementById("profileSurname").value.trim();currentUser.initials=createInitialsForUser(currentUser.name,currentUser.surname,currentUser.id);let u=db.users.find(x=>x.id===currentUser.id);Object.assign(u,currentUser);addAudit(`${fullName(currentUser)} ha aggiornato nome/cognome`);saveDb();render()}
 function requestPasswordChange(){let pwd=document.getElementById("requestedPassword").value;if(!pwd){document.getElementById("profileMsg").textContent="Inserisci la nuova password richiesta.";return}db.requests.unshift({id:uid("req"),type:"password",userId:currentUser.id,newPassword:pwd,status:"pending",at:new Date().toLocaleString("it-IT")});pushNotification({text:`${fullName(currentUser)} ha richiesto cambio password`,scope:"admin",actorId:"system",type:"password",sectorId:currentUser.sectorId,areaId:currentUser.areaId});saveDb();document.getElementById("profileMsg").textContent="Richiesta inviata."}
@@ -463,7 +513,7 @@ function renderAdmin(){
       <div class="card"><h3 class="section-title">Registrazioni da approvare</h3>${newUsers||`<p class="small">Nessuna registrazione in attesa.</p>`}</div>
       <div class="card"><h3 class="section-title">Password e notifiche</h3>${pwdReqs||""}${adminNotes||`<p class="small">Nessuna richiesta password o notifica.</p>`}</div>
     </div>
-    <div class="card"><h3 class="section-title">Backup dati</h3><div class="actions"><button class="btn primary" onclick="exportData()">Esporta backup JSON</button><button class="btn secondary" onclick="triggerImportData()">Importa backup JSON</button></div><p class="small">Usalo prima di pubblicare nuove versioni o modificare logiche/CSS.</p></div><div class="card"><h3 class="section-title">Backup dati</h3><div class="actions"><button class="btn primary" onclick="exportData()">Esporta backup JSON</button><button class="btn secondary" onclick="triggerImportData()">Importa backup JSON</button></div><p class="small">Usalo prima di pubblicare nuove versioni o modificare logiche/CSS.</p></div><div class="card"><h3 class="section-title">Storico</h3>${audit}<button class="btn danger" onclick="resetDemo()">Reset demo</button></div>`);
+    ${renderSwitchUserPanel()}<div class="card"><h3 class="section-title">Backup dati</h3><div class="actions"><button class="btn primary" onclick="exportData()">Esporta backup JSON</button><button class="btn secondary" onclick="triggerImportData()">Importa backup JSON</button></div><p class="small">Usalo prima di pubblicare nuove versioni o modificare logiche/CSS.</p></div>${renderSwitchUserPanel()}<div class="card"><h3 class="section-title">Backup dati</h3><div class="actions"><button class="btn primary" onclick="exportData()">Esporta backup JSON</button><button class="btn secondary" onclick="triggerImportData()">Importa backup JSON</button></div><p class="small">Usalo prima di pubblicare nuove versioni o modificare logiche/CSS.</p></div>${renderSwitchUserPanel()}<div class="card"><h3 class="section-title">Storico</h3>${audit}<button class="btn danger" onclick="resetDemo()">Reset demo</button></div>`);
 }
 function approveRegistration(userId){
   let u=db.users.find(x=>x.id===userId);
