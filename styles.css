@@ -815,3 +815,28 @@ body.theme-employee{--bg:#f8fafc}
 .plan-card-split{display:block!important}.plan-card-split>div{border-right:0!important;padding:0!important;text-align:left!important}
 .plan-day-backdrop{z-index:500!important}.plan-day-backdrop .modal{z-index:501!important}
 @media(max-width:760px){.back-btn{width:auto;margin:0 0 12px;padding:9px 12px}.plan-card-white{aspect-ratio:1/1!important;min-height:0!important;height:auto!important;position:relative!important;z-index:1;cursor:pointer!important;-webkit-tap-highlight-color:rgba(37,99,235,.2)}.plan-card-white *{pointer-events:none!important}.plan-card-white .plan-names{display:none!important}.plan-day-backdrop{position:fixed!important;inset:0!important;display:grid!important;place-items:end stretch!important;padding:0!important;background:rgba(15,23,42,.48)!important}.plan-day-backdrop .ios-sheet{width:100%!important;max-height:88vh!important;border-radius:28px 28px 0 0!important}}
+
+/* v41 */
+.plan-clickable{cursor:pointer!important;touch-action:manipulation}
+.plan-clickable *{pointer-events:none!important}
+@media(max-width:760px){.plan-clickable{position:relative!important;z-index:5!important}}
+@media print{
+  @page{size:A4 landscape;margin:8mm}
+  html,body{background:#fff!important;margin:0!important;padding:0!important}
+  body *{visibility:hidden!important}
+  .plan-shell,.plan-shell *{visibility:visible!important}
+  .plan-shell{position:absolute!important;left:0!important;top:0!important;width:100%!important;box-shadow:none!important;border-radius:0!important;overflow:visible!important}
+  .sidebar,.mobile-appbar,.back-btn,.global-bell-wrap,.desktop-bell,.plan-top,.plan-blue-line,.plan-legend,.print-btn,.no-print{display:none!important;visibility:hidden!important}
+  .main{padding:0!important;margin:0!important;max-width:none!important}
+  .app{display:block!important;min-height:0!important}
+  .print-title{display:block!important;visibility:visible!important;font-size:18px!important;margin:0 0 8px!important;text-align:center!important}
+  .plan-month-card{page-break-after:always!important;break-after:page!important;page-break-inside:avoid!important;break-inside:avoid!important;padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;transform:scale(.92);transform-origin:top left;width:108.5%!important}
+  .plan-month-card:last-child{page-break-after:auto!important;break-after:auto!important}
+  .plan-month-card h2{font-size:18px!important;margin:0 0 8px!important}
+  .plan-grid{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:6px!important;overflow:visible!important}
+  .plan-card-white{min-height:82px!important;padding:6px 6px 16px!important;border:1px solid #cbd5e1!important;box-shadow:none!important;break-inside:avoid!important}
+  .plan-day-num{font-size:12px!important;margin-bottom:4px!important}
+  .plan-person{font-size:8.5px!important;line-height:1.05!important;margin-bottom:1px!important}
+  .plan-percent{font-size:8px!important;bottom:12px!important}
+  .plan-fill-wrap{height:4px!important;bottom:5px!important}
+}

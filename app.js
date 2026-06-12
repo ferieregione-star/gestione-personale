@@ -62,7 +62,7 @@ function scheduleCloudSave(){
 
 let liveChannel=null;
 try{
-  liveChannel=new BroadcastChannel("gestione_personale_v40_live");
+  liveChannel=new BroadcastChannel("gestione_personale_v41_live");
   liveChannel.onmessage=()=>reloadFromStorage();
 }catch(e){}
 function reloadFromStorage(){
@@ -80,11 +80,11 @@ window.addEventListener("focus",reloadFromStorage);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)reloadFromStorage()});
 setInterval(()=>{if(currentUser)reloadFromStorage()},1000);
 
-const VERSION="v40";
-const STORE="gestione_personale_v40";
+const VERSION="v41";
+const STORE="gestione_personale_v41";
 const SESSION_STORE="gestione_personale_session_v40";
 const LEGACY_STORES=["gestione_personale_v26","ufficioflex_gestionale_v25","ufficioflex_gestionale_v24","ufficioflex_gestionale_v23"];
-const DATA_SCHEMA_VERSION=40;
+const DATA_SCHEMA_VERSION=41;
 const STATUS={present:{label:"In servizio",short:"S",cls:"present",color:"#16a34a"},smart:{label:"Smart working",short:"SW",cls:"smart",color:"#2563eb"},ferie:{label:"Ferie",short:"F",cls:"ferie",color:"#f97316"},malattia:{label:"Malattia",short:"M",cls:"malattia",color:"#ef4444"},permesso:{label:"Permesso",short:"P",cls:"permesso",color:"#7c3aed"},altro:{label:"Altro",short:"A",cls:"altro",color:"#64748b"}};
 const ROLE_LABELS={admin:"Super admin",employee:"Dipendente",viewer:"Dirigente",sector_manager:"Referente"};
 const INITIAL_SECTORS=[{id:"prevenzione",name:"Settore 4",hasAreas:true},{id:"territorio",name:"Settore 7",hasAreas:true}];
@@ -427,7 +427,7 @@ function personRow(u,date,editable=false){let st=eventFor(date,u.id);return`<div
 function changeMonth(delta){viewMonth+=delta;if(viewMonth<0){viewMonth=11;viewYear--}if(viewMonth>11){viewMonth=0;viewYear++}selectedDate=`${viewYear}-${String(viewMonth+1).padStart(2,"0")}-01`;modalOpen=false;render()}
 function openDay(date){selectedDate=date;modalOpen=true;render()}
 function closeModal(){modalOpen=false;render()}
-function renderCalendar(){let days="",hmap=holidaysFor(viewYear),blanks=(new Date(viewYear,viewMonth,1).getDay()+6)%7;for(let i=0;i<Math.min(blanks,5);i++)days+=`<div class="day blank"><div class="empty-day">—</div></div>`;for(let d=1;d<=daysInMonth();d++){let date=dateKey(d),dow=new Date(date+"T00:00:00").getDay();if(dow===0||dow===6)continue;let hol=hmap[date],errs=smartRuleErrorsForDay(date),abs=hol?[]:visibleUsers().filter(u=>isAbsent(eventFor(date,u.id))),dots=abs.map(u=>{let st=eventFor(date,u.id),s=STATUS[st];return`<span class="person-dot" title="${fullName(u)} - ${s.label}" style="background:${s.color}">${s.short}</span>`}).join("");days+=`<button class="day ${selectedDate===date?'selected':''} ${hol?'holiday':''} ${errs.length?'rule-error':''}" onclick="openDay('${date}')"><div class="day-num">${d}</div>${errs.length?`<div class="danger-mark">!</div>`:""}${hol?`<div class="holiday-name">${hol}</div>`:""}<div class="dot-row">${dots||`<span class="empty-day">${hol?"Festivo":"Nessun assente"}</span>`}</div></button>`}let errs=smartRuleErrorsForDay(selectedDate),modal=modalOpen?renderDayModal():"";layout(`<div class="top"><h1>${contextTitle()}</h1><div class="sector-filter">${selectorControls()}</div></div>${errs.length?`<div class="warning">⚠️ ${errs.join("<br>")}</div>`:""}<div class="calendar-wrap"><div class="calendar-toolbar"><button class="btn secondary" onclick="changeMonth(-1)">← Mese precedente</button><div class="month-title">${monthName()}</div><button class="btn secondary" onclick="changeMonth(1)">Mese successivo →</button></div><div class="calendar-head"><div>LUN</div><div>MAR</div><div>MER</div><div>GIO</div><div>VEN</div></div><div class="calendar">${days}</div></div><div class="card" style="margin-top:16px"><div class="top"><h3 class="section-title">Riepilogo ${fmt(selectedDate)}</h3><span class="pill">${isHoliday(selectedDate)||"Giorno lavorativo"}</span></div>${isBlockedDay(selectedDate)?`<p class="small">Giorno non lavorativo.</p>`:visibleUsers().map(u=>personRow(u,selectedDate,canModifyUserEvents(u.id))).join("")}</div>${modal}`)}
+function renderCalendar(){let days="",hmap=holidaysFor(viewYear),blanks=(new Date(viewYear,viewMonth,1).getDay()+6)%7;for(let i=0;i<Math.min(blanks,5);i++)days+=`<div class="day blank"><div class="empty-day">—</div></div>`;for(let d=1;d<=daysInMonth();d++){let date=dateKey(d),dow=new Date(date+"T00:00:00").getDay();if(dow===0||dow===6)continue;let hol=hmap[date],errs=smartRuleErrorsForDay(date),abs=hol?[]:visibleUsers().filter(u=>isAbsent(eventFor(date,u.id))),dots=abs.map(u=>{let st=eventFor(date,u.id),s=STATUS[st];return`<span class="person-dot" title="${fullName(u)} - ${s.label}" style="background:${s.color}">${s.short}</span>`}).join("");days+=`<button class="day ${selectedDate===date?'selected':''} ${hol?'holiday':''} ${errs.length?'rule-error':''}" onclick="openDay('${date}')"><div class="day-num">${d}</div>${errs.length?`<div class="danger-mark">!</div>`:""}${hol?`<div class="holiday-name">${hol}</div>`:""}<div class="dot-row">${dots||`<span class="empty-day">${hol?"Festivo":"Nessun assente"}</span>`}</div></button>`}let errs=smartRuleErrorsForDay(selectedDate),modal=modalOpen?renderDayModal():"";layout(`<div class="top"><h1>${contextTitle()}</h1><div class="sector-filter">${selectorControls()}</div></div><div class="calendar-wrap"><div class="calendar-toolbar"><button class="btn secondary" onclick="changeMonth(-1)">← Mese precedente</button><div class="month-title">${monthName()}</div><button class="btn secondary" onclick="changeMonth(1)">Mese successivo →</button></div><div class="calendar-head"><div>LUN</div><div>MAR</div><div>MER</div><div>GIO</div><div>VEN</div></div><div class="calendar">${days}</div></div><div class="card" style="margin-top:16px"><div class="top"><h3 class="section-title">Riepilogo ${fmt(selectedDate)}</h3><span class="pill">${isHoliday(selectedDate)||"Giorno lavorativo"}</span></div>${isBlockedDay(selectedDate)?`<p class="small">Giorno non lavorativo.</p>`:visibleUsers().map(u=>personRow(u,selectedDate,canModifyUserEvents(u.id))).join("")}</div>${modal}`)}
 function renderDayModal(){
   let hol=isHoliday(selectedDate)||isWeekend(selectedDate),
       errs=smartRuleErrorsForDay(selectedDate),
@@ -654,6 +654,7 @@ function planSectorSelect(){
   if(currentUser.role!=="admin")return "";
   return `<select onchange="selectedSectorId=this.value;selectedPlanArea='all';render()">${db.sectors.map(s=>`<option value="${s.id}" ${selectedSectorId===s.id?'selected':''}>${s.name}</option>`).join("")}</select>`;
 }
+function planPrintAreaLabel(sectorId,areaId){return areaId==="all"?sectorName(sectorId).toUpperCase():areaName(areaId).toUpperCase();}
 function renderPlan(){
   let periods={estate:["2025-06","2025-07","2025-08","2025-09"],natale:["2025-12","2026-01"],pasqua:["2026-04"]};
   let months=periods[selectedPlanPeriod]||periods.estate;
@@ -662,13 +663,13 @@ function renderPlan(){
   let areas=areasOfSector(sectorId);
   if(!areas.length)areas=[{id:sectorId,sectorId,name:sectorName(sectorId),color:"#64748b"}];
   if(!selectedPlanArea)selectedPlanArea="all";
-  let areaOptions=`<option value="all" ${selectedPlanArea==="all"?'selected':''}>INSIEME (${sectorName(sectorId)} + tutte le aree)</option>`+
+  let areaOptions=`<option value="all" ${selectedPlanArea==="all"?'selected':''}>${sectorName(sectorId)}</option>`+
     areas.map(a=>`<option value="${a.id}" ${selectedPlanArea===a.id?'selected':''}>SOLO ${a.name}</option>`).join("");
   let settoreStampa =
     (sectorId==="prevenzione" && selectedPlanArea==="all")
       ? "SETTORE PREVENZIONE (PREV + VET)"
       : `SETTORE ${sectorName(sectorId).toUpperCase()}`;
-  let printTitle=`PIANO FERIE - ${settoreStampa} - ${(selectedPlanArea==="all"?"TUTTE LE AREE":areaName(selectedPlanArea).toUpperCase())}`;
+  let printTitle=`PIANO FERIE - ${settoreStampa} - ${planPrintAreaLabel(sectorId,selectedPlanArea)}`;
   let content=months.map(m=>renderPlanMonthLayout(m,sectorId,selectedPlanArea)).join("");
   layout(`<div class="plan-shell">
     <div class="plan-top no-print">
@@ -744,7 +745,7 @@ function renderPlanGrid(month,sectorId,areaId){
     }else{
       names=onHoliday.map(u=>`<div class="plan-person" style="color:${areaColor(u.areaId)}">${shortPersonName(u)}</div>`).join("");
     }
-    return `<div role="button" tabindex="0" class="plan-card-white" data-date="${date}" data-sector="${sectorId}" data-area="${areaId}" onclick="openPlanDayFromCard(this)" onkeydown="if(event.key==='Enter'||event.key===' '){openPlanDayFromCard(this)}"><div class="plan-fill-wrap">${fill}</div><div class="plan-day-num">${day}</div><div class="plan-names">${names}</div>${pct?`<div class="plan-percent">${pct}%</div>`:""}</div>`;
+    return `<div role="button" tabindex="0" class="plan-card-white plan-clickable" data-date="${date}" data-sector="${sectorId}" data-area="${areaId}"><div class="plan-fill-wrap">${fill}</div><div class="plan-day-num">${day}</div><div class="plan-names">${names}</div>${pct?`<div class="plan-percent">${pct}%</div>`:""}</div>`;
   }).join("")}</div>`;
 }
 
@@ -777,5 +778,14 @@ function triggerImportData(){
   input.click();
 }
 function render(){if(!currentUser)return renderLogin();if(page==="calendar")return renderCalendar();if(page==="plan")return renderPlan();if(page==="profile")return renderProfile();if(page==="notifications")return renderNotifications();if(page==="people")return renderPeople();if(page==="registercolleague")return renderRegisterColleague();if(page==="reports")return renderReports();if(page==="admin")return renderAdmin()}
+document.addEventListener("click",function(e){
+  const card=e.target.closest(".plan-clickable");
+  if(card){e.preventDefault();e.stopPropagation();openPlanDay(card.dataset.date,card.dataset.sector,card.dataset.area);}
+});
+document.addEventListener("keydown",function(e){
+  const card=e.target.closest(".plan-clickable");
+  if(card&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openPlanDay(card.dataset.date,card.dataset.sector,card.dataset.area);}
+});
+
 initFirebaseSync();
 if(restoreSession()) render(); else renderLogin();

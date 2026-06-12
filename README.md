@@ -99,3 +99,9 @@ service cloud.firestore {
 - Popup piano ferie rifatto.
 - Piano ferie desktop con nomi impilati per area e ordinati.
 - Cache PWA v40.
+
+
+## v41
+- Avvisi SW solo nel popup card.
+- Tap piano ferie robusto mobile/desktop.
+- PDF piano ferie un mese per foglio, senza pagina iniziale vuota, titolo senza INSIEME.
