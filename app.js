@@ -62,7 +62,7 @@ function scheduleCloudSave(){
 
 let liveChannel=null;
 try{
-  liveChannel=new BroadcastChannel("gestione_personale_v41_live");
+  liveChannel=new BroadcastChannel("gestione_personale_v51_live");
   liveChannel.onmessage=()=>reloadFromStorage();
 }catch(e){}
 function reloadFromStorage(){
@@ -80,29 +80,40 @@ window.addEventListener("focus",reloadFromStorage);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)reloadFromStorage()});
 setInterval(()=>{if(currentUser)reloadFromStorage()},1000);
 
-const VERSION="v41";
-const STORE="gestione_personale_v41";
-const SESSION_STORE="gestione_personale_session_v40";
+const VERSION="v51";
+const STORE="gestione_personale_v51";
+const SESSION_STORE="gestione_personale_session_v51";
 const LEGACY_STORES=["gestione_personale_v26","ufficioflex_gestionale_v25","ufficioflex_gestionale_v24","ufficioflex_gestionale_v23"];
-const DATA_SCHEMA_VERSION=41;
-const STATUS={present:{label:"In servizio",short:"S",cls:"present",color:"#16a34a"},smart:{label:"Smart working",short:"SW",cls:"smart",color:"#2563eb"},ferie:{label:"Ferie",short:"F",cls:"ferie",color:"#f97316"},malattia:{label:"Malattia",short:"M",cls:"malattia",color:"#ef4444"},permesso:{label:"Permesso",short:"P",cls:"permesso",color:"#7c3aed"},altro:{label:"Altro",short:"A",cls:"altro",color:"#64748b"}};
+const DATA_SCHEMA_VERSION=51;
+const STATUS={
+present:{label:"In servizio",short:"S",cls:"present",color:"#16a34a"},
+smart:{label:"SW - Smart working",short:"SW",cls:"smart",color:"#2563eb"},
+c01:{label:"C01 - Ferie anno attuale",short:"C01",cls:"ferie",color:"#f97316"},
+c02:{label:"C02 - Ferie anno precedente",short:"C02",cls:"ferie",color:"#fb923c"},
+f14:{label:"F14 - Festività soppresse",short:"F14",cls:"permesso",color:"#7c3aed"},
+a01:{label:"A01 - Malattia",short:"A01",cls:"malattia",color:"#ef4444"},
+altro:{label:"ALTRO",short:"ALT",cls:"altro",color:"#64748b"},
+ferie:{label:"C01 - Ferie anno attuale",short:"C01",cls:"ferie",color:"#f97316"},
+malattia:{label:"A01 - Malattia",short:"A01",cls:"malattia",color:"#ef4444"},
+permesso:{label:"F14 - Festività soppresse",short:"F14",cls:"permesso",color:"#7c3aed"}
+};
 const ROLE_LABELS={admin:"Super admin",employee:"Dipendente",viewer:"Dirigente",sector_manager:"Referente"};
 const INITIAL_SECTORS=[{id:"prevenzione",name:"Settore 4",hasAreas:true},{id:"territorio",name:"Settore 7",hasAreas:true}];
 const INITIAL_AREAS=[{id:"prev",sectorId:"prevenzione",name:"Prevenzione",color:"#2563eb"},{id:"vet",sectorId:"prevenzione",name:"Veterinaria",color:"#dc2626"},{id:"terr",sectorId:"territorio",name:"Territorio",color:"#2563eb"},{id:"conv",sectorId:"territorio",name:"Convenzionata",color:"#dc2626"}];
 const seedUsers=[
-{id:"admin",email:"jackfrosties@hotmail.it",password:"admin",name:"Amministratore",surname:"Gestore",role:"admin",sectorId:"*",areaId:"*",visibleSectorIds:["prevenzione","territorio"],editableAreaIds:["prev","vet","terr","conv"],c01:0,c02:0,approved:true,initials:"AG",color:"#0b1f3a"},
-{id:"dir-pre",email:"dirigente.prevenzione@demo.it",password:"1234",name:"Dirigente",surname:"Prevenzione",role:"viewer",sectorId:"prevenzione",areaId:"*",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:0,c02:0,approved:true,initials:"DP",color:"#dc2626"},
-{id:"ref-prev",email:"roberta.rogliano@demo.it",password:"1234",name:"Roberta",surname:"Rogliano",role:"sector_manager",sectorId:"prevenzione",areaId:"prev",visibleSectorIds:["prevenzione"],editableAreaIds:["prev"],c01:24,c02:4,approved:true,initials:"RR",color:"#7c3aed"},
-{id:"ref-vet",email:"francesca.tavella@demo.it",password:"1234",name:"Francesca",surname:"Tavella",role:"sector_manager",sectorId:"prevenzione",areaId:"vet",visibleSectorIds:["prevenzione"],editableAreaIds:["vet"],c01:24,c02:4,approved:true,initials:"FT",color:"#7c3aed"},
-{id:"pre-1",email:"pre1@demo.it",password:"1234",name:"Mario",surname:"Rossi",role:"employee",sectorId:"prevenzione",areaId:"prev",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:24,c02:8,approved:true,initials:"MR",color:"#0ea5e9"},
-{id:"pre-2",email:"pre2@demo.it",password:"1234",name:"Andrea",surname:"Bianchi",role:"employee",sectorId:"prevenzione",areaId:"vet",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:22,c02:5,approved:true,initials:"AB",color:"#16a34a"},
-{id:"pre-3",email:"pre3@demo.it",password:"1234",name:"Paolo",surname:"Greco",role:"employee",sectorId:"prevenzione",areaId:"prev",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:25,c02:2,approved:true,initials:"PG",color:"#f97316"},
-{id:"pre-4",email:"pre4@demo.it",password:"1234",name:"Elena",surname:"Lombardi",role:"employee",sectorId:"prevenzione",areaId:"vet",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:23,c02:6,approved:true,initials:"EL",color:"#7c3aed"},
-{id:"pre-5",email:"pre5@demo.it",password:"1234",name:"Carlo",surname:"Moretti",role:"employee",sectorId:"prevenzione",areaId:"prev",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:26,c02:1,approved:true,initials:"CM",color:"#64748b"},
-{id:"pre-6",email:"pre6@demo.it",password:"1234",name:"Sara",surname:"Conti",role:"employee",sectorId:"prevenzione",areaId:"vet",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:24,c02:3,approved:true,initials:"SC",color:"#ef4444"},
-{id:"dir-ter",email:"dirigente.territorio@demo.it",password:"1234",name:"Dirigente",surname:"Territorio",role:"viewer",sectorId:"territorio",areaId:"terr",visibleSectorIds:["territorio"],editableAreaIds:[],c01:0,c02:0,approved:true,initials:"DT",color:"#dc2626"},
-{id:"ref-ter",email:"referente.territorio@demo.it",password:"1234",name:"Referente",surname:"Territorio",role:"sector_manager",sectorId:"territorio",areaId:"terr",visibleSectorIds:["territorio"],editableAreaIds:["terr"],c01:0,c02:0,approved:true,initials:"RT",color:"#7c3aed"},
-{id:"ter-1",email:"ter1@demo.it",password:"1234",name:"Andrea",surname:"Verdi",role:"employee",sectorId:"territorio",areaId:"terr",visibleSectorIds:["territorio"],editableAreaIds:[],c01:26,c02:4,approved:true,initials:"AV",color:"#f97316"},
+{id:"admin",email:"jackfrosties@hotmail.it",password:"admin",name:"Amministratore",surname:"Gestore",role:"admin",sectorId:"*",areaId:"*",visibleSectorIds:["prevenzione","territorio"],editableAreaIds:["prev","vet","terr","conv"],c01:0,c02:0,f14:4,approved:true,initials:"AG",color:"#0b1f3a"},
+{id:"dir-pre",email:"dirigente.prevenzione@demo.it",password:"1234",name:"Dirigente",surname:"Prevenzione",role:"viewer",sectorId:"prevenzione",areaId:"*",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:0,c02:0,f14:4,approved:true,initials:"DP",color:"#dc2626"},
+{id:"ref-prev",email:"roberta.rogliano@demo.it",password:"1234",name:"Roberta",surname:"Rogliano",role:"sector_manager",sectorId:"prevenzione",areaId:"prev",visibleSectorIds:["prevenzione"],editableAreaIds:["prev"],c01:24,c02:4,f14:4,approved:true,initials:"RR",color:"#7c3aed"},
+{id:"ref-vet",email:"francesca.tavella@demo.it",password:"1234",name:"Francesca",surname:"Tavella",role:"sector_manager",sectorId:"prevenzione",areaId:"vet",visibleSectorIds:["prevenzione"],editableAreaIds:["vet"],c01:24,c02:4,f14:4,approved:true,initials:"FT",color:"#7c3aed"},
+{id:"pre-1",email:"pre1@demo.it",password:"1234",name:"Mario",surname:"Rossi",role:"employee",sectorId:"prevenzione",areaId:"prev",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:24,c02:8,f14:4,approved:true,initials:"MR",color:"#0ea5e9"},
+{id:"pre-2",email:"pre2@demo.it",password:"1234",name:"Andrea",surname:"Bianchi",role:"employee",sectorId:"prevenzione",areaId:"vet",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:22,c02:5,f14:4,approved:true,initials:"AB",color:"#16a34a"},
+{id:"pre-3",email:"pre3@demo.it",password:"1234",name:"Paolo",surname:"Greco",role:"employee",sectorId:"prevenzione",areaId:"prev",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:25,c02:2,f14:4,approved:true,initials:"PG",color:"#f97316"},
+{id:"pre-4",email:"pre4@demo.it",password:"1234",name:"Elena",surname:"Lombardi",role:"employee",sectorId:"prevenzione",areaId:"vet",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:23,c02:6,f14:4,approved:true,initials:"EL",color:"#7c3aed"},
+{id:"pre-5",email:"pre5@demo.it",password:"1234",name:"Carlo",surname:"Moretti",role:"employee",sectorId:"prevenzione",areaId:"prev",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:26,c02:1,f14:4,approved:true,initials:"CM",color:"#64748b"},
+{id:"pre-6",email:"pre6@demo.it",password:"1234",name:"Sara",surname:"Conti",role:"employee",sectorId:"prevenzione",areaId:"vet",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:24,c02:3,f14:4,approved:true,initials:"SC",color:"#ef4444"},
+{id:"dir-ter",email:"dirigente.territorio@demo.it",password:"1234",name:"Dirigente",surname:"Territorio",role:"viewer",sectorId:"territorio",areaId:"terr",visibleSectorIds:["territorio"],editableAreaIds:[],c01:0,c02:0,f14:4,approved:true,initials:"DT",color:"#dc2626"},
+{id:"ref-ter",email:"referente.territorio@demo.it",password:"1234",name:"Referente",surname:"Territorio",role:"sector_manager",sectorId:"territorio",areaId:"terr",visibleSectorIds:["territorio"],editableAreaIds:["terr"],c01:0,c02:0,f14:4,approved:true,initials:"RT",color:"#7c3aed"},
+{id:"ter-1",email:"ter1@demo.it",password:"1234",name:"Andrea",surname:"Verdi",role:"employee",sectorId:"territorio",areaId:"terr",visibleSectorIds:["territorio"],editableAreaIds:[],c01:26,c02:4,f14:4,approved:true,initials:"AV",color:"#f97316"},
 ];
 const seedEvents={"2025-06-10":{"pre-1":"ferie","pre-3":"ferie","pre-2":"ferie"},"2025-06-11":{"pre-4":"ferie"},"2025-07-01":{"pre-1":"smart","pre-2":"ferie"},"2025-07-02":{"pre-4":"smart"},"2025-07-15":{"pre-1":"smart","pre-3":"smart","pre-2":"smart"},"2025-08-04":{"pre-4":"ferie","pre-6":"ferie"},"2025-09-02":{"pre-1":"ferie"},"2025-12-22":{"pre-2":"ferie","pre-3":"ferie"},"2026-01-05":{"pre-4":"ferie"},"2026-04-02":{"pre-1":"ferie","pre-6":"ferie"}};
 let db=loadDb();
@@ -148,6 +159,14 @@ function migrateDb(data){
   data.audit=data.audit||[];
   data.lastRead=data.lastRead||{};
   data.ruleViolations=data.ruleViolations||{};
+
+  data.users.forEach(u=>{if(u.f14===undefined)u.f14=0;});
+  Object.keys(data.events||{}).forEach(d=>{
+    Object.keys(data.events[d]||{}).forEach(uid=>{
+      data.events[d][uid]=normalizeEventCode(data.events[d][uid]);
+    });
+  });
+
   db=data; normalizeSectorsAndAreas(); data=db;
   return data;
 }
@@ -226,6 +245,16 @@ function canModifyUserEvents(userId){let u=db.users.find(x=>x.id===userId);if(!u
 function canEditEmployeeData(userId){let u=db.users.find(x=>x.id===userId);if(!u)return false;if(currentUser.role==="admin")return true;if(currentUser.role==="sector_manager")return(currentUser.editableAreaIds||[]).includes(u.areaId);return false}
 function canEditProtectedData(){return currentUser.role==="admin"}
 
+
+function ferieCodes(){return ["c01","c02","f14","ferie"];}
+function isFerieCode(st){return ferieCodes().includes(st);}
+function normalizeEventCode(st){
+  if(st==="ferie")return "c01";
+  if(st==="malattia")return "a01";
+  if(st==="permesso")return "f14";
+  return st;
+}
+
 function notificationText(actor,target,status,date){
   const action=status==="present"?"ha cancellato l’assenza":`ha inserito/modificato ${STATUS[status]?.label||status}`;
   if(actor.id===target.id)return `${fullName(actor)} ${action} per il giorno ${fmt(date)}`;
@@ -292,30 +321,46 @@ function applyTheme(){
   else if(currentUser.role==="viewer")document.body.classList.add("theme-dirigente");
   else document.body.classList.add("theme-employee");
 }
+
 function saveSession(){
   if(!currentUser)return;
-  localStorage.setItem(SESSION_STORE, JSON.stringify({userId:currentUser.id, at:Date.now()}));
+  try{
+    localStorage.setItem(SESSION_STORE, JSON.stringify({
+      userId: currentUser.id,
+      at: Date.now()
+    }));
+  }catch(e){}
 }
-function clearSession(){localStorage.removeItem(SESSION_STORE)}
+function clearSession(){
+  try{localStorage.removeItem(SESSION_STORE)}catch(e){}
+}
 function restoreSession(){
   try{
-    let raw=localStorage.getItem(SESSION_STORE);
+    const raw=localStorage.getItem(SESSION_STORE);
     if(!raw)return false;
-    let s=JSON.parse(raw);
-    let u=db.users.find(x=>x.id===s.userId&&x.approved);
+    const session=JSON.parse(raw);
+    const u=db.users.find(x=>x.id===session.userId && x.approved);
     if(!u)return false;
     currentUser=u;
-    selectedSectorId=u.role==="admin"?"prevenzione":u.sectorId;
+    selectedSectorId=u.role==="admin" ? "prevenzione" : u.sectorId;
     selectedAreaFilter="all";
     selectedPlanArea="all";
-    page=page||"calendar";
+    if(!page)page="calendar";
     return true;
-  }catch(e){return false}
+  }catch(e){
+    return false;
+  }
 }
 function syncCurrentUserAfterDbUpdate(){
   if(!currentUser)return;
-  let fresh=db.users.find(u=>u.id===currentUser.id&&u.approved);
-  if(fresh){currentUser=fresh;saveSession()}else{currentUser=null;clearSession()}
+  const fresh=db.users.find(u=>u.id===currentUser.id && u.approved);
+  if(fresh){
+    currentUser=fresh;
+    saveSession();
+  }else{
+    currentUser=null;
+    clearSession();
+  }
 }
 
 function login(){let email=document.getElementById("loginEmail").value.trim().toLowerCase(),password=document.getElementById("loginPassword").value,u=db.users.find(x=>x.email.toLowerCase()===email&&x.password===password);if(!u){document.getElementById("loginError").textContent="Email o password non valide.";return}if(!u.approved){
@@ -325,10 +370,10 @@ function login(){let email=document.getElementById("loginEmail").value.trim().to
     return
   }currentUser=u;saveSession();selectedSectorId=u.role==="admin"?"prevenzione":u.sectorId;selectedAreaFilter="all";selectedPlanArea="all";page="calendar";render()}
 function logout(){currentUser=null;adminUser=null;clearSession();renderLogin()}
-function renderLogin(message=""){document.body.classList.remove("theme-admin","theme-referente","theme-employee","theme-dirigente");app.innerHTML=`<div class="login-page"><div class="login-box"><div class="logo">📅</div><div class="card"><div class="top"><h1>Gestione Personale</h1></div>${message?`<div class="notice">${message}</div>`:""}<label>Email</label><input id="loginEmail" value="jackfrosties@hotmail.it"><label>Password</label><input id="loginPassword" value="admin" type="password"><button class="btn primary full" onclick="login()">Entra</button><button class="btn secondary full" onclick="renderRegister()">Registrati</button><button class="forgot-link" onclick="renderForgotPassword()">Password dimenticata?</button><p id="loginError" class="error"></p></div></div></div>`}
-function renderRegister(){app.innerHTML=`<div class="login-page"><div class="login-box"><div class="logo">👤</div><div class="card"><div class="top"><h1>Registrazione</h1><span class="pill">Registrazione</span></div><div class="form-grid"><div><label>Nome</label><input id="regName"></div><div><label>Cognome</label><input id="regSurname"></div></div><label>Email</label><input id="regEmail"><label>Password</label><input id="regPassword" type="password"><div class="form-grid"><div><label>Settore</label><select id="regSector" onchange="refreshRegisterAreas()">${db.sectors.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")}</select></div><div id="regAreaWrap"><label>Area</label><select id="regArea"></select></div></div><div class="form-grid"><div><label>C02</label><input id="regC02" type="number" value="0"></div><div><label>C01</label><input id="regC01" type="number" value="0"></div></div><button class="btn primary full" onclick="registerUser()">Invia registrazione</button><button class="btn secondary full" onclick="renderLogin()">Torna al login</button><p id="regError" class="error"></p></div></div></div>`;refreshRegisterAreas()}
+function renderLogin(message=""){document.body.classList.remove("theme-admin","theme-referente","theme-employee","theme-dirigente");app.innerHTML=`<div class="login-page"><div class="login-box"><div class="logo">📅</div><div class="card"><div class="top"><h1>Gestione Personale</h1></div>${message?`<div class="notice">${message}</div>`:""}<label>Email</label><input id="loginEmail" placeholder="Email"><label>Password</label><input id="loginPassword" value="admin" type="password"><button class="btn primary full" onclick="login()">Entra</button><button class="btn secondary full" onclick="renderRegister()">Registrati</button><button class="forgot-link" onclick="renderForgotPassword()">Password dimenticata?</button><p id="loginError" class="error"></p></div></div></div>`}
+function renderRegister(){app.innerHTML=`<div class="login-page"><div class="login-box"><div class="logo">👤</div><div class="card"><div class="top"><h1>Registrazione</h1><span class="pill">Registrazione</span></div><div class="form-grid"><div><label>Nome</label><input id="regName"></div><div><label>Cognome</label><input id="regSurname"></div></div><label>Email</label><input id="regEmail"><label>Password</label><input id="loginPassword" type="password" placeholder="Password"><div class="form-grid"><div><label>Settore</label><select id="regSector" onchange="refreshRegisterAreas()">${db.sectors.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")}</select></div><div id="regAreaWrap"><label>Area</label><select id="regArea"></select></div></div><div class="form-grid"><div><label>C01 ferie anno attuale</label><input id="regC01" type="number" value="0"></div><div><label>C02 ferie anno precedente</label><input id="regC02" type="number" value="0"></div><div><label>F14 festività soppresse residue</label><input id="regF14" type="number" value="0"></div></div><button class="btn primary full" onclick="registerUser()">Invia registrazione</button><button class="btn secondary full" onclick="renderLogin()">Torna al login</button><p id="regError" class="error"></p></div></div></div>`;refreshRegisterAreas()}
 function refreshRegisterAreas(){let sec=document.getElementById("regSector").value,sector=sectorById(sec),wrap=document.getElementById("regAreaWrap"),sel=document.getElementById("regArea");if(sector&&sector.hasAreas){wrap.style.display="block";sel.innerHTML=areasOfSector(sec).map(a=>`<option value="${a.id}">${a.name}</option>`).join("")}else{wrap.style.display="none";let a=areasOfSector(sec)[0];sel.innerHTML=a?`<option value="${a.id}">${a.name}</option>`:""}}
-function registerUser(){let name=document.getElementById("regName").value.trim(),surname=document.getElementById("regSurname").value.trim(),email=document.getElementById("regEmail").value.trim().toLowerCase(),password=document.getElementById("regPassword").value,sectorId=document.getElementById("regSector").value,areaId=document.getElementById("regArea").value,c02=Number(document.getElementById("regC02").value||0),c01=Number(document.getElementById("regC01").value||0);if(!name||!surname||!email||!password||!areaId){document.getElementById("regError").textContent="Compila tutti i dati.";return}let existing=db.users.find(u=>u.email.toLowerCase()===email);
+function registerUser(){let name=document.getElementById("regName").value.trim(),surname=document.getElementById("regSurname").value.trim(),email=document.getElementById("regEmail").value.trim().toLowerCase(),password=document.getElementById("regPassword").value,sectorId=document.getElementById("regSector").value,areaId=document.getElementById("regArea").value,c02=Number(document.getElementById("regC02").value||0),c01=Number(document.getElementById("regC01").value||0),f14=Number(document.getElementById("regF14").value||0);if(!name||!surname||!email||!password||!areaId){document.getElementById("regError").textContent="Compila tutti i dati.";return}let existing=db.users.find(u=>u.email.toLowerCase()===email);
   if(existing){
     if(!existing.approved){
       document.getElementById("regError").textContent="Registrazione già inviata: utenza in attesa di approvazione dal super admin.";
@@ -336,7 +381,7 @@ function registerUser(){let name=document.getElementById("regName").value.trim()
     }
     document.getElementById("regError").textContent="Email già registrata.";
     return;
-  }db.users.push({id:uid("user"),email,password,name,surname,role:"employee",sectorId,areaId,visibleSectorIds:[sectorId],editableAreaIds:[],c01,c02,approved:false,initials:createInitialsForUser(name,surname),color:"#0ea5e9"});pushNotification({text:`Nuova utenza da abilitare: ${name} ${surname} - ${sectorName(sectorId)} / ${areaName(areaId)}`,scope:"admin",type:"registration",actorId:"system",sectorId,areaId});addAudit(`Nuova registrazione: ${name} ${surname}`);saveDb();renderLogin("Registrazione inviata. Il super admin deciderà ruolo e permessi.")}
+  }db.users.push({id:uid("user"),email,password,name,surname,role:"employee",sectorId,areaId,visibleSectorIds:[sectorId],editableAreaIds:[],c01,c02,f14,approved:false,initials:createInitialsForUser(name,surname),color:"#0ea5e9"});pushNotification({text:`Nuova utenza da abilitare: ${name} ${surname} - ${sectorName(sectorId)} / ${areaName(areaId)}`,scope:"admin",type:"registration",actorId:"system",sectorId,areaId});addAudit(`Nuova registrazione: ${name} ${surname}`);saveDb();renderLogin("Registrazione inviata. Il super admin deciderà ruolo e permessi.")}
 function renderForgotPassword(){
   app.innerHTML=`<div class="login-page"><div class="login-box"><div class="logo">🔐</div><div class="card"><div class="top"><h1>Password dimenticata</h1><span class="pill">richiesta admin</span></div><label>Email</label><input id="forgotEmail"><button class="btn primary full" onclick="sendForgotPassword()">Invia richiesta</button><button class="btn secondary full" onclick="renderLogin()">Torna al login</button><p id="forgotMsg" class="small"></p></div></div></div>`;
 }
@@ -456,13 +501,13 @@ function renderDayModal(){
 function renderInlineEventForm(){
   let people=visibleUsers().filter(u=>canModifyUserEvents(u.id));
   if(currentUser.role==="employee"){
-    return `<div class="card insert-card"><h3 class="section-title">Inserisci / modifica</h3><div class="quick-form"><select id="eventStatus"><option value="smart">Smart working</option><option value="ferie">Ferie</option><option value="malattia">Malattia</option><option value="permesso">Permesso</option><option value="altro">Altro</option><option value="present">In servizio / rimuovi assenza</option></select><button class="btn primary" onclick="saveEventFromPopup()">Salva</button></div><p id="eventError" class="error"></p></div>`;
+    return `<div class="card insert-card"><h3 class="section-title">Inserisci / modifica</h3><div class="quick-form"><select id="eventStatus"><option value="c01">C01 - Ferie anno attuale</option><option value="c02">C02 - Ferie anno precedente</option><option value="f14">F14 - Festività soppresse</option><option value="smart">SW - Smart working</option><option value="a01">A01 - Malattia</option><option value="altro">ALTRO</option><option value="present">In servizio / rimuovi assenza</option></select><button class="btn primary" onclick="saveEventFromPopup()">Salva</button></div><p id="eventError" class="error"></p></div>`;
   }
-  return `<div class="card insert-card"><h3 class="section-title">Inserisci / modifica</h3><div class="quick-form manager"><select id="eventUser">${people.map(u=>`<option value="${u.id}">${fullName(u)} - ${areaName(u.areaId)}</option>`).join("")}</select><select id="eventStatus"><option value="smart">Smart working</option><option value="ferie">Ferie</option><option value="malattia">Malattia</option><option value="permesso">Permesso</option><option value="altro">Altro</option><option value="present">In servizio / rimuovi assenza</option></select><button class="btn primary" onclick="saveEventFromPopup()">Salva</button></div><p id="eventError" class="error"></p></div>`;
+  return `<div class="card insert-card"><h3 class="section-title">Inserisci / modifica</h3><div class="quick-form manager"><select id="eventUser">${people.map(u=>`<option value="${u.id}">${fullName(u)} - ${areaName(u.areaId)}</option>`).join("")}</select><select id="eventStatus"><option value="c01">C01 - Ferie anno attuale</option><option value="c02">C02 - Ferie anno precedente</option><option value="f14">F14 - Festività soppresse</option><option value="smart">SW - Smart working</option><option value="a01">A01 - Malattia</option><option value="altro">ALTRO</option><option value="present">In servizio / rimuovi assenza</option></select><button class="btn primary" onclick="saveEventFromPopup()">Salva</button></div><p id="eventError" class="error"></p></div>`;
 }
 function saveEventFromPopup(){
   let userId=document.getElementById("eventUser")?document.getElementById("eventUser").value:currentUser.id;
-  let st=document.getElementById("eventStatus").value,date=selectedDate,u=db.users.find(x=>x.id===userId);
+  let st=normalizeEventCode(document.getElementById("eventStatus").value),date=selectedDate,u=db.users.find(x=>x.id===userId);
   if(st==="smart"){
     let v=validateSmartRule(date,userId);
     if(!v.ok){document.getElementById("eventError").textContent=v.message;return}
@@ -489,9 +534,9 @@ function removeEvent(date,userId){
 function renderProfile(){let u=currentUser;layout(`<div class="top"><h1>DATI PERSONALI</h1><span class="pill">${roleLabel(u.role)}</span></div><div class="grid two"><div class="card"><h3 class="section-title">I miei dati</h3><div class="form-grid"><div><label>Nome</label><input id="profileName" value="${u.name}"></div><div><label>Cognome</label><input id="profileSurname" value="${u.surname||""}"></div><div><label>Email</label><input value="${u.email}" disabled></div><div><label>Settore</label><input value="${sectorName(u.sectorId)}" disabled></div><div><label>Area</label><input value="${areaName(u.areaId)}" disabled></div><div><label>Ruolo</label><input value="${roleLabel(u.role)}" disabled></div></div><button class="btn primary" onclick="saveProfile()">Salva nome e cognome</button></div><div class="card"><h3 class="section-title">Richiesta cambio password</h3><label>Nuova password richiesta</label><input id="requestedPassword" type="password"><button class="btn secondary" onclick="requestPasswordChange()">Invia richiesta</button><p id="profileMsg" class="small"></p></div></div>`)}
 function saveProfile(){currentUser.name=document.getElementById("profileName").value.trim();currentUser.surname=document.getElementById("profileSurname").value.trim();currentUser.initials=createInitialsForUser(currentUser.name,currentUser.surname,currentUser.id);let u=db.users.find(x=>x.id===currentUser.id);Object.assign(u,currentUser);addAudit(`${fullName(currentUser)} ha aggiornato nome/cognome`);saveDb();render()}
 function requestPasswordChange(){let pwd=document.getElementById("requestedPassword").value;if(!pwd){document.getElementById("profileMsg").textContent="Inserisci la nuova password richiesta.";return}db.requests.unshift({id:uid("req"),type:"password",userId:currentUser.id,newPassword:pwd,status:"pending",at:new Date().toLocaleString("it-IT")});pushNotification({text:`${fullName(currentUser)} ha richiesto cambio password`,scope:"admin",actorId:"system",type:"password",sectorId:currentUser.sectorId,areaId:currentUser.areaId});saveDb();document.getElementById("profileMsg").textContent="Richiesta inviata."}
-function renderRegisterColleague(){let sectors=currentUser.role==="admin"?db.sectors:db.sectors.filter(s=>s.id===currentUser.sectorId);layout(`<div class="top"><h1>REGISTRA COLLEGA</h1><span class="pill">${roleLabel(currentUser.role)}</span></div><div class="card"><div class="form-grid"><div><label>Nome</label><input id="colName"></div><div><label>Cognome</label><input id="colSurname"></div><div><label>Email</label><input id="colEmail"></div><div><label>Password provvisoria</label><input id="colPassword" value="1234"></div><div><label>Settore</label><select id="colSector" onchange="refreshColAreas()">${sectors.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")}</select></div><div><label>Area</label><select id="colArea"></select></div><div><label>C02</label><input id="colC02" type="number" value="0"></div><div><label>C01</label><input id="colC01" type="number" value="0"></div></div><button class="btn primary" onclick="saveColleague()">Registra collega</button><p id="colMsg" class="small"></p></div>`);refreshColAreas()}
+function renderRegisterColleague(){let sectors=currentUser.role==="admin"?db.sectors:db.sectors.filter(s=>s.id===currentUser.sectorId);layout(`<div class="top"><h1>REGISTRA COLLEGA</h1><span class="pill">${roleLabel(currentUser.role)}</span></div><div class="card"><div class="form-grid"><div><label>Nome</label><input id="colName"></div><div><label>Cognome</label><input id="colSurname"></div><div><label>Email</label><input id="colEmail"></div><div><label>Password provvisoria</label><input id="colPassword" value="1234"></div><div><label>Settore</label><select id="colSector" onchange="refreshColAreas()">${sectors.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")}</select></div><div><label>Area</label><select id="colArea"></select></div><div><label>C01 ferie anno attuale</label><input id="colC01" type="number" value="0"></div><div><label>C02 ferie anno precedente</label><input id="colC02" type="number" value="0"></div><div><label>F14 festività soppresse residue</label><input id="colF14" type="number" value="0"></div></div><button class="btn primary" onclick="saveColleague()">Registra collega</button><p id="colMsg" class="small"></p></div>`);refreshColAreas()}
 function refreshColAreas(){let sec=document.getElementById("colSector").value,sel=document.getElementById("colArea"),areas=areasOfSector(sec);if(currentUser.role==="sector_manager")areas=areas.filter(a=>(currentUser.editableAreaIds||[]).includes(a.id));sel.innerHTML=areas.map(a=>`<option value="${a.id}">${a.name}</option>`).join("")}
-function saveColleague(){let name=document.getElementById("colName").value.trim(),surname=document.getElementById("colSurname").value.trim(),email=document.getElementById("colEmail").value.trim().toLowerCase(),password=document.getElementById("colPassword").value||"1234",sectorId=document.getElementById("colSector").value,areaId=document.getElementById("colArea").value,c02=Number(document.getElementById("colC02").value||0),c01=Number(document.getElementById("colC01").value||0);if(!name||!surname||!email||!areaId){document.getElementById("colMsg").textContent="Compila tutti i dati.";return}if(currentUser.role==="sector_manager"&&!(currentUser.editableAreaIds||[]).includes(areaId)){document.getElementById("colMsg").textContent="Non puoi registrare colleghi in questa area.";return}if(db.users.some(u=>u.email.toLowerCase()===email)){document.getElementById("colMsg").textContent="Email già presente.";return}db.users.push({id:uid("user"),email,password,name,surname,role:"employee",sectorId,areaId,visibleSectorIds:[sectorId],editableAreaIds:[],c01,c02,approved:true,initials:createInitialsForUser(name,surname),color:"#0ea5e9"});saveDb();document.getElementById("colMsg").textContent="Collega registrato."}
+function saveColleague(){let name=document.getElementById("colName").value.trim(),surname=document.getElementById("colSurname").value.trim(),email=document.getElementById("colEmail").value.trim().toLowerCase(),password=document.getElementById("colPassword").value||"1234",sectorId=document.getElementById("colSector").value,areaId=document.getElementById("colArea").value,c02=Number(document.getElementById("colC02").value||0),c01=Number(document.getElementById("colC01").value||0),f14=Number(document.getElementById("colF14").value||0);if(!name||!surname||!email||!areaId){document.getElementById("colMsg").textContent="Compila tutti i dati.";return}if(currentUser.role==="sector_manager"&&!(currentUser.editableAreaIds||[]).includes(areaId)){document.getElementById("colMsg").textContent="Non puoi registrare colleghi in questa area.";return}if(db.users.some(u=>u.email.toLowerCase()===email)){document.getElementById("colMsg").textContent="Email già presente.";return}db.users.push({id:uid("user"),email,password,name,surname,role:"employee",sectorId,areaId,visibleSectorIds:[sectorId],editableAreaIds:[],c01,c02,f14,approved:true,initials:createInitialsForUser(name,surname),color:"#0ea5e9"});saveDb();document.getElementById("colMsg").textContent="Collega registrato."}
 
 function usersForAdminPeople(){
   if(currentUser.role!=="admin")return visibleUsers(true);
@@ -506,30 +551,34 @@ function renderPeople(){
   layout(`<div class="top"><h1>DIPENDENTI</h1><div>${selectorControls()}</div></div><div class="notice">${currentUser.role==="admin"?"Super admin: puoi modificare tutto tranne la matricola, che è stata rimossa per privacy.":"Referente: vedi il settore intero, ma modifichi solo le aree abilitate."}</div><div class="grid two"><div class="card"><h3 class="section-title">Elenco</h3>${rows||"<p class='small'>Nessun utente.</p>"}</div>${detail}</div>`);
 }
 
-function renderEmployeeDetail(u){if(!u)return"";let protectedDisabled=!canEditProtectedData()?"disabled":"",canEdit=canEditEmployeeData(u.id);if(!canEdit)return`<div class="card"><p class="small">Puoi visualizzare questo utente, ma non modificarlo.</p>${personRow(u,selectedDate,false)}</div>`;return`<div class="card"><h3 class="section-title">Scheda utente</h3><div class="form-grid"><div><label>Nome</label><input id="d_name" value="${u.name}"></div><div><label>Cognome</label><input id="d_surname" value="${u.surname||""}"></div><div><label>Email</label><input id="d_email" value="${u.email}" ${protectedDisabled}></div><div><label>Password</label><input id="d_password" value="${u.password}" ${protectedDisabled}></div><div><label>Settore</label><select id="d_sector" onchange="refreshDetailAreas()" ${protectedDisabled}>${db.sectors.map(s=>`<option value="${s.id}" ${u.sectorId===s.id?'selected':''}>${s.name}</option>`).join("")}</select></div><div><label>Area</label><select id="d_area" ${protectedDisabled}></select></div><div><label>Ruolo</label><select id="d_role" ${protectedDisabled}><option value="employee" ${u.role==="employee"?'selected':''}>Dipendente</option><option value="viewer" ${u.role==="viewer"?'selected':''}>Dirigente</option><option value="sector_manager" ${u.role==="sector_manager"?'selected':''}>Referente</option></select></div><div><label>Stato</label><select id="d_approved" ${protectedDisabled}><option value="true" ${u.approved?'selected':''}>Abilitato</option><option value="false" ${!u.approved?'selected':''}>Non abilitato</option></select></div><div><label>C02</label><input id="d_c02" type="number" value="${u.c02||0}" ${protectedDisabled}></div><div><label>C01</label><input id="d_c01" type="number" value="${u.c01||0}" ${protectedDisabled}></div></div>${canEditProtectedData()?`<label>Aree modificabili se referente</label><div class="check-list">${db.areas.map(a=>`<label class="check-row"><input type="checkbox" class="d_edit_area" value="${a.id}" ${(u.editableAreaIds||[]).includes(a.id)?'checked':''}> ${sectorName(a.sectorId)} / ${a.name}</label>`).join("")}</div><label>Settori visibili se dirigente</label><div class="check-list">${db.sectors.map(s=>`<label class="check-row"><input type="checkbox" class="d_visible_sector" value="${s.id}" ${(u.visibleSectorIds||[]).includes(s.id)?'checked':''}> ${s.name}</label>`).join("")}</div>`:""}<div class="actions"><button class="btn primary" onclick="saveEmployeeDetail('${u.id}')">Salva modifiche</button>${canEditProtectedData()?`<button class="btn danger" onclick="deleteUser('${u.id}')">Elimina</button>`:""}</div></div>`}
+function renderEmployeeDetail(u){if(!u)return"";let protectedDisabled=!canEditProtectedData()?"disabled":"",canEdit=canEditEmployeeData(u.id);if(!canEdit)return`<div class="card"><p class="small">Puoi visualizzare questo utente, ma non modificarlo.</p>${personRow(u,selectedDate,false)}</div>`;return`<div class="card"><h3 class="section-title">Scheda utente</h3><div class="form-grid"><div><label>Nome</label><input id="d_name" value="${u.name}"></div><div><label>Cognome</label><input id="d_surname" value="${u.surname||""}"></div><div><label>Email</label><input id="d_email" value="${u.email}" ${protectedDisabled}></div><div><label>Password</label><input id="d_password" value="${u.password}" ${protectedDisabled}></div><div><label>Settore</label><select id="d_sector" onchange="refreshDetailAreas()" ${protectedDisabled}>${db.sectors.map(s=>`<option value="${s.id}" ${u.sectorId===s.id?'selected':''}>${s.name}</option>`).join("")}</select></div><div><label>Area</label><select id="d_area" ${protectedDisabled}></select></div><div><label>Ruolo</label><select id="d_role" ${protectedDisabled}><option value="employee" ${u.role==="employee"?'selected':''}>Dipendente</option><option value="viewer" ${u.role==="viewer"?'selected':''}>Dirigente</option><option value="sector_manager" ${u.role==="sector_manager"?'selected':''}>Referente</option></select></div><div><label>Stato</label><select id="d_approved" ${protectedDisabled}><option value="true" ${u.approved?'selected':''}>Abilitato</option><option value="false" ${!u.approved?'selected':''}>Non abilitato</option></select></div><div><label>C01 ferie anno attuale</label><input id="d_c01" type="number" value="${u.c01||0}" ${protectedDisabled}></div><div><label>C02 ferie anno precedente</label><input id="d_c02" type="number" value="${u.c02||0}" ${protectedDisabled}></div><div><label>F14 festività soppresse</label><input id="d_f14" type="number" value="${u.f14||0}" ${protectedDisabled}></div></div>${canEditProtectedData()?`<label>Aree modificabili se referente</label><div class="check-list">${db.areas.map(a=>`<label class="check-row"><input type="checkbox" class="d_edit_area" value="${a.id}" ${(u.editableAreaIds||[]).includes(a.id)?'checked':''}> ${sectorName(a.sectorId)} / ${a.name}</label>`).join("")}</div><label>Settori visibili se dirigente</label><div class="check-list">${db.sectors.map(s=>`<label class="check-row"><input type="checkbox" class="d_visible_sector" value="${s.id}" ${(u.visibleSectorIds||[]).includes(s.id)?'checked':''}> ${s.name}</label>`).join("")}</div>`:""}<div class="actions"><button class="btn primary" onclick="saveEmployeeDetail('${u.id}')">Salva modifiche</button>${canEditProtectedData()?`<button class="btn danger" onclick="deleteUser('${u.id}')">Elimina</button>`:""}</div></div>`}
 function refreshDetailAreas(){let sec=document.getElementById("d_sector").value,area=document.getElementById("d_area"),u=db.users.find(x=>x.id===selectedEmployeeId);area.innerHTML=areasOfSector(sec).map(a=>`<option value="${a.id}" ${u&&u.areaId===a.id?'selected':''}>${a.name}</option>`).join("")}
-function saveEmployeeDetail(id){let u=db.users.find(x=>x.id===id);if(!u||!canEditEmployeeData(id))return;u.name=document.getElementById("d_name").value;u.surname=document.getElementById("d_surname").value;u.initials=createInitialsForUser(u.name,u.surname,u.id);if(canEditProtectedData()){u.email=document.getElementById("d_email").value;u.password=document.getElementById("d_password").value;u.sectorId=document.getElementById("d_sector").value;u.areaId=document.getElementById("d_area").value;u.role=document.getElementById("d_role").value;u.approved=document.getElementById("d_approved").value==="true";u.c02=Number(document.getElementById("d_c02").value||0);u.c01=Number(document.getElementById("d_c01").value||0);u.editableAreaIds=[...document.querySelectorAll(".d_edit_area:checked")].map(x=>x.value);u.visibleSectorIds=[...document.querySelectorAll(".d_visible_sector:checked")].map(x=>x.value);if(u.role==="employee"){u.visibleSectorIds=[u.sectorId];u.editableAreaIds=[]}if(u.role==="sector_manager"&&u.editableAreaIds.length===0)u.editableAreaIds=[u.areaId];if(u.role==="viewer"&&u.visibleSectorIds.length===0)u.visibleSectorIds=[u.sectorId];if(u.role==="viewer")u.color="#dc2626";if(u.role==="sector_manager")u.color="#7c3aed"}addAudit(`Aggiornata scheda di ${fullName(u)}`);saveDb();render()}
+function saveEmployeeDetail(id){let u=db.users.find(x=>x.id===id);if(!u||!canEditEmployeeData(id))return;u.name=document.getElementById("d_name").value;u.surname=document.getElementById("d_surname").value;u.initials=createInitialsForUser(u.name,u.surname,u.id);if(canEditProtectedData()){u.email=document.getElementById("d_email").value;u.password=document.getElementById("d_password").value;u.sectorId=document.getElementById("d_sector").value;u.areaId=document.getElementById("d_area").value;u.role=document.getElementById("d_role").value;u.approved=document.getElementById("d_approved").value==="true";u.c02=Number(document.getElementById("d_c02").value||0);u.c01=Number(document.getElementById("d_c01").value||0);u.f14=Number(document.getElementById("d_f14").value||0);u.editableAreaIds=[...document.querySelectorAll(".d_edit_area:checked")].map(x=>x.value);u.visibleSectorIds=[...document.querySelectorAll(".d_visible_sector:checked")].map(x=>x.value);if(u.role==="employee"){u.visibleSectorIds=[u.sectorId];u.editableAreaIds=[]}if(u.role==="sector_manager"&&u.editableAreaIds.length===0)u.editableAreaIds=[u.areaId];if(u.role==="viewer"&&u.visibleSectorIds.length===0)u.visibleSectorIds=[u.sectorId];if(u.role==="viewer")u.color="#dc2626";if(u.role==="sector_manager")u.color="#7c3aed"}addAudit(`Aggiornata scheda di ${fullName(u)}`);saveDb();render()}
 function deleteUser(id){if(!confirm("Eliminare utente?"))return;let u=db.users.find(x=>x.id===id);db.users=db.users.filter(x=>x.id!==id);Object.keys(db.events).forEach(d=>delete db.events[d][id]);addAudit(`Eliminato ${fullName(u)}`);saveDb();selectedEmployeeId=null;render()}
 
 function userReport(u){
-  let smart=0,ferie=0,malattia=0,permesso=0,altro=0;
+  let r={c01:0,c02:0,f14:0,smart:0,a01:0,altro:0};
   Object.keys(db.events).forEach(d=>{
     if(isBlockedDay(d))return;
-    let st=db.events[d][u.id];
-    if(st==="smart")smart++;
-    if(st==="ferie")ferie++;
-    if(st==="malattia")malattia++;
-    if(st==="permesso")permesso++;
-    if(st==="altro")altro++;
+    let st=normalizeEventCode(db.events[d][u.id]);
+    if(r[st]!==undefined)r[st]++;
   });
-  let total=Number(u.c01||0)+Number(u.c02||0);
-  return{smart,ferie,malattia,permesso,altro,total,residue:total-ferie};
+  r.c01Total=Number(u.c01||0);
+  r.c02Total=Number(u.c02||0);
+  r.f14Total=Number(u.f14||0);
+  r.c01Residue=r.c01Total-r.c01;
+  r.c02Residue=r.c02Total-r.c02;
+  r.f14Residue=r.f14Total-r.f14;
+  r.ferieUsate=r.c01+r.c02+r.f14;
+  r.ferieResidue=r.c01Residue+r.c02Residue+r.f14Residue;
+  r.totaleDisponibile=r.c01Total+r.c02Total+r.f14Total;
+  return r;
 }
 function renderReports(){
   let people=currentUser.role==="employee"?[currentUser]:visibleUsers();
   let cards=people.map(u=>{
     let r=userReport(u);
-    let usedPct=r.total?Math.min(100,Math.round((r.ferie/r.total)*100)):0;
+    let usedPct=r.totaleDisponibile?Math.min(100,Math.round((r.ferieUsate/r.totaleDisponibile)*100)):0;
     return `<div class="summary-card">
       <div class="person" style="border-bottom:0;padding-top:0">
         <div class="avatar ${avatarClass(u)}" style="background:${u.color}">${u.initials}</div>
@@ -537,12 +586,14 @@ function renderReports(){
       </div>
       <div class="summary-bar"><span style="width:${usedPct}%"></span></div>
       <div class="summary-grid">
-        <div><strong>${r.residue}</strong><span>Ferie residue</span></div>
-        <div><strong>${r.ferie}</strong><span>Ferie usate</span></div>
-        <div><strong>${r.smart}</strong><span>Smart working</span></div>
-        <div><strong>${r.malattia+r.permesso+r.altro}</strong><span>Altre assenze</span></div>
+        <div><strong>${r.c01Residue}</strong><span>C01 residue</span></div>
+        <div><strong>${r.c02Residue}</strong><span>C02 residue</span></div>
+        <div><strong>${r.f14Residue}</strong><span>F14 residue</span></div>
+        <div><strong>${r.smart}</strong><span>SW usati</span></div>
+        <div><strong>${r.a01}</strong><span>A01 malattia</span></div>
+        <div><strong>${r.altro}</strong><span>ALTRO</span></div>
       </div>
-      <p class="small">Totale ferie disponibili: ${r.total} giorni · Utilizzo: ${usedPct}%</p>
+      <p class="small">Usate: C01 ${r.c01} · C02 ${r.c02} · F14 ${r.f14}. Totale residuo ferie/festività: ${r.ferieResidue} giorni.</p>
     </div>`;
   }).join("");
   layout(`<div class="top"><h1>RIEPILOGO</h1><div>${selectorControls()}</div></div><div class="summary-wrap">${cards}</div>`);
@@ -632,17 +683,20 @@ function closePlanDay(){
   render();
 }
 function renderPlanDayModal(){
-  if(!planModalOpen||!selectedPlanDate)return "";
-  let sectorId=selectedPlanSectorId||selectedSectorId||currentUser.sectorId;
-  let areaId=selectedPlanAreaForModal||selectedPlanArea||"all";
+  if(!planModalOpen || !selectedPlanDate)return "";
+  let sectorId=selectedPlanSectorId || selectedSectorId || currentUser.sectorId;
+  let areaId=selectedPlanAreaForModal || selectedPlanArea || "all";
   let people=planPeople(sectorId,areaId).sort(sortByName);
-  let holidays=people.filter(u=>eventFor(selectedPlanDate,u.id)==="ferie").sort(sortByName);
-  let present=people.filter(u=>eventFor(selectedPlanDate,u.id)!=="ferie").sort(sortByName);
+  let holidays=people.filter(u=>isFerieCode(eventFor(selectedPlanDate,u.id))).sort(sortByName);
+  let present=people.filter(u=>!isFerieCode(eventFor(selectedPlanDate,u.id))).sort(sortByName);
   return `<div class="modal-backdrop plan-day-backdrop" onclick="if(event.target.classList.contains('plan-day-backdrop'))closePlanDay()">
     <div class="modal ios-sheet">
       <div class="modal-grabber"></div>
       <div class="modal-head">
-        <div><h2>${fmt(selectedPlanDate)}</h2><p class="small">Piano ferie - ${areaId==="all"?sectorName(sectorId):areaName(areaId)}</p></div>
+        <div>
+          <h2>${fmt(selectedPlanDate)}</h2>
+          <p class="small">Piano ferie - ${areaId==="all"?sectorName(sectorId):areaName(areaId)}</p>
+        </div>
         <button class="close" onclick="closePlanDay()">Chiudi</button>
       </div>
       <div class="card day-list-card"><h3 class="section-title">In ferie</h3>${holidays.length?holidays.map(u=>personRow(u,selectedPlanDate,false)).join(""):`<p class="small">Nessuno in ferie.</p>`}</div>
@@ -732,7 +786,7 @@ function renderPlanGrid(month,sectorId,areaId){
   const people=planPeople(sectorId,areaId);
   const total=people.length||1;
   return `<div class="plan-grid">${workingDaysOfMonth(month).map(({date,day})=>{
-    let onHoliday=people.filter(u=>eventFor(date,u.id)==="ferie").sort(sortByName);
+    let onHoliday=people.filter(u=>isFerieCode(eventFor(date,u.id))).sort(sortByName);
     let pct=Math.round((onHoliday.length/total)*100);
     let fill=pct?`<div class="plan-fill" style="width:${pct}%;background:${pctColor(pct)}"></div>`:"";
     let names="";
@@ -778,14 +832,37 @@ function triggerImportData(){
   input.click();
 }
 function render(){if(!currentUser)return renderLogin();if(page==="calendar")return renderCalendar();if(page==="plan")return renderPlan();if(page==="profile")return renderProfile();if(page==="notifications")return renderNotifications();if(page==="people")return renderPeople();if(page==="registercolleague")return renderRegisterColleague();if(page==="reports")return renderReports();if(page==="admin")return renderAdmin()}
-document.addEventListener("click",function(e){
-  const card=e.target.closest(".plan-clickable");
-  if(card){e.preventDefault();e.stopPropagation();openPlanDay(card.dataset.date,card.dataset.sector,card.dataset.area);}
-});
 document.addEventListener("keydown",function(e){
   const card=e.target.closest(".plan-clickable");
   if(card&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openPlanDay(card.dataset.date,card.dataset.sector,card.dataset.area);}
 });
+
+
+function handlePlanCardActivation(target){
+  const card=target.closest ? target.closest(".plan-clickable") : null;
+  if(!card)return false;
+  openPlanDay(card.dataset.date,card.dataset.sector,card.dataset.area);
+  return true;
+}
+document.addEventListener("click",function(e){
+  if(handlePlanCardActivation(e.target)){
+    e.preventDefault();
+    e.stopPropagation();
+  }
+},true);
+document.addEventListener("touchend",function(e){
+  if(handlePlanCardActivation(e.target)){
+    e.preventDefault();
+    e.stopPropagation();
+  }
+},{capture:true,passive:false});
+document.addEventListener("keydown",function(e){
+  const card=e.target.closest ? e.target.closest(".plan-clickable") : null;
+  if(card && (e.key==="Enter" || e.key===" ")){
+    e.preventDefault();
+    openPlanDay(card.dataset.date,card.dataset.sector,card.dataset.area);
+  }
+},true);
 
 initFirebaseSync();
 if(restoreSession()) render(); else renderLogin();

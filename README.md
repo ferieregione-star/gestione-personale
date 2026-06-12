@@ -105,3 +105,21 @@ service cloud.firestore {
 - Avvisi SW solo nel popup card.
 - Tap piano ferie robusto mobile/desktop.
 - PDF piano ferie un mese per foglio, senza pagina iniziale vuota, titolo senza INSIEME.
+
+
+## v50 STABILE
+Questa versione blocca le nuove funzioni e consolida:
+- sessione persistente dopo refresh;
+- popup piano ferie mobile/desktop con listener robusto;
+- tasto indietro;
+- cache PWA aggiornata;
+- export PDF piano ferie più pulito;
+- avvisi SW visibili solo entrando nel giorno/card.
+
+
+## v51 CODICI ASSENZE
+- Registrazione: C01, C02, F14 residue.
+- Inserimenti: C01, C02, F14, SW, A01, ALTRO.
+- Riepilogo: residui e usati separati per C01/C02/F14, conteggi SW/A01/ALTRO.
+- Piano ferie considera C01/C02/F14 come ferie.
+- Migrazione automatica: vecchie ferie=C01, malattia=A01, permesso=F14.
