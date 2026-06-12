@@ -62,7 +62,7 @@ function scheduleCloudSave(){
 
 let liveChannel=null;
 try{
-  liveChannel=new BroadcastChannel("gestione_personale_v51_live");
+  liveChannel=new BroadcastChannel("gestione_personale_v61_live");
   liveChannel.onmessage=()=>reloadFromStorage();
 }catch(e){}
 function reloadFromStorage(){
@@ -78,13 +78,12 @@ function reloadFromStorage(){
 window.addEventListener("storage",reloadFromStorage);
 window.addEventListener("focus",reloadFromStorage);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)reloadFromStorage()});
-setInterval(()=>{if(currentUser)reloadFromStorage()},1000);
 
-const VERSION="v51";
-const STORE="gestione_personale_v51";
-const SESSION_STORE="gestione_personale_session_v51";
-const LEGACY_STORES=["gestione_personale_v26","ufficioflex_gestionale_v25","ufficioflex_gestionale_v24","ufficioflex_gestionale_v23"];
-const DATA_SCHEMA_VERSION=51;
+const VERSION="v61";
+const STORE="gestione_personale_v61";
+const SESSION_STORE="gestione_personale_session_v61";
+const LEGACY_STORES=[];
+const DATA_SCHEMA_VERSION=61;
 const STATUS={
 present:{label:"In servizio",short:"S",cls:"present",color:"#16a34a"},
 smart:{label:"SW - Smart working",short:"SW",cls:"smart",color:"#2563eb"},
@@ -101,23 +100,12 @@ const ROLE_LABELS={admin:"Super admin",employee:"Dipendente",viewer:"Dirigente",
 const INITIAL_SECTORS=[{id:"prevenzione",name:"Settore 4",hasAreas:true},{id:"territorio",name:"Settore 7",hasAreas:true}];
 const INITIAL_AREAS=[{id:"prev",sectorId:"prevenzione",name:"Prevenzione",color:"#2563eb"},{id:"vet",sectorId:"prevenzione",name:"Veterinaria",color:"#dc2626"},{id:"terr",sectorId:"territorio",name:"Territorio",color:"#2563eb"},{id:"conv",sectorId:"territorio",name:"Convenzionata",color:"#dc2626"}];
 const seedUsers=[
-{id:"admin",email:"jackfrosties@hotmail.it",password:"admin",name:"Amministratore",surname:"Gestore",role:"admin",sectorId:"*",areaId:"*",visibleSectorIds:["prevenzione","territorio"],editableAreaIds:["prev","vet","terr","conv"],c01:0,c02:0,f14:4,approved:true,initials:"AG",color:"#0b1f3a"},
-{id:"dir-pre",email:"dirigente.prevenzione@demo.it",password:"1234",name:"Dirigente",surname:"Prevenzione",role:"viewer",sectorId:"prevenzione",areaId:"*",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:0,c02:0,f14:4,approved:true,initials:"DP",color:"#dc2626"},
-{id:"ref-prev",email:"roberta.rogliano@demo.it",password:"1234",name:"Roberta",surname:"Rogliano",role:"sector_manager",sectorId:"prevenzione",areaId:"prev",visibleSectorIds:["prevenzione"],editableAreaIds:["prev"],c01:24,c02:4,f14:4,approved:true,initials:"RR",color:"#7c3aed"},
-{id:"ref-vet",email:"francesca.tavella@demo.it",password:"1234",name:"Francesca",surname:"Tavella",role:"sector_manager",sectorId:"prevenzione",areaId:"vet",visibleSectorIds:["prevenzione"],editableAreaIds:["vet"],c01:24,c02:4,f14:4,approved:true,initials:"FT",color:"#7c3aed"},
-{id:"pre-1",email:"pre1@demo.it",password:"1234",name:"Mario",surname:"Rossi",role:"employee",sectorId:"prevenzione",areaId:"prev",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:24,c02:8,f14:4,approved:true,initials:"MR",color:"#0ea5e9"},
-{id:"pre-2",email:"pre2@demo.it",password:"1234",name:"Andrea",surname:"Bianchi",role:"employee",sectorId:"prevenzione",areaId:"vet",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:22,c02:5,f14:4,approved:true,initials:"AB",color:"#16a34a"},
-{id:"pre-3",email:"pre3@demo.it",password:"1234",name:"Paolo",surname:"Greco",role:"employee",sectorId:"prevenzione",areaId:"prev",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:25,c02:2,f14:4,approved:true,initials:"PG",color:"#f97316"},
-{id:"pre-4",email:"pre4@demo.it",password:"1234",name:"Elena",surname:"Lombardi",role:"employee",sectorId:"prevenzione",areaId:"vet",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:23,c02:6,f14:4,approved:true,initials:"EL",color:"#7c3aed"},
-{id:"pre-5",email:"pre5@demo.it",password:"1234",name:"Carlo",surname:"Moretti",role:"employee",sectorId:"prevenzione",areaId:"prev",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:26,c02:1,f14:4,approved:true,initials:"CM",color:"#64748b"},
-{id:"pre-6",email:"pre6@demo.it",password:"1234",name:"Sara",surname:"Conti",role:"employee",sectorId:"prevenzione",areaId:"vet",visibleSectorIds:["prevenzione"],editableAreaIds:[],c01:24,c02:3,f14:4,approved:true,initials:"SC",color:"#ef4444"},
-{id:"dir-ter",email:"dirigente.territorio@demo.it",password:"1234",name:"Dirigente",surname:"Territorio",role:"viewer",sectorId:"territorio",areaId:"terr",visibleSectorIds:["territorio"],editableAreaIds:[],c01:0,c02:0,f14:4,approved:true,initials:"DT",color:"#dc2626"},
-{id:"ref-ter",email:"referente.territorio@demo.it",password:"1234",name:"Referente",surname:"Territorio",role:"sector_manager",sectorId:"territorio",areaId:"terr",visibleSectorIds:["territorio"],editableAreaIds:["terr"],c01:0,c02:0,f14:4,approved:true,initials:"RT",color:"#7c3aed"},
-{id:"ter-1",email:"ter1@demo.it",password:"1234",name:"Andrea",surname:"Verdi",role:"employee",sectorId:"territorio",areaId:"terr",visibleSectorIds:["territorio"],editableAreaIds:[],c01:26,c02:4,f14:4,approved:true,initials:"AV",color:"#f97316"},
+{id:"admin",email:"jackfrosties@hotmail.it",password:"admin",name:"Super",surname:"Admin",role:"admin",sectorId:"*",areaId:"*",visibleSectorIds:["prevenzione","territorio"],editableAreaIds:["prev","vet","terr","conv"],c01:0,c02:0,f14:0,approved:true,initials:"SA",color:"#0b1f3a"}
 ];
-const seedEvents={"2025-06-10":{"pre-1":"ferie","pre-3":"ferie","pre-2":"ferie"},"2025-06-11":{"pre-4":"ferie"},"2025-07-01":{"pre-1":"smart","pre-2":"ferie"},"2025-07-02":{"pre-4":"smart"},"2025-07-15":{"pre-1":"smart","pre-3":"smart","pre-2":"smart"},"2025-08-04":{"pre-4":"ferie","pre-6":"ferie"},"2025-09-02":{"pre-1":"ferie"},"2025-12-22":{"pre-2":"ferie","pre-3":"ferie"},"2026-01-05":{"pre-4":"ferie"},"2026-04-02":{"pre-1":"ferie","pre-6":"ferie"}};
+const seedEvents={};
 let db=loadDb();
 normalizeSectorsAndAreas();
+productionCleanupData();
 let currentUser=null;
 let adminUser=null;
 let mobileMenuOpen=false;
@@ -167,7 +155,7 @@ function migrateDb(data){
     });
   });
 
-  db=data; normalizeSectorsAndAreas(); data=db;
+  db=data; normalizeSectorsAndAreas(); productionCleanupData(); data=db;
   return data;
 }
 
@@ -180,6 +168,57 @@ function normalizeSectorsAndAreas(){
   ea("prev","prevenzione","Prevenzione","#2563eb"); ea("vet","prevenzione","Veterinaria","#dc2626"); ea("terr","territorio","Territorio","#2563eb"); ea("conv","territorio","Convenzionata","#dc2626");
   db.users=(db.users||[]).filter(u=>u.sectorId!=="accreditamento");
   db.users.forEach(u=>{if(u.sectorId==="territorio"&&(u.areaId==="territorio"||u.areaId==="*"))u.areaId="terr"; if(Array.isArray(u.editableAreaIds))u.editableAreaIds=u.editableAreaIds.map(x=>x==="territorio"?"terr":x).filter(x=>x!=="accreditamento"); if(Array.isArray(u.visibleSectorIds))u.visibleSectorIds=u.visibleSectorIds.filter(x=>x!=="accreditamento");});
+}
+
+
+function productionCleanupData(){
+  const demoIds=["dir-pre","ref-prev","ref-vet","pre-1","pre-2","pre-3","pre-4","pre-5","pre-6","dir-ter","ref-ter","ter-1"];
+  const demoDomain="@de"+"mo.it";
+  db.users=(db.users||[]).filter(u=>{
+    if(u.id==="admin")return true;
+    if(demoIds.includes(u.id))return false;
+    if((u.email||"").toLowerCase().endsWith(demoDomain))return false;
+    return true;
+  });
+  Object.keys(db.events||{}).forEach(date=>{
+    demoIds.forEach(id=>{ if(db.events[date]) delete db.events[date][id]; });
+    if(db.events[date] && Object.keys(db.events[date]).length===0) delete db.events[date];
+  });
+  db.notifications=(db.notifications||[]).filter(n=>!demoIds.includes(n.actorId));
+  let admin=db.users.find(u=>u.id==="admin");
+  if(!admin){
+    db.users.unshift(seedUsers[0]);
+  }else{
+    admin.email=admin.email||"jackfrosties@hotmail.it";
+    admin.password=admin.password||"admin";
+    admin.role="admin";
+    admin.approved=true;
+    admin.sectorId="*";
+    admin.areaId="*";
+    admin.visibleSectorIds=db.sectors.map(s=>s.id);
+    admin.editableAreaIds=db.areas.map(a=>a.id);
+    admin.name=admin.name||"Super";
+    admin.surname=admin.surname||"Admin";
+    admin.initials=admin.initials||"SA";
+  }
+}
+
+
+async function saveDbImmediate(){
+  const raw=JSON.stringify(db);
+  localStorage.setItem(STORE,raw);
+  lastDbSnapshot=raw;
+  try{if(liveChannel)liveChannel.postMessage({type:"update",t:Date.now()})}catch(e){}
+  if(cloudDocRef){
+    try{
+      await cloudDocRef.set({db:migrateDb(db),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    }catch(e){
+      console.error("Salvataggio immediato cloud fallito:",e);
+      throw e;
+    }
+  }else{
+    scheduleCloudSave();
+  }
 }
 
 function saveDb(){const raw=JSON.stringify(db);localStorage.setItem(STORE,raw);lastDbSnapshot=raw;try{if(liveChannel)liveChannel.postMessage({type:"update",t:Date.now()})}catch(e){}; scheduleCloudSave();}
@@ -370,18 +409,80 @@ function login(){let email=document.getElementById("loginEmail").value.trim().to
     return
   }currentUser=u;saveSession();selectedSectorId=u.role==="admin"?"prevenzione":u.sectorId;selectedAreaFilter="all";selectedPlanArea="all";page="calendar";render()}
 function logout(){currentUser=null;adminUser=null;clearSession();renderLogin()}
-function renderLogin(message=""){document.body.classList.remove("theme-admin","theme-referente","theme-employee","theme-dirigente");app.innerHTML=`<div class="login-page"><div class="login-box"><div class="logo">📅</div><div class="card"><div class="top"><h1>Gestione Personale</h1></div>${message?`<div class="notice">${message}</div>`:""}<label>Email</label><input id="loginEmail" placeholder="Email"><label>Password</label><input id="loginPassword" value="admin" type="password"><button class="btn primary full" onclick="login()">Entra</button><button class="btn secondary full" onclick="renderRegister()">Registrati</button><button class="forgot-link" onclick="renderForgotPassword()">Password dimenticata?</button><p id="loginError" class="error"></p></div></div></div>`}
-function renderRegister(){app.innerHTML=`<div class="login-page"><div class="login-box"><div class="logo">👤</div><div class="card"><div class="top"><h1>Registrazione</h1><span class="pill">Registrazione</span></div><div class="form-grid"><div><label>Nome</label><input id="regName"></div><div><label>Cognome</label><input id="regSurname"></div></div><label>Email</label><input id="regEmail"><label>Password</label><input id="loginPassword" type="password" placeholder="Password"><div class="form-grid"><div><label>Settore</label><select id="regSector" onchange="refreshRegisterAreas()">${db.sectors.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")}</select></div><div id="regAreaWrap"><label>Area</label><select id="regArea"></select></div></div><div class="form-grid"><div><label>C01 ferie anno attuale</label><input id="regC01" type="number" value="0"></div><div><label>C02 ferie anno precedente</label><input id="regC02" type="number" value="0"></div><div><label>F14 festività soppresse residue</label><input id="regF14" type="number" value="0"></div></div><button class="btn primary full" onclick="registerUser()">Invia registrazione</button><button class="btn secondary full" onclick="renderLogin()">Torna al login</button><p id="regError" class="error"></p></div></div></div>`;refreshRegisterAreas()}
+function renderLogin(message=""){
+  document.body.classList.remove("theme-admin","theme-referente","theme-employee","theme-dirigente");
+  app.innerHTML=`<div class="login-page"><div class="login-box"><div class="logo">📅</div><div class="card"><div class="top"><h1>Gestione Personale</h1></div>${message?`<div class="notice">${message}</div>`:""}<label>Email</label><input id="loginEmail" autocomplete="username" placeholder="Email"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password"><button class="btn primary full" onclick="login()">Entra</button><button class="btn secondary full" onclick="renderRegister()">Registrati</button><button class="forgot-link" onclick="renderForgotPassword()">Password dimenticata?</button><p id="loginError" class="error"></p></div></div></div>`;
+}
+function renderRegister(){app.innerHTML=`<div class="login-page"><div class="login-box"><div class="logo">👤</div><div class="card"><div class="top"><h1>Registrazione</h1><span class="pill">Registrazione</span></div><div class="form-grid"><div><label>Nome</label><input id="regName"></div><div><label>Cognome</label><input id="regSurname"></div></div><label>Email</label><input id="regEmail"><label>Password</label><input id="regPassword" type="password" autocomplete="new-password" placeholder="Password"><div class="form-grid"><div><label>Settore</label><select id="regSector" onchange="refreshRegisterAreas()">${db.sectors.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")}</select></div><div id="regAreaWrap"><label>Area</label><select id="regArea"></select></div></div><div class="form-grid"><div><label>C01 ferie anno attuale</label><input id="regC01" type="number" value="0"></div><div><label>C02 ferie anno precedente</label><input id="regC02" type="number" value="0"></div><div><label>F14 festività soppresse residue</label><input id="regF14" type="number" value="0"></div></div><button type="button" class="btn primary full" onclick="registerUser()">Invia registrazione</button><button class="btn secondary full" onclick="renderLogin()">Torna al login</button><p id="regError" class="error"></p></div></div></div>`;refreshRegisterAreas()}
 function refreshRegisterAreas(){let sec=document.getElementById("regSector").value,sector=sectorById(sec),wrap=document.getElementById("regAreaWrap"),sel=document.getElementById("regArea");if(sector&&sector.hasAreas){wrap.style.display="block";sel.innerHTML=areasOfSector(sec).map(a=>`<option value="${a.id}">${a.name}</option>`).join("")}else{wrap.style.display="none";let a=areasOfSector(sec)[0];sel.innerHTML=a?`<option value="${a.id}">${a.name}</option>`:""}}
-function registerUser(){let name=document.getElementById("regName").value.trim(),surname=document.getElementById("regSurname").value.trim(),email=document.getElementById("regEmail").value.trim().toLowerCase(),password=document.getElementById("regPassword").value,sectorId=document.getElementById("regSector").value,areaId=document.getElementById("regArea").value,c02=Number(document.getElementById("regC02").value||0),c01=Number(document.getElementById("regC01").value||0),f14=Number(document.getElementById("regF14").value||0);if(!name||!surname||!email||!password||!areaId){document.getElementById("regError").textContent="Compila tutti i dati.";return}let existing=db.users.find(u=>u.email.toLowerCase()===email);
+async function registerUser(){
+  let name=document.getElementById("regName").value.trim(),
+      surname=document.getElementById("regSurname").value.trim(),
+      email=document.getElementById("regEmail").value.trim().toLowerCase(),
+      password=document.getElementById("regPassword").value,
+      sectorId=document.getElementById("regSector").value,
+      areaId=document.getElementById("regArea").value,
+      c02=Number(document.getElementById("regC02").value||0),
+      c01=Number(document.getElementById("regC01").value||0),
+      f14=Number(document.getElementById("regF14").value||0);
+
+  if(!name||!surname||!email||!password||!areaId){
+    document.getElementById("regError").textContent="Compila tutti i dati.";
+    return;
+  }
+
+  let existing=db.users.find(u=>(u.email||"").toLowerCase()===email);
   if(existing){
     if(!existing.approved){
-      document.getElementById("regError").textContent="Registrazione già inviata: utenza in attesa di approvazione dal super admin.";
+      renderLogin("Registrazione già inviata. Utenza in attesa di approvazione dal super admin.");
       return;
     }
     document.getElementById("regError").textContent="Email già registrata.";
     return;
-  }db.users.push({id:uid("user"),email,password,name,surname,role:"employee",sectorId,areaId,visibleSectorIds:[sectorId],editableAreaIds:[],c01,c02,f14,approved:false,initials:createInitialsForUser(name,surname),color:"#0ea5e9"});pushNotification({text:`Nuova utenza da abilitare: ${name} ${surname} - ${sectorName(sectorId)} / ${areaName(areaId)}`,scope:"admin",type:"registration",actorId:"system",sectorId,areaId});addAudit(`Nuova registrazione: ${name} ${surname}`);saveDb();renderLogin("Registrazione inviata. Il super admin deciderà ruolo e permessi.")}
+  }
+
+  db.users.push({
+    id:uid("user"),
+    email,
+    password,
+    name,
+    surname,
+    role:"employee",
+    sectorId,
+    areaId,
+    visibleSectorIds:[sectorId],
+    editableAreaIds:[],
+    c01,
+    c02,
+    f14,
+    approved:false,
+    initials:createInitialsForUser(name,surname),
+    color:"#0ea5e9"
+  });
+
+  pushNotification({
+    text:`Nuova utenza da abilitare: ${name} ${surname} - ${sectorName(sectorId)} / ${areaName(areaId)}`,
+    scope:"admin",
+    type:"registration",
+    actorId:"system",
+    sectorId,
+    areaId
+  });
+
+  addAudit(`Nuova registrazione: ${name} ${surname}`);
+
+  const btn=document.querySelector("button[onclick='registerUser()']");
+  if(btn){btn.disabled=true;btn.textContent="Invio in corso...";}
+
+  try{
+    await saveDbImmediate();
+    renderLogin("Registrazione inviata. Utenza in attesa di approvazione dal super admin.");
+  }catch(e){
+    const err=document.getElementById("regError");
+    if(err)err.textContent="Errore durante l'invio della registrazione. Riprova tra qualche secondo.";
+    if(btn){btn.disabled=false;btn.textContent="Invia registrazione";}
+  }
+}
 function renderForgotPassword(){
   app.innerHTML=`<div class="login-page"><div class="login-box"><div class="logo">🔐</div><div class="card"><div class="top"><h1>Password dimenticata</h1><span class="pill">richiesta admin</span></div><label>Email</label><input id="forgotEmail"><button class="btn primary full" onclick="sendForgotPassword()">Invia richiesta</button><button class="btn secondary full" onclick="renderLogin()">Torna al login</button><p id="forgotMsg" class="small"></p></div></div></div>`;
 }
@@ -534,7 +635,7 @@ function removeEvent(date,userId){
 function renderProfile(){let u=currentUser;layout(`<div class="top"><h1>DATI PERSONALI</h1><span class="pill">${roleLabel(u.role)}</span></div><div class="grid two"><div class="card"><h3 class="section-title">I miei dati</h3><div class="form-grid"><div><label>Nome</label><input id="profileName" value="${u.name}"></div><div><label>Cognome</label><input id="profileSurname" value="${u.surname||""}"></div><div><label>Email</label><input value="${u.email}" disabled></div><div><label>Settore</label><input value="${sectorName(u.sectorId)}" disabled></div><div><label>Area</label><input value="${areaName(u.areaId)}" disabled></div><div><label>Ruolo</label><input value="${roleLabel(u.role)}" disabled></div></div><button class="btn primary" onclick="saveProfile()">Salva nome e cognome</button></div><div class="card"><h3 class="section-title">Richiesta cambio password</h3><label>Nuova password richiesta</label><input id="requestedPassword" type="password"><button class="btn secondary" onclick="requestPasswordChange()">Invia richiesta</button><p id="profileMsg" class="small"></p></div></div>`)}
 function saveProfile(){currentUser.name=document.getElementById("profileName").value.trim();currentUser.surname=document.getElementById("profileSurname").value.trim();currentUser.initials=createInitialsForUser(currentUser.name,currentUser.surname,currentUser.id);let u=db.users.find(x=>x.id===currentUser.id);Object.assign(u,currentUser);addAudit(`${fullName(currentUser)} ha aggiornato nome/cognome`);saveDb();render()}
 function requestPasswordChange(){let pwd=document.getElementById("requestedPassword").value;if(!pwd){document.getElementById("profileMsg").textContent="Inserisci la nuova password richiesta.";return}db.requests.unshift({id:uid("req"),type:"password",userId:currentUser.id,newPassword:pwd,status:"pending",at:new Date().toLocaleString("it-IT")});pushNotification({text:`${fullName(currentUser)} ha richiesto cambio password`,scope:"admin",actorId:"system",type:"password",sectorId:currentUser.sectorId,areaId:currentUser.areaId});saveDb();document.getElementById("profileMsg").textContent="Richiesta inviata."}
-function renderRegisterColleague(){let sectors=currentUser.role==="admin"?db.sectors:db.sectors.filter(s=>s.id===currentUser.sectorId);layout(`<div class="top"><h1>REGISTRA COLLEGA</h1><span class="pill">${roleLabel(currentUser.role)}</span></div><div class="card"><div class="form-grid"><div><label>Nome</label><input id="colName"></div><div><label>Cognome</label><input id="colSurname"></div><div><label>Email</label><input id="colEmail"></div><div><label>Password provvisoria</label><input id="colPassword" value="1234"></div><div><label>Settore</label><select id="colSector" onchange="refreshColAreas()">${sectors.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")}</select></div><div><label>Area</label><select id="colArea"></select></div><div><label>C01 ferie anno attuale</label><input id="colC01" type="number" value="0"></div><div><label>C02 ferie anno precedente</label><input id="colC02" type="number" value="0"></div><div><label>F14 festività soppresse residue</label><input id="colF14" type="number" value="0"></div></div><button class="btn primary" onclick="saveColleague()">Registra collega</button><p id="colMsg" class="small"></p></div>`);refreshColAreas()}
+function renderRegisterColleague(){let sectors=currentUser.role==="admin"?db.sectors:db.sectors.filter(s=>s.id===currentUser.sectorId);layout(`<div class="top"><h1>REGISTRA COLLEGA</h1><span class="pill">${roleLabel(currentUser.role)}</span></div><div class="card"><div class="form-grid"><div><label>Nome</label><input id="colName"></div><div><label>Cognome</label><input id="colSurname"></div><div><label>Email</label><input id="colEmail"></div><div><label>Password provvisoria</label><input id="colPassword" placeholder="Password provvisoria"></div><div><label>Settore</label><select id="colSector" onchange="refreshColAreas()">${sectors.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")}</select></div><div><label>Area</label><select id="colArea"></select></div><div><label>C01 ferie anno attuale</label><input id="colC01" type="number" value="0"></div><div><label>C02 ferie anno precedente</label><input id="colC02" type="number" value="0"></div><div><label>F14 festività soppresse residue</label><input id="colF14" type="number" value="0"></div></div><button class="btn primary" onclick="saveColleague()">Registra collega</button><p id="colMsg" class="small"></p></div>`);refreshColAreas()}
 function refreshColAreas(){let sec=document.getElementById("colSector").value,sel=document.getElementById("colArea"),areas=areasOfSector(sec);if(currentUser.role==="sector_manager")areas=areas.filter(a=>(currentUser.editableAreaIds||[]).includes(a.id));sel.innerHTML=areas.map(a=>`<option value="${a.id}">${a.name}</option>`).join("")}
 function saveColleague(){let name=document.getElementById("colName").value.trim(),surname=document.getElementById("colSurname").value.trim(),email=document.getElementById("colEmail").value.trim().toLowerCase(),password=document.getElementById("colPassword").value||"1234",sectorId=document.getElementById("colSector").value,areaId=document.getElementById("colArea").value,c02=Number(document.getElementById("colC02").value||0),c01=Number(document.getElementById("colC01").value||0),f14=Number(document.getElementById("colF14").value||0);if(!name||!surname||!email||!areaId){document.getElementById("colMsg").textContent="Compila tutti i dati.";return}if(currentUser.role==="sector_manager"&&!(currentUser.editableAreaIds||[]).includes(areaId)){document.getElementById("colMsg").textContent="Non puoi registrare colleghi in questa area.";return}if(db.users.some(u=>u.email.toLowerCase()===email)){document.getElementById("colMsg").textContent="Email già presente.";return}db.users.push({id:uid("user"),email,password,name,surname,role:"employee",sectorId,areaId,visibleSectorIds:[sectorId],editableAreaIds:[],c01,c02,f14,approved:true,initials:createInitialsForUser(name,surname),color:"#0ea5e9"});saveDb();document.getElementById("colMsg").textContent="Collega registrato."}
 
