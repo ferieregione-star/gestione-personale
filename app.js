@@ -34,10 +34,7 @@ function initFirebaseSync(){
       const raw=JSON.stringify(db);
       localStorage.setItem(STORE,raw);
       lastDbSnapshot=raw;
-      if(currentUser){
-        currentUser=db.users.find(u=>u.id===currentUser.id)||currentUser;
-        render();
-      }
+      if(currentUser){syncCurrentUserAfterDbUpdate();render();}else{restoreSession();if(currentUser)render();}
       cloudApplying=false;
       cloudReady=true;
     },err=>{
@@ -65,7 +62,7 @@ function scheduleCloudSave(){
 
 let liveChannel=null;
 try{
-  liveChannel=new BroadcastChannel("gestione_personale_v37_live");
+  liveChannel=new BroadcastChannel("gestione_personale_v40_live");
   liveChannel.onmessage=()=>reloadFromStorage();
 }catch(e){}
 function reloadFromStorage(){
@@ -75,10 +72,7 @@ function reloadFromStorage(){
     lastDbSnapshot=raw;
     const fresh=JSON.parse(raw);
     db=fresh;
-    if(currentUser){
-      currentUser=db.users.find(u=>u.id===currentUser.id)||currentUser;
-      render();
-    }
+    if(currentUser){syncCurrentUserAfterDbUpdate();render();}else{restoreSession();if(currentUser)render();}
   }catch(e){}
 }
 window.addEventListener("storage",reloadFromStorage);
@@ -86,10 +80,11 @@ window.addEventListener("focus",reloadFromStorage);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)reloadFromStorage()});
 setInterval(()=>{if(currentUser)reloadFromStorage()},1000);
 
-const VERSION="v37";
-const STORE="gestione_personale_v37";
+const VERSION="v40";
+const STORE="gestione_personale_v40";
+const SESSION_STORE="gestione_personale_session_v40";
 const LEGACY_STORES=["gestione_personale_v26","ufficioflex_gestionale_v25","ufficioflex_gestionale_v24","ufficioflex_gestionale_v23"];
-const DATA_SCHEMA_VERSION=37;
+const DATA_SCHEMA_VERSION=40;
 const STATUS={present:{label:"In servizio",short:"S",cls:"present",color:"#16a34a"},smart:{label:"Smart working",short:"SW",cls:"smart",color:"#2563eb"},ferie:{label:"Ferie",short:"F",cls:"ferie",color:"#f97316"},malattia:{label:"Malattia",short:"M",cls:"malattia",color:"#ef4444"},permesso:{label:"Permesso",short:"P",cls:"permesso",color:"#7c3aed"},altro:{label:"Altro",short:"A",cls:"altro",color:"#64748b"}};
 const ROLE_LABELS={admin:"Super admin",employee:"Dipendente",viewer:"Dirigente",sector_manager:"Referente"};
 const INITIAL_SECTORS=[{id:"prevenzione",name:"Settore 4",hasAreas:true},{id:"territorio",name:"Settore 7",hasAreas:true}];
@@ -115,6 +110,7 @@ normalizeSectorsAndAreas();
 let currentUser=null;
 let adminUser=null;
 let mobileMenuOpen=false;
+let navStack=[];
 let planModalOpen=false;
 let selectedPlanDate=null;
 let selectedPlanSectorId=null;
@@ -296,13 +292,39 @@ function applyTheme(){
   else if(currentUser.role==="viewer")document.body.classList.add("theme-dirigente");
   else document.body.classList.add("theme-employee");
 }
+function saveSession(){
+  if(!currentUser)return;
+  localStorage.setItem(SESSION_STORE, JSON.stringify({userId:currentUser.id, at:Date.now()}));
+}
+function clearSession(){localStorage.removeItem(SESSION_STORE)}
+function restoreSession(){
+  try{
+    let raw=localStorage.getItem(SESSION_STORE);
+    if(!raw)return false;
+    let s=JSON.parse(raw);
+    let u=db.users.find(x=>x.id===s.userId&&x.approved);
+    if(!u)return false;
+    currentUser=u;
+    selectedSectorId=u.role==="admin"?"prevenzione":u.sectorId;
+    selectedAreaFilter="all";
+    selectedPlanArea="all";
+    page=page||"calendar";
+    return true;
+  }catch(e){return false}
+}
+function syncCurrentUserAfterDbUpdate(){
+  if(!currentUser)return;
+  let fresh=db.users.find(u=>u.id===currentUser.id&&u.approved);
+  if(fresh){currentUser=fresh;saveSession()}else{currentUser=null;clearSession()}
+}
+
 function login(){let email=document.getElementById("loginEmail").value.trim().toLowerCase(),password=document.getElementById("loginPassword").value,u=db.users.find(x=>x.email.toLowerCase()===email&&x.password===password);if(!u){document.getElementById("loginError").textContent="Email o password non valide.";return}if(!u.approved){
     pushNotification({text:`Promemoria: ${fullName(u)} è ancora in attesa di approvazione`,scope:"admin",type:"registration",actorId:"system",sectorId:u.sectorId,areaId:u.areaId});
     saveDb();
     document.getElementById("loginError").textContent="Utenza in attesa di approvazione dal super admin.";
     return
-  }currentUser=u;selectedSectorId=u.role==="admin"?"prevenzione":u.sectorId;selectedAreaFilter="all";selectedPlanArea="all";page="calendar";render()}
-function logout(){currentUser=null;renderLogin()}
+  }currentUser=u;saveSession();selectedSectorId=u.role==="admin"?"prevenzione":u.sectorId;selectedAreaFilter="all";selectedPlanArea="all";page="calendar";render()}
+function logout(){currentUser=null;adminUser=null;clearSession();renderLogin()}
 function renderLogin(message=""){document.body.classList.remove("theme-admin","theme-referente","theme-employee","theme-dirigente");app.innerHTML=`<div class="login-page"><div class="login-box"><div class="logo">📅</div><div class="card"><div class="top"><h1>Gestione Personale</h1></div>${message?`<div class="notice">${message}</div>`:""}<label>Email</label><input id="loginEmail" value="jackfrosties@hotmail.it"><label>Password</label><input id="loginPassword" value="admin" type="password"><button class="btn primary full" onclick="login()">Entra</button><button class="btn secondary full" onclick="renderRegister()">Registrati</button><button class="forgot-link" onclick="renderForgotPassword()">Password dimenticata?</button><p id="loginError" class="error"></p></div></div></div>`}
 function renderRegister(){app.innerHTML=`<div class="login-page"><div class="login-box"><div class="logo">👤</div><div class="card"><div class="top"><h1>Registrazione</h1><span class="pill">Registrazione</span></div><div class="form-grid"><div><label>Nome</label><input id="regName"></div><div><label>Cognome</label><input id="regSurname"></div></div><label>Email</label><input id="regEmail"><label>Password</label><input id="regPassword" type="password"><div class="form-grid"><div><label>Settore</label><select id="regSector" onchange="refreshRegisterAreas()">${db.sectors.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")}</select></div><div id="regAreaWrap"><label>Area</label><select id="regArea"></select></div></div><div class="form-grid"><div><label>C02</label><input id="regC02" type="number" value="0"></div><div><label>C01</label><input id="regC01" type="number" value="0"></div></div><button class="btn primary full" onclick="registerUser()">Invia registrazione</button><button class="btn secondary full" onclick="renderLogin()">Torna al login</button><p id="regError" class="error"></p></div></div></div>`;refreshRegisterAreas()}
 function refreshRegisterAreas(){let sec=document.getElementById("regSector").value,sector=sectorById(sec),wrap=document.getElementById("regAreaWrap"),sel=document.getElementById("regArea");if(sector&&sector.hasAreas){wrap.style.display="block";sel.innerHTML=areasOfSector(sec).map(a=>`<option value="${a.id}">${a.name}</option>`).join("")}else{wrap.style.display="none";let a=areasOfSector(sec)[0];sel.innerHTML=a?`<option value="${a.id}">${a.name}</option>`:""}}
@@ -327,7 +349,23 @@ function sendForgotPassword(){
   saveDb();
   document.getElementById("forgotMsg").textContent="Richiesta inviata.";
 }
-function nav(id){page=id;modalOpen=false;mobileMenuOpen=false;render()}
+function pageTitleLabel(){
+  const labels={calendar:"Calendario",plan:"Piano ferie",profile:"Dati personali",people:"Dipendenti",registercolleague:"Registra collega",reports:"Riepilogo",admin:"Admin",notifications:"Notifiche"};
+  return labels[page]||"Gestione Personale";
+}
+function goBack(){
+  if(modalOpen){modalOpen=false;render();return}
+  if(planModalOpen){closePlanDay();return}
+  let prev=navStack.pop();
+  page=prev||"calendar";
+  render();
+}
+function backButton(){
+  if(page==="calendar"&&!modalOpen&&!planModalOpen)return "";
+  return `<button class="back-btn no-print" onclick="goBack()">← Indietro</button>`;
+}
+
+function nav(id){if(page!==id)navStack.push(page);page=id;modalOpen=false;planModalOpen=false;mobileMenuOpen=false;render()}
 
 function startImpersonation(userId){
   if(currentUser.role!=="admin"&&!adminUser)return;
@@ -380,8 +418,8 @@ function layout(content){
   applyTheme();
   document.body.classList.remove("page-calendar","page-plan","page-profile","page-people","page-registercolleague","page-reports","page-admin","page-notifications");
   document.body.classList.add("page-"+page);
-  const navHtml=`<div class="brand"><div class="brand-icon">📅</div><div><strong>Gestione Personale</strong></div></div><div class="nav">${navButton("calendar","📅 Calendario")}${navButton("plan","🗓️ Piano ferie")}${navButton("profile","👤 Dati personali")}${canManageUsers()?navButton("people","👥 Dipendenti"):""}${canRegisterColleagues()?navButton("registercolleague","➕ Registra collega"):""}${navButton("reports","📊 Riepilogo")}${canManageUsers()?navButton("admin","⚙️ Admin"):""}</div><div class="userbox small"><b>${fullName(currentUser)}</b><br>${roleLabel(currentUser.role)}${adminUser?`<br><button class="btn secondary full" onclick="stopImpersonation()">Torna super admin</button>`:""}<button class="btn secondary full" onclick="logout()">Esci</button></div>`;
-  app.innerHTML=`<div class="mobile-appbar no-print"><button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button><strong>Gestione Personale</strong><div>${bellButton()}</div></div>${mobileMenuOpen?`<div class="mobile-overlay" onclick="toggleMobileMenu()"></div>`:""}<div class="app ${mobileMenuOpen?'menu-open':''}"><aside class="sidebar">${navHtml}</aside><main class="main"><div class="global-bell-wrap no-print desktop-bell">${bellButton()}</div>${adminUser?`<div class="impersonation-banner no-print">Modalità super admin: stai visualizzando come <b>${fullName(currentUser)}</b></div>`:""}${content}</main></div>`;
+  const navHtml=`<div class="brand"><div class="brand-icon">📅</div><div><strong>Gestione Personale</strong></div></div><div class="nav">${navButton("calendar","📅 Calendario")}${navButton("plan","🗓️ Piano ferie")}${navButton("profile","👤 Dati personali")}${canManageUsers()?navButton("people","👥 Dipendenti"):""}${canRegisterColleagues()?navButton("registercolleague","➕ Registra collega"):""}${navButton("reports","📊 Riepilogo")}${canManageUsers()?navButton("admin","⚙️ Admin"):""}</div><div class="userbox small"><b>${fullName(currentUser)}</b><br>${userContextLabel(currentUser)}${adminUser?`<br><button class="btn secondary full" onclick="stopImpersonation()">Torna super admin</button>`:""}<button class="btn secondary full" onclick="logout()">Esci</button></div>`;
+  app.innerHTML=`<div class="mobile-appbar no-print"><button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button><strong>${pageTitleLabel()}</strong><div>${bellButton()}</div></div>${mobileMenuOpen?`<div class="mobile-overlay" onclick="toggleMobileMenu()"></div>`:""}<div class="app ${mobileMenuOpen?'menu-open':''}"><aside class="sidebar">${navHtml}</aside><main class="main"><div class="global-bell-wrap no-print desktop-bell">${bellButton()}</div>${backButton()}${adminUser?`<div class="impersonation-banner no-print">Modalità super admin: stai visualizzando come <b>${fullName(currentUser)}</b></div>`:""}${content}</main></div>`;
 }
 function avatarClass(u){return u.role==="viewer"?"viewer":u.role==="sector_manager"?"referente":""}
 function nameClass(u){return u.role==="viewer"?"name-viewer":u.role==="sector_manager"?"name-referente":""}
@@ -710,7 +748,6 @@ function renderPlanGrid(month,sectorId,areaId){
   }).join("")}</div>`;
 }
 
-
 function exportData(){
   const blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"});
   const a=document.createElement("a");
@@ -741,4 +778,4 @@ function triggerImportData(){
 }
 function render(){if(!currentUser)return renderLogin();if(page==="calendar")return renderCalendar();if(page==="plan")return renderPlan();if(page==="profile")return renderProfile();if(page==="notifications")return renderNotifications();if(page==="people")return renderPeople();if(page==="registercolleague")return renderRegisterColleague();if(page==="reports")return renderReports();if(page==="admin")return renderAdmin()}
 initFirebaseSync();
-renderLogin();
+if(restoreSession()) render(); else renderLogin();

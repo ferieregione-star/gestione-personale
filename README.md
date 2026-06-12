@@ -91,3 +91,11 @@ service cloud.firestore {
 - Piano ferie desktop: nomi uno sotto l'altro, prima area blu poi area rossa, ordine alfabetico.
 - Rimossa visualizzazione destra/sinistra nelle card del piano ferie.
 - Cache PWA aggiornata a v37.
+
+
+## v40 STRUTTURA STABILE
+- Sessione persistente dopo refresh.
+- Tasto Indietro globale.
+- Popup piano ferie rifatto.
+- Piano ferie desktop con nomi impilati per area e ordinati.
+- Cache PWA v40.
