@@ -296,7 +296,6 @@ function layout(content){
     '<nav class="bottom-tabbar no-print">'+
     '<button class="'+(page==="calendar"?"active":"")+'" onclick="nav(\'calendar\')"><span class="tab-icon">📅</span><span>Calendario</span></button>'+
     '<button class="'+(page==="plan"?"active":"")+'" onclick="nav(\'plan\')"><span class="tab-icon">🏖️</span><span>Ferie</span></button>'+
-    '<button class="'+(page==="notifications"?"active":"")+'" onclick="nav(\'notifications\')"><span class="tab-icon">🔔'+(unreadCount()?('<span class="tab-badge">'+unreadCount()+'</span>'):'')+'</span><span>Notifiche</span></button>'+
     '<button class="'+(page==="profile"?"active":"")+'" onclick="nav(\'profile\')"><span class="tab-icon">👤</span><span>Profilo</span></button>'+
     '<button class="'+(page==="more"?"active":"")+'" onclick="toggleMobileMenu()"><span class="tab-icon">⋯</span><span>Altro</span></button>'+
     '</nav>';

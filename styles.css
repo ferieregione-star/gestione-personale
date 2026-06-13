@@ -1073,3 +1073,140 @@ body.theme-dirigente .bottom-tabbar button.active{color:#16a34a;background:#dcfc
   .day.selected{outline:3px solid #2563eb!important;background:#eef5ff!important}
   .day-num{font-weight:950}
 }
+
+/* =========================================================
+   V64 - Tema scuro mobile, stile "app moderna"
+   Su desktop resta il tema chiaro precedente.
+   ========================================================= */
+@media(max-width:760px){
+  :root{
+    --bg:#0e1116;
+    --panel:#1b1f27;
+    --text:#f1f5f9;
+    --muted:#94a3b8;
+    --line:#2a2f3a;
+    --blue:#3b82f6;
+    --blue-soft:#1e3a5f;
+    --shadow:0 10px 30px rgba(0,0,0,.4);
+  }
+  body{background:var(--bg)!important;color:var(--text)!important}
+  .card{
+    background:var(--panel)!important;
+    border:1px solid var(--line)!important;
+    color:var(--text)!important;
+    box-shadow:0 8px 24px rgba(0,0,0,.35);
+    border-radius:22px;
+  }
+  .top{background:var(--panel)!important;border:1px solid var(--line)!important;color:var(--text)!important}
+  .top h1{color:#fff!important}
+  label{color:#7c8ba6!important}
+  input,select,textarea{
+    background:#11151c!important;color:var(--text)!important;
+    border:1px solid var(--line)!important;
+  }
+  input::placeholder{color:#5b6679}
+  input:disabled,select:disabled{background:#161a22!important;color:#5b6679!important}
+  .small{color:var(--muted)!important}
+  .secondary{background:#262b36!important;color:#f1f5f9!important}
+  .primary{background:var(--blue)!important;color:#fff!important}
+  .switch-user-row{background:#11151c!important;border-color:var(--line)!important;color:var(--text)!important}
+  .switch-user-row small{color:var(--muted)!important}
+  .toast-note{background:#11151c!important;border-color:var(--line)!important;color:var(--text)!important}
+  .person{border-bottom:1px solid var(--line)!important}
+  .person.clickable:hover{background:#21262f!important}
+  .meta small{color:var(--muted)!important}
+  .notice{background:#142235!important;border-color:#1d3a5c!important;color:#93c5fd!important}
+  .warning{background:#2a1f12!important;border-color:#5a3a14!important;color:#fdba74!important}
+  .day-list-card,.insert-card{background:#161a22!important;border-color:var(--line)!important}
+  .userbox{background:#161a22!important;border-color:var(--line)!important;color:var(--text)!important}
+
+  /* App bar */
+  .mobile-appbar{
+    background:rgba(14,17,22,.92)!important;
+    border-bottom:1px solid var(--line)!important;
+    color:#fff;
+  }
+  .mobile-appbar strong{color:#fff;font-size:17px}
+  .icon-bell{background:#1b1f27!important;border-color:var(--line)!important;color:#fff!important}
+
+  /* Calendario: griglia morbida e colorata */
+  .calendar-wrap{background:var(--panel)!important;border:1px solid var(--line)!important}
+  .calendar-head div{color:#5b8def!important}
+  .day{
+    background:#11151c!important;
+    border:1px solid #232834!important;
+    border-radius:16px!important;
+  }
+  .day.selected{
+    outline:3px solid var(--blue)!important;
+    background:linear-gradient(160deg,#16233a,#11151c)!important;
+  }
+  .day.holiday{
+    background:linear-gradient(160deg,#2a1620,#11151c)!important;
+    border-color:#4a2030!important;
+  }
+  .day.rule-error{
+    background:linear-gradient(160deg,#2a2010,#11151c)!important;
+    border-color:#6b4a14!important;
+  }
+  .day-num{color:#fff!important}
+  .holiday-name{color:#fb7185!important}
+  .danger-mark{background:#f59e0b!important;color:#1c1300!important}
+
+  /* Tag/codici di stato: pieni e colorati, leggibili su scuro */
+  .tag{box-shadow:0 2px 6px rgba(0,0,0,.3)}
+  .smart{background:#1d4ed8!important;color:#dbeafe!important}
+  .ferie{background:#c2410c!important;color:#ffedd5!important}
+  .malattia{background:#b91c1c!important;color:#fee2e2!important}
+  .permesso{background:#6d28d9!important;color:#ede9fe!important}
+  .present{background:#15803d!important;color:#dcfce7!important}
+  .altro{background:#475569!important;color:#e2e8f0!important}
+  .danger-tag{background:#7f1d1d!important;color:#fee2e2!important}
+  .pending{background:#78350f!important;color:#fef3c7!important}
+  .approved{background:#14532d!important;color:#dcfce7!important}
+
+  .person-dot{box-shadow:0 2px 8px rgba(0,0,0,.45)}
+
+  /* Avatar e nomi referenti/dirigenti più leggibili su scuro */
+  .name-viewer{color:#f87171!important}
+  .name-referente{color:#c4b5fd!important}
+
+  /* Modali a foglio scuro */
+  .modal-backdrop{background:rgba(0,0,0,.6)!important}
+  .modal{background:#161a22!important;color:var(--text)!important;border:1px solid var(--line)!important}
+  .modal-grabber{background:#3a4150!important}
+  .close{background:#262b36!important;color:#f1f5f9!important}
+
+  /* Bottom tab bar scura */
+  .bottom-tabbar{
+    background:rgba(14,17,22,.96)!important;
+    border-top:1px solid var(--line)!important;
+    box-shadow:0 -8px 24px rgba(0,0,0,.4)!important;
+  }
+  .bottom-tabbar button{color:#5b6679!important}
+  .bottom-tabbar button.active{color:#fff!important;background:var(--blue)!important;border-radius:16px}
+
+  /* Sidebar/Altro a foglio scuro */
+  .sidebar{background:#161a22!important;color:#fff!important}
+  .nav button{color:#cbd5e1!important}
+  .nav button.active,.nav button:hover{background:var(--blue)!important;color:#fff!important}
+  .brand strong{color:#fff!important}
+  .brand span{color:var(--muted)!important}
+
+  /* Pulsanti grandi e ben distanziati */
+  .btn{min-height:48px;font-size:15px;border-radius:16px}
+  .quick-form select,.quick-form .btn{min-height:48px}
+
+  /* Riepilogo (report) su scuro */
+  .summary-card{background:var(--panel)!important;border:1px solid var(--line)!important;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+  .summary-grid div{background:#11151c!important;border-color:var(--line)!important}
+  .summary-grid strong{color:#fff!important}
+  .summary-bar{background:#262b36!important}
+
+  /* Piano ferie su scuro */
+  .plan-shell{background:var(--panel)!important;border:1px solid var(--line)!important}
+  .plan-top,.plan-month-card,.plan-legend{background:var(--panel)!important;color:var(--text)!important;border-color:var(--line)!important}
+  .plan-card-white{background:#11151c!important;border-color:#232834!important;box-shadow:none!important}
+  .plan-percent{color:#cbd5e1!important}
+  .area-title.blue{color:#5b8def!important}
+}
