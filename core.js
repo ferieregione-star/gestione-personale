@@ -277,3 +277,12 @@ function refreshRuleViolations(date){
   if(errs.length) db.ruleViolations[date]=errs;
   else delete db.ruleViolations[date];
 }
+
+function planPeriods(){
+  var y=Number(todayStr().slice(0,4));
+  return {
+    estate:[y+"-06",y+"-07",y+"-08",y+"-09"],
+    natale:[y+"-12",(y+1)+"-01"],
+    pasqua:[y+"-04"]
+  };
+}

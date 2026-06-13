@@ -200,937 +200,151 @@ body.theme-dirigente .brand span{color:#dcfce7}
 body.theme-employee{--bg:#f8fafc}
 .login-box .card.small{display:none!important}
 
-/* v27 PWA/mobile optimization */
-@media(max-width:700px){
-  body{font-size:15px}
-  .main{padding:14px}
-  .top h1,.plan-top h1{font-size:25px}
-  .card{border-radius:16px;padding:14px}
-  .sidebar{padding:14px}
-  .brand-icon{width:40px;height:40px}
-  .nav button{padding:12px}
-  .calendar-wrap{padding:10px}
-  .day{min-height:112px;padding:8px}
-  .day-num{font-size:18px}
-  .modal{border-radius:18px;padding:14px}
-  .plan-top{padding:16px;align-items:flex-start;flex-direction:column}
-  .plan-controls{width:100%}
-  .plan-controls select,.plan-controls button{width:100%;min-width:0}
-  .plan-month-card{padding:16px}
-  .plan-card-white{min-height:110px;padding:10px 10px 24px}
-  .plan-names{font-size:12px}
-  .summary-wrap{grid-template-columns:1fr}
-  .form-grid{grid-template-columns:1fr}
-}
-@media(display-mode:standalone){
-  body{overscroll-behavior-y:none}
-}
 
-/* v29 mobile app shell, impersonation, SW warnings */
-.impersonation-banner{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:14px;padding:12px;margin-bottom:14px;font-weight:800}
-.switch-list{display:grid;gap:8px;max-height:420px;overflow:auto}
-.switch-user-row{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px;text-align:left}
-.switch-user-row span{display:block;font-weight:950}
-.switch-user-row small{color:var(--muted)}
-.day.rule-error{border-color:#dc2626!important;background:#fff7ed!important}
-.day.rule-error .danger-mark{display:grid!important}
+/* =========================================================
+   V64 - MOBILE: layout pulito, temi per pagina, bug fix
+   Tutto qui sotto vale solo per schermi <=760px.
+   Variabili per tema rapido in fondo al blocco.
+   ========================================================= */
 .mobile-appbar{display:none}
 .mobile-overlay{display:none}
-
-@media(max-width:760px){
-  body{background:#f6f7fb}
-  .mobile-appbar{position:sticky;top:0;z-index:80;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-bottom:1px solid #e5e7eb}
-  .mobile-menu-btn{width:42px;height:42px;border-radius:14px;background:#eef2ff;font-size:22px;font-weight:950}
-  .mobile-overlay{display:block;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:85}
-  .app{display:block;min-height:calc(100vh - 58px)}
-  .sidebar{position:fixed!important;top:0;left:0;bottom:0;z-index:90;width:min(84vw,320px);height:100vh!important;overflow:auto;transform:translateX(-105%);transition:transform .25s ease;border-right:0;box-shadow:0 24px 80px rgba(15,23,42,.35)}
-  .app.menu-open .sidebar{transform:translateX(0)}
-  .userbox{position:static!important;margin-top:20px}
-  .main{padding:14px!important;max-width:none!important}
-  .desktop-bell{display:none!important}
-  .global-bell-wrap{position:static!important}
-  .top{background:#fff;border-radius:20px;padding:16px;box-shadow:0 8px 26px rgba(15,23,42,.08);margin-bottom:14px}
-  .top h1{font-size:24px!important;line-height:1.1}
-  .sector-filter,.plan-controls{width:100%;display:grid!important;grid-template-columns:1fr;gap:8px}
-  .sector-filter select,.plan-controls select,.plan-controls button{width:100%!important;min-width:0!important}
-  .calendar-wrap{border-radius:22px;padding:12px;overflow:hidden}
-  .calendar-head{display:none}
-  .calendar{display:grid;grid-template-columns:1fr!important;gap:10px;overflow:visible}
-  .day{min-height:auto!important;border-radius:18px;padding:14px;display:grid;grid-template-columns:54px 1fr;align-items:center;gap:10px}
-  .day.blank{display:none}
-  .day-num{font-size:24px;margin:0}
-  .dot-row{margin:0}
-  .person-dot{width:26px;height:26px;font-size:10px}
-  .calendar-toolbar{display:grid!important;grid-template-columns:1fr;gap:10px}
-  .month-title{text-align:center;font-size:22px}
-  .modal-backdrop{padding:10px;align-items:end}
-  .modal{width:100%;max-height:88vh;border-radius:26px 26px 0 0;padding:16px}
-  .person{align-items:flex-start}
-  .actions{flex-direction:column}
-  .btn{min-height:44px}
-  input,select,textarea{font-size:16px;min-height:44px}
-  .summary-wrap{grid-template-columns:1fr!important}
-  .plan-shell{border-radius:22px}
-  .plan-top{padding:16px;display:grid;gap:12px}
-  .plan-top h1{font-size:24px!important}
-  .plan-month-card{padding:14px}
-  .plan-grid{display:grid!important;grid-template-columns:1fr!important;gap:10px;overflow:visible!important}
-  .plan-card-white{min-height:92px;border-radius:18px}
-  .plan-card-split{grid-template-columns:1fr 1fr}
-  .plan-two-cols{grid-template-columns:1fr!important}
-  .global-bell-btn{width:42px;height:42px}
-}
-
-/* v32 layout iOS calendario */
-.quick-action{margin-bottom:14px}
-.insert-card{box-shadow:none;border:1px solid var(--line);background:#f8fafc}
-.insert-card .section-title{margin-bottom:10px}
-.quick-form{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
-.quick-form.manager{grid-template-columns:1.2fr 1fr auto}
-.quick-form select{margin:0}
-.quick-form .btn{height:46px}
-.day-list-card{box-shadow:none;border:1px solid var(--line)}
-.modal-grabber{display:none}
-.modal-subtitle{margin:4px 0 0}
-
-@media(max-width:760px){
-  body{background:#f2f4f8}
-  .main{padding:12px!important}
-  .top{
-    border-radius:18px;
-    padding:14px;
-    margin-bottom:12px;
-  }
-  .top h1{
-    font-size:20px!important;
-    letter-spacing:-.3px;
-  }
-
-  .calendar-wrap{
-    border-radius:24px;
-    padding:12px;
-    background:rgba(255,255,255,.96);
-    box-shadow:0 10px 28px rgba(15,23,42,.08);
-  }
-
-  .calendar-toolbar{
-    display:grid!important;
-    grid-template-columns:44px 1fr 44px!important;
-    align-items:center!important;
-    gap:8px!important;
-    margin-bottom:12px!important;
-  }
-  .calendar-toolbar .btn{
-    min-width:0!important;
-    width:44px!important;
-    height:44px!important;
-    padding:0!important;
-    overflow:hidden;
-    white-space:nowrap;
-    color:transparent!important;
-    border-radius:50%!important;
-    position:relative;
-  }
-  .calendar-toolbar .btn:first-child::after{
-    content:"‹";
-    color:#0f172a;
-    font-size:30px;
-    font-weight:900;
-    position:absolute;
-    inset:0;
-    display:grid;
-    place-items:center;
-  }
-  .calendar-toolbar .btn:last-child::after{
-    content:"›";
-    color:#0f172a;
-    font-size:30px;
-    font-weight:900;
-    position:absolute;
-    inset:0;
-    display:grid;
-    place-items:center;
-  }
-  .month-title{
-    text-align:center;
-    font-size:19px!important;
-    font-weight:950;
-    line-height:1.1;
-  }
-
-  .calendar-head{
-    display:grid!important;
-    grid-template-columns:repeat(5,1fr)!important;
-    gap:6px!important;
-    overflow:visible!important;
-    margin-bottom:6px;
-  }
-  .calendar-head div{
-    font-size:10px!important;
-    color:#64748b;
-    font-weight:950;
-  }
-  .calendar{
-    display:grid!important;
-    grid-template-columns:repeat(5,1fr)!important;
-    gap:6px!important;
-    overflow:visible!important;
-  }
-  .day{
-    aspect-ratio:1/1;
-    min-height:0!important;
-    height:auto!important;
-    border-radius:14px!important;
-    padding:6px!important;
-    display:block!important;
-    text-align:left!important;
-    overflow:hidden;
-    border:1.5px solid #dbe3ef!important;
-    background:#fff!important;
-    box-shadow:0 2px 8px rgba(15,23,42,.04);
-  }
-  .day.blank{
-    display:block!important;
-    opacity:.35;
-    background:#f8fafc!important;
-  }
-  .day.holiday{
-    background:#fff1f2!important;
-    border-color:#fb7185!important;
-  }
-  .day.rule-error{
-    background:#fff7ed!important;
-    border-color:#dc2626!important;
-  }
-  .day-num{
-    font-size:14px!important;
-    margin-bottom:4px!important;
-    line-height:1;
-  }
-  .holiday-name{
-    display:none;
-  }
-  .empty-day{
-    display:none;
-  }
-  .dot-row{
-    gap:2px!important;
-    margin-top:2px!important;
-  }
-  .person-dot{
-    width:15px!important;
-    height:15px!important;
-    font-size:7px!important;
-    border:1px solid rgba(255,255,255,.8);
-  }
-  .danger-mark{
-    width:17px!important;
-    height:17px!important;
-    top:4px!important;
-    right:4px!important;
-    font-size:11px!important;
-  }
-
-  .card[style*="margin-top:16px"]{
-    margin-top:12px!important;
-    border-radius:22px;
-  }
-
-  .modal-backdrop{
-    padding:0!important;
-    align-items:end!important;
-    place-items:end stretch!important;
-  }
-  .ios-sheet{
-    width:100%!important;
-    max-height:88vh!important;
-    border-radius:28px 28px 0 0!important;
-    padding:12px!important;
-  }
-  .modal-grabber{
-    display:block;
-    width:44px;
-    height:5px;
-    border-radius:999px;
-    background:#cbd5e1;
-    margin:2px auto 12px;
-  }
-  .modal-head{
-    padding:0 4px;
-  }
-  .modal-head h2{
-    font-size:24px;
-  }
-  .close{
-    border-radius:999px;
-    min-height:40px;
-  }
-
-  .quick-action{
-    position:sticky;
-    top:0;
-    z-index:2;
-    margin-bottom:10px;
-  }
-  .insert-card{
-    border-radius:20px;
-    background:#eef6ff;
-    border:1px solid #bfdbfe;
-    padding:12px;
-  }
-  .quick-form,
-  .quick-form.manager{
-    grid-template-columns:1fr!important;
-    gap:8px!important;
-  }
-  .quick-form select,
-  .quick-form .btn{
-    width:100%!important;
-    height:46px!important;
-    min-height:46px!important;
-  }
-  .day-list-card{
-    border-radius:22px;
-    padding:12px;
-  }
-  .person{
-    padding:10px 0;
-    gap:10px;
-  }
-  .avatar{
-    width:38px;
-    height:38px;
-  }
-  .tag{
-    font-size:11px;
-    padding:5px 8px;
-  }
-}
-
-@media(max-width:390px){
-  .calendar{gap:4px!important}
-  .calendar-head{gap:4px!important}
-  .day{border-radius:12px!important;padding:5px!important}
-  .person-dot{width:13px!important;height:13px!important;font-size:6px!important}
-  .day-num{font-size:12px!important}
-  .month-title{font-size:17px!important}
-}
-
-/* v33 piano ferie mobile e settori */
-@media(max-width:760px){
-  .plan-top .print-btn{display:none!important}
-  .plan-legend{display:none!important}
-  .plan-month-card{background:#fff!important;border-radius:24px;margin-bottom:14px;box-shadow:0 10px 28px rgba(15,23,42,.08)}
-  .plan-month-card h2{font-size:20px!important;margin-bottom:10px!important}
-  .area-title{font-size:13px!important;text-align:left!important;color:#64748b!important;margin-bottom:10px!important}
-  .plan-grid{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:6px!important;overflow:visible!important;align-items:stretch!important}
-  .plan-card-white{aspect-ratio:1/1!important;min-height:0!important;height:auto!important;border-radius:14px!important;padding:6px!important;overflow:hidden!important;background:#fff!important;display:block!important;text-align:left!important;border:1.5px solid #dbe3ef!important;box-shadow:0 2px 8px rgba(15,23,42,.04)!important}
-  .plan-card-white .plan-day-num{font-size:14px!important;margin:0 0 4px!important}
-  .plan-card-white .plan-names{display:none!important}
-  .plan-card-white .plan-percent{position:absolute!important;left:6px!important;right:6px!important;bottom:18px!important;text-align:center!important;font-size:11px!important;font-weight:950!important}
-  .plan-card-white .plan-fill-wrap{left:6px!important;right:6px!important;bottom:6px!important;height:7px!important}
-}
-
-/* v34 fix piano ferie leggibilità */
-.plan-card-white{
-  cursor:pointer;
-  min-height:148px!important;
-  padding:14px 14px 28px!important;
-  overflow:hidden!important;
-}
-.plan-card-white .plan-names{
-  font-size:14px!important;
-  line-height:1.28!important;
-  overflow:hidden!important;
-  word-break:normal!important;
-  overflow-wrap:normal!important;
-}
-.plan-card-split{
-  gap:10px!important;
-}
-.plan-card-split>div{
-  min-width:0;
-}
-.plan-person{
-  white-space:nowrap!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-  display:block;
-}
-.plan-percent{
-  bottom:24px!important;
-  background:rgba(255,255,255,.78);
-  border-radius:6px;
-  padding:0 3px;
-}
-
-@media(max-width:760px){
-  .plan-card-white{
-    aspect-ratio:1/1!important;
-    min-height:0!important;
-    padding:7px!important;
-    position:relative;
-  }
-  .plan-card-white .plan-day-num{
-    position:absolute!important;
-    left:8px!important;
-    top:7px!important;
-    font-size:15px!important;
-    line-height:1!important;
-    margin:0!important;
-    z-index:2;
-  }
-  .plan-card-white .plan-percent{
-    position:absolute!important;
-    left:5px!important;
-    right:5px!important;
-    top:50%!important;
-    bottom:auto!important;
-    transform:translateY(-50%)!important;
-    text-align:center!important;
-    font-size:12px!important;
-    background:transparent!important;
-    padding:0!important;
-    z-index:2;
-  }
-  .plan-card-white .plan-fill-wrap{
-    left:7px!important;
-    right:7px!important;
-    bottom:8px!important;
-    height:8px!important;
-  }
-  .plan-mobile-modal{
-    display:grid!important;
-  }
-}
-
-/* v35 piano ferie popup + nomi su una riga */
-.plan-card-white{
-  min-height:170px!important;
-  overflow:hidden!important;
-}
-.plan-card-split{
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
-  gap:8px!important;
-}
-.plan-card-split>div{
-  min-width:0!important;
-  overflow:hidden!important;
-}
-.plan-card-split>div:first-child{
-  padding-right:8px!important;
-}
-.plan-card-split>div:last-child{
-  padding-left:8px!important;
-  text-align:right!important;
-}
-.plan-person{
-  font-size:12.5px!important;
-  line-height:1.22!important;
-  white-space:nowrap!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-  max-width:100%!important;
-}
-.plan-card-white .plan-names{
-  font-size:12.5px!important;
-  line-height:1.22!important;
-  overflow:hidden!important;
-}
-.plan-day-backdrop{
-  z-index:120!important;
-}
-.plan-day-backdrop .modal{
-  z-index:121!important;
-}
-
-@media(max-width:760px){
-  .plan-card-white{
-    min-height:0!important;
-    touch-action:manipulation;
-  }
-  .plan-card-white .plan-percent{
-    pointer-events:none;
-  }
-  .plan-card-white .plan-fill-wrap{
-    pointer-events:none;
-  }
-  .plan-card-white .plan-day-num{
-    pointer-events:none;
-  }
-  .plan-day-backdrop{
-    display:grid!important;
-    place-items:end stretch!important;
-    padding:0!important;
-  }
-}
-
-/* v36 piano ferie: nomi impilati e popup tap stabile */
-.plan-card-white{
-  min-height:190px!important;
-  height:auto!important;
-  cursor:pointer!important;
-}
-.plan-card-white:focus{
-  outline:3px solid #93c5fd;
-  outline-offset:2px;
-}
-.plan-names{
-  display:block!important;
-  padding-right:4px;
-  padding-bottom:18px;
-}
-.plan-person{
-  display:block!important;
-  white-space:nowrap!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-  width:100%!important;
-  text-align:left!important;
-  font-size:12px!important;
-  line-height:1.18!important;
-  margin-bottom:2px!important;
-}
-.plan-card-split{
-  display:block!important;
-}
-.plan-card-split>div{
-  border-right:0!important;
-  padding:0!important;
-  text-align:left!important;
-}
-.plan-day-backdrop{
-  z-index:500!important;
-}
-.plan-day-backdrop .modal{
-  z-index:501!important;
-}
-
-@media(max-width:760px){
-  .plan-card-white{
-    min-height:0!important;
-    height:auto!important;
-    position:relative!important;
-    z-index:1;
-    cursor:pointer!important;
-    -webkit-tap-highlight-color:rgba(37,99,235,.2);
-  }
-  .plan-card-white *{
-    pointer-events:none!important;
-  }
-  .plan-day-backdrop{
-    position:fixed!important;
-    inset:0!important;
-    display:grid!important;
-    place-items:end stretch!important;
-    padding:0!important;
-    background:rgba(15,23,42,.48)!important;
-  }
-  .plan-day-backdrop .ios-sheet{
-    width:100%!important;
-    max-height:88vh!important;
-    border-radius:28px 28px 0 0!important;
-  }
-}
-
-/* v37 piano ferie definitivo */
-.plan-card-white{
-  min-height:190px!important;
-  height:auto!important;
-  cursor:pointer!important;
-  overflow:hidden!important;
-}
-.plan-card-white:focus{
-  outline:3px solid #93c5fd;
-  outline-offset:2px;
-}
-.plan-names{
-  display:block!important;
-  padding-right:4px;
-  padding-bottom:18px;
-}
-.plan-person{
-  display:block!important;
-  white-space:nowrap!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-  width:100%!important;
-  text-align:left!important;
-  font-size:12px!important;
-  line-height:1.18!important;
-  margin-bottom:2px!important;
-}
-.plan-card-split{
-  display:block!important;
-}
-.plan-card-split>div{
-  border-right:0!important;
-  padding:0!important;
-  text-align:left!important;
-}
-.plan-day-backdrop{
-  z-index:500!important;
-}
-.plan-day-backdrop .modal{
-  z-index:501!important;
-}
-
-@media(max-width:760px){
-  .plan-card-white{
-    aspect-ratio:1/1!important;
-    min-height:0!important;
-    height:auto!important;
-    position:relative!important;
-    z-index:1;
-    cursor:pointer!important;
-    -webkit-tap-highlight-color:rgba(37,99,235,.2);
-  }
-  .plan-card-white *{
-    pointer-events:none!important;
-  }
-  .plan-card-white .plan-names{
-    display:none!important;
-  }
-  .plan-day-backdrop{
-    position:fixed!important;
-    inset:0!important;
-    display:grid!important;
-    place-items:end stretch!important;
-    padding:0!important;
-    background:rgba(15,23,42,.48)!important;
-  }
-  .plan-day-backdrop .ios-sheet{
-    width:100%!important;
-    max-height:88vh!important;
-    border-radius:28px 28px 0 0!important;
-  }
-}
-
-/* v40 struttura stabile */
-.back-btn{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#fff;border:1px solid var(--line);color:#0f172a;font-weight:950;padding:10px 14px;margin-bottom:14px;box-shadow:0 6px 18px rgba(15,23,42,.06)}
-.plan-card-white{min-height:190px!important;height:auto!important;cursor:pointer!important;overflow:hidden!important}
-.plan-card-white:focus{outline:3px solid #93c5fd;outline-offset:2px}
-.plan-names{display:block!important;padding-right:4px;padding-bottom:18px}
-.plan-person{display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;width:100%!important;text-align:left!important;font-size:12px!important;line-height:1.18!important;margin-bottom:2px!important}
-.plan-card-split{display:block!important}.plan-card-split>div{border-right:0!important;padding:0!important;text-align:left!important}
-.plan-day-backdrop{z-index:500!important}.plan-day-backdrop .modal{z-index:501!important}
-@media(max-width:760px){.back-btn{width:auto;margin:0 0 12px;padding:9px 12px}.plan-card-white{aspect-ratio:1/1!important;min-height:0!important;height:auto!important;position:relative!important;z-index:1;cursor:pointer!important;-webkit-tap-highlight-color:rgba(37,99,235,.2)}.plan-card-white *{pointer-events:none!important}.plan-card-white .plan-names{display:none!important}.plan-day-backdrop{position:fixed!important;inset:0!important;display:grid!important;place-items:end stretch!important;padding:0!important;background:rgba(15,23,42,.48)!important}.plan-day-backdrop .ios-sheet{width:100%!important;max-height:88vh!important;border-radius:28px 28px 0 0!important}}
-
-/* v41 */
-.plan-clickable{cursor:pointer!important;touch-action:manipulation}
-.plan-clickable *{pointer-events:none!important}
-@media(max-width:760px){.plan-clickable{position:relative!important;z-index:5!important}}
-@media print{
-  @page{size:A4 landscape;margin:8mm}
-  html,body{background:#fff!important;margin:0!important;padding:0!important}
-  body *{visibility:hidden!important}
-  .plan-shell,.plan-shell *{visibility:visible!important}
-  .plan-shell{position:absolute!important;left:0!important;top:0!important;width:100%!important;box-shadow:none!important;border-radius:0!important;overflow:visible!important}
-  .sidebar,.mobile-appbar,.back-btn,.global-bell-wrap,.desktop-bell,.plan-top,.plan-blue-line,.plan-legend,.print-btn,.no-print{display:none!important;visibility:hidden!important}
-  .main{padding:0!important;margin:0!important;max-width:none!important}
-  .app{display:block!important;min-height:0!important}
-  .print-title{display:block!important;visibility:visible!important;font-size:18px!important;margin:0 0 8px!important;text-align:center!important}
-  .plan-month-card{page-break-after:always!important;break-after:page!important;page-break-inside:avoid!important;break-inside:avoid!important;padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;transform:scale(.92);transform-origin:top left;width:108.5%!important}
-  .plan-month-card:last-child{page-break-after:auto!important;break-after:auto!important}
-  .plan-month-card h2{font-size:18px!important;margin:0 0 8px!important}
-  .plan-grid{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:6px!important;overflow:visible!important}
-  .plan-card-white{min-height:82px!important;padding:6px 6px 16px!important;border:1px solid #cbd5e1!important;box-shadow:none!important;break-inside:avoid!important}
-  .plan-day-num{font-size:12px!important;margin-bottom:4px!important}
-  .plan-person{font-size:8.5px!important;line-height:1.05!important;margin-bottom:1px!important}
-  .plan-percent{font-size:8px!important;bottom:12px!important}
-  .plan-fill-wrap{height:4px!important;bottom:5px!important}
-}
-
-/* v50 stabile */
-.back-btn{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  border-radius:999px;
-  background:#fff;
-  border:1px solid var(--line);
-  color:#0f172a;
-  font-weight:950;
-  padding:10px 14px;
-  margin-bottom:14px;
-  box-shadow:0 6px 18px rgba(15,23,42,.06);
-}
-
-.plan-clickable{
-  cursor:pointer!important;
-  touch-action:manipulation!important;
-  user-select:none!important;
-}
-.plan-clickable *{
-  pointer-events:none!important;
-}
-.plan-card-white{
-  min-height:190px!important;
-  height:auto!important;
-  cursor:pointer!important;
-  overflow:hidden!important;
-}
-.plan-card-white:focus{
-  outline:3px solid #93c5fd;
-  outline-offset:2px;
-}
-.plan-names{
-  display:block!important;
-  padding-right:4px;
-  padding-bottom:18px;
-}
-.plan-person{
-  display:block!important;
-  white-space:nowrap!important;
-  overflow:hidden!important;
-  text-overflow:ellipsis!important;
-  width:100%!important;
-  text-align:left!important;
-  font-size:12px!important;
-  line-height:1.18!important;
-  margin-bottom:2px!important;
-}
-.plan-card-split{display:block!important}
-.plan-card-split>div{border-right:0!important;padding:0!important;text-align:left!important}
-.plan-day-backdrop{z-index:500!important}
-.plan-day-backdrop .modal{z-index:501!important}
-
-@media(max-width:760px){
-  .back-btn{
-    width:auto;
-    margin:0 0 12px;
-    padding:9px 12px;
-  }
-  .plan-clickable{
-    position:relative!important;
-    z-index:8!important;
-  }
-  .plan-card-white{
-    aspect-ratio:1/1!important;
-    min-height:0!important;
-    height:auto!important;
-    position:relative!important;
-    cursor:pointer!important;
-    -webkit-tap-highlight-color:rgba(37,99,235,.2);
-  }
-  .plan-card-white .plan-names{display:none!important}
-  .plan-day-backdrop{
-    position:fixed!important;
-    inset:0!important;
-    display:grid!important;
-    place-items:end stretch!important;
-    padding:0!important;
-    background:rgba(15,23,42,.48)!important;
-  }
-  .plan-day-backdrop .ios-sheet{
-    width:100%!important;
-    max-height:88vh!important;
-    border-radius:28px 28px 0 0!important;
-  }
-}
-
-/* stampa piano ferie stabile */
-@media print{
-  @page{size:A4 landscape;margin:8mm}
-  html,body{background:#fff!important;margin:0!important;padding:0!important}
-  body *{visibility:hidden!important}
-  .plan-shell,.plan-shell *{visibility:visible!important}
-  .plan-shell{
-    position:absolute!important;
-    left:0!important;
-    top:0!important;
-    width:100%!important;
-    box-shadow:none!important;
-    border-radius:0!important;
-    overflow:visible!important;
-  }
-  .sidebar,.mobile-appbar,.back-btn,.global-bell-wrap,.desktop-bell,.plan-top,.plan-blue-line,.plan-legend,.print-btn,.no-print{
-    display:none!important;
-    visibility:hidden!important;
-  }
-  .main{padding:0!important;margin:0!important;max-width:none!important}
-  .app{display:block!important;min-height:0!important}
-  .print-title{
-    display:block!important;
-    visibility:visible!important;
-    font-size:18px!important;
-    margin:0 0 8px!important;
-    text-align:center!important;
-  }
-  .plan-month-card{
-    page-break-after:always!important;
-    break-after:page!important;
-    page-break-inside:avoid!important;
-    break-inside:avoid!important;
-    padding:0!important;
-    margin:0!important;
-    border:0!important;
-    box-shadow:none!important;
-    transform:scale(.92);
-    transform-origin:top left;
-    width:108.5%!important;
-  }
-  .plan-month-card:last-child{
-    page-break-after:auto!important;
-    break-after:auto!important;
-  }
-  .plan-month-card h2{font-size:18px!important;margin:0 0 8px!important}
-  .plan-grid{
-    display:grid!important;
-    grid-template-columns:repeat(5,1fr)!important;
-    gap:6px!important;
-    overflow:visible!important;
-  }
-  .plan-card-white{
-    min-height:82px!important;
-    padding:6px 6px 16px!important;
-    border:1px solid #cbd5e1!important;
-    box-shadow:none!important;
-    break-inside:avoid!important;
-  }
-  .plan-day-num{font-size:12px!important;margin-bottom:4px!important}
-  .plan-person{font-size:8.5px!important;line-height:1.05!important;margin-bottom:1px!important}
-  .plan-percent{font-size:8px!important;bottom:12px!important}
-  .plan-fill-wrap{height:4px!important;bottom:5px!important}
-}
-
-/* =========================================================
-   V63 - Restyle colorato + bottom tab bar iOS
-   ========================================================= */
-:root{
-  --bg:#fef6ef;
-  --panel:#ffffff;
-  --text:#1e293b;
-  --muted:#7c8794;
-  --line:#f1e4d6;
-  --blue:#2563eb;
-  --blue-soft:#dbeafe;
-  --shadow:0 12px 32px rgba(124,90,40,.10);
-}
-body{background:linear-gradient(180deg,#fff7ed 0%,#fef6ef 40%,#f3f8ff 100%);}
-.card{box-shadow:0 10px 28px rgba(124,90,40,.08);border:1px solid #fbe9d4}
-.top{background:linear-gradient(135deg,#fff,#fff7ed)}
-
-/* Codici evento più grandi e colorati nel calendario */
-.person-dot{
-  min-width:30px;height:30px;padding:0 6px;border-radius:10px;
-  font-size:12px;font-weight:950;letter-spacing:.3px;
-  box-shadow:0 3px 8px rgba(0,0,0,.15);
-}
-@media(max-width:760px){
-  .person-dot{min-width:24px;height:24px;font-size:10px;border-radius:8px}
-}
-
-/* Tag di stato più leggibili */
-.tag{font-size:13px;padding:7px 12px;font-weight:950;border-radius:10px}
-.smart{background:#dbeafe;color:#1d4ed8}
-.ferie{background:#ffe4cc;color:#c2410c}
-.malattia{background:#fee2e2;color:#b91c1c}
-.permesso{background:#ede9fe;color:#6d28d9}
-.present{background:#dcfce7;color:#15803d}
-
-/* =========================================================
-   BOTTOM TAB BAR stile iOS
-   ========================================================= */
 .bottom-tabbar{display:none}
+
 @media(max-width:760px){
+
+  /* ---- Reset base / niente overflow orizzontale ---- */
+  html,body{overflow-x:hidden}
+  *{min-width:0}
+  body{font-size:15px;background:var(--page-bg,#f4f6fa)}
+  .app{display:block;min-height:calc(100vh - 56px)}
+  .main{padding:12px 12px calc(86px + env(safe-area-inset-bottom))!important;max-width:none!important;width:100%}
+  .card{border-radius:16px;padding:14px;margin-bottom:12px;border:2px solid var(--line);box-shadow:none}
+  .grid.two,.grid.three,.grid.four,.form-grid{grid-template-columns:1fr!important}
+  input,select,textarea{border:2px solid var(--line)}
+
+  /* ---- App bar: avatar a sinistra (profilo), titolo centrato, campanella a destra ---- */
+  .mobile-appbar{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    position:sticky;top:0;z-index:80;height:56px;padding:0 10px;
+    background:rgba(255,255,255,.96);backdrop-filter:blur(18px);
+    border-bottom:2px solid var(--line);
+  }
+  .mobile-appbar strong{flex:1;text-align:center;font-size:17px;color:#0f172a;font-weight:900}
+  .mobile-avatar-btn{
+    width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+    color:#fff;font-weight:900;font-size:14px;flex:0 0 auto;border:2px solid var(--line);
+  }
+  .icon-bell{border:2px solid var(--line);width:40px;height:40px;font-size:18px}
+
+  /* ---- Titoli pagina centrati ---- */
+  .top{
+    border:2px solid var(--line);border-radius:16px;text-align:center;
+    flex-direction:column;gap:10px;background:var(--panel);
+  }
+  .top h1{width:100%;text-align:center;font-size:21px;letter-spacing:-.3px}
+  .top .sector-filter,.top .pill{margin:0 auto}
+
+  /* ---- Persona (riga assenze): impila su mobile, niente overflow ---- */
+  .person{
+    flex-wrap:wrap;align-items:flex-start;gap:8px 10px;
+    border-bottom:2px solid var(--line);padding:12px 0;
+  }
+  .person .meta{flex:1 1 100%;order:1;min-width:0}
+  .person .avatar{order:0}
+  .person .tag{order:2}
+  .person .btn{order:3;margin-left:auto}
+  .person .meta b{word-break:break-word}
+
+  /* ---- Calendario: compatto, non tagliato ---- */
+  .calendar-wrap{border:2px solid var(--line);border-radius:16px;padding:10px}
+  .calendar-toolbar{flex-wrap:wrap;gap:8px}
+  .month-title{font-size:18px}
+  .calendar-toolbar .btn{font-size:13px;padding:8px 10px}
+  .calendar-head div{font-size:11px}
+  .calendar{gap:5px}
+  .day{
+    min-height:auto;aspect-ratio:1/1;border:2px solid var(--line);
+    border-radius:10px;padding:4px;display:flex;flex-direction:column;
+  }
+  .day-num{font-size:14px;margin-bottom:2px}
+  .holiday-name{font-size:7px;margin-bottom:2px}
+  .danger-mark{width:16px;height:16px;font-size:11px;top:3px;right:3px}
+  .dot-row{gap:2px;margin-top:2px}
+  .person-dot{min-width:18px;height:18px;font-size:8px;border-radius:5px;padding:0 2px}
+  .empty-day{font-size:9px}
+  .day.selected{outline:3px solid var(--blue);border-color:var(--blue);background:var(--blue-soft)}
+  .day.holiday{border-color:#fda4af}
+  .day.rule-error{border-color:#f59e0b}
+
+  /* ---- Modali a foglio ---- */
+  .modal-backdrop{padding:0;align-items:end}
+  .modal{width:100%;max-height:90vh;border-radius:22px 22px 0 0;border:2px solid var(--line);padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+  .modal-grabber{width:40px;height:5px;background:var(--line);border-radius:99px;margin:0 auto 10px}
+  .modal-head h2{font-size:20px}
+  .close{border:2px solid var(--line)}
+
+  /* ---- Bottoni ---- */
+  .btn{min-height:46px;font-size:15px;border-radius:14px}
+  .btn.secondary{border:2px solid var(--line)}
+  .quick-form select,.quick-form .btn{min-height:46px}
+
+  /* ---- Tag di stato ---- */
+  .tag{border:2px solid rgba(0,0,0,.04);font-size:12.5px}
+
+  /* ---- Riepilogo: barra percentuale sempre visibile ---- */
+  .summary-card{border:2px solid var(--line);border-radius:16px}
+  .summary-bar{background:#e2e8f0;border-radius:99px;height:10px;overflow:hidden;margin:10px 0}
+  .summary-bar span{display:block;height:100%;min-width:6px;background:var(--accent,var(--blue))}
+  .summary-grid div{border:2px solid var(--line);border-radius:10px}
+
+  /* ---- Piano ferie ---- */
+  .plan-shell,.plan-top,.plan-month-card,.plan-legend,.plan-card-white{border:2px solid var(--line)}
+  .plan-top{flex-direction:column;align-items:stretch;gap:10px}
+  .plan-controls{flex-direction:column;width:100%}
+  .plan-controls select,.plan-controls .btn{width:100%}
+
+  /* ---- Sidebar "Profilo/Altro" come pannello laterale ---- */
+  .sidebar{
+    position:fixed!important;top:0;left:0;bottom:0;z-index:90;
+    width:min(84vw,320px);height:100vh!important;overflow:auto;
+    transform:translateX(-105%);transition:transform .25s ease;
+    border-right:2px solid var(--line);box-shadow:0 24px 80px rgba(15,23,42,.35);
+    background:#fff;
+  }
+  .app.menu-open .sidebar{transform:translateX(0)}
+  .mobile-overlay{display:block;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:85}
+  .userbox{position:static;margin-top:16px;border:2px solid var(--line)}
+
+  /* ---- Bottom tab bar: Ferie | Calendario (centrale, grande) | Riepilogo ---- */
   .bottom-tabbar{
     display:flex;position:fixed;left:0;right:0;bottom:0;z-index:95;
-    background:rgba(255,255,255,.96);backdrop-filter:blur(20px);
-    border-top:1px solid #f1e4d6;
-    padding:6px 4px calc(6px + env(safe-area-inset-bottom));
-    box-shadow:0 -8px 24px rgba(124,90,40,.08);
+    align-items:center;justify-content:space-around;
+    background:rgba(255,255,255,.97);border-top:2px solid var(--line);
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom));
   }
   .bottom-tabbar button{
     flex:1;background:transparent;display:flex;flex-direction:column;
-    align-items:center;gap:2px;padding:6px 2px;border-radius:14px;
+    align-items:center;gap:2px;padding:6px 2px;border-radius:12px;
     font-size:11px;font-weight:800;color:#94a3b8;
   }
-  .bottom-tabbar button.active{color:#2563eb;background:#eaf1ff}
-  .tab-icon{font-size:22px;position:relative;line-height:1}
-  .tab-badge{
-    position:absolute;top:-6px;right:-10px;background:#dc2626;color:#fff;
-    border-radius:999px;min-width:16px;height:16px;font-size:10px;
-    display:grid;place-items:center;padding:0 4px;font-weight:950;
+  .bottom-tabbar button.active{color:var(--blue);background:var(--blue-soft)}
+  .tab-icon{font-size:20px;line-height:1}
+  .bottom-tabbar .tab-center{
+    flex:0 0 auto;width:64px;height:64px;border-radius:50%;
+    margin-top:-26px;background:var(--blue);color:#fff!important;
+    box-shadow:0 8px 20px rgba(0,0,0,.25);border:4px solid var(--page-bg,#f4f6fa);
+    justify-content:center;
   }
-  /* spazio in fondo alla pagina per non finire sotto la tab bar */
-  .main{padding-bottom:84px!important}
-  /* la sidebar diventa il pannello "Altro" (slide da sinistra) */
-  .sidebar .nav button[onclick*="'calendar'"],
-  .sidebar .nav button[onclick*="'plan'"],
-  .sidebar .nav button[onclick*="'profile'"]{display:none}
-}
+  .bottom-tabbar .tab-center .tab-icon{font-size:26px}
+  .bottom-tabbar .tab-center.active{background:var(--blue);color:#fff}
 
-/* Tema per ruolo: badge colorati sulla bottom bar */
-body.theme-admin .bottom-tabbar button.active{color:#0b1f3a;background:#dbeafe}
-body.theme-referente .bottom-tabbar button.active{color:#dc2626;background:#fee2e2}
-body.theme-dirigente .bottom-tabbar button.active{color:#16a34a;background:#dcfce7}
-
-/* Pulsanti più grandi e arrotondati ovunque su mobile */
-@media(max-width:760px){
-  .btn{border-radius:16px;font-size:15px}
-  .day{box-shadow:0 4px 12px rgba(124,90,40,.06)}
-  .day.selected{outline:3px solid #2563eb!important;background:#eef5ff!important}
-  .day-num{font-weight:950}
-}
-
-
-/* =========================================================
-   V64 - Tema chiaro mobile con bordi marcati ovunque
-   ========================================================= */
-@media(max-width:760px){
-  :root{
-    --bg:#f4f6fa;
-    --panel:#ffffff;
-    --text:#0f172a;
-    --muted:#64748b;
-    --line:#cbd5e1;
-    --blue:#2563eb;
-    --blue-soft:#dbeafe;
-    --shadow:0 6px 18px rgba(15,23,42,.08);
-  }
-  body{background:var(--bg)!important;color:var(--text)!important}
-
-  /* Bordi marcati ovunque */
-  .card{
-    background:var(--panel)!important;
-    border:2px solid var(--line)!important;
-    border-radius:18px;
-    box-shadow:none!important;
-  }
-  .top{background:var(--panel)!important;border:2px solid var(--line)!important;text-align:center}
-  .top h1{
-    width:100%;text-align:center;
-    font-size:22px!important;
-  }
-  .top .sector-filter,.top .pill{margin:0 auto}
-  input,select,textarea{border:2px solid var(--line)!important}
-  .day{border:2px solid var(--line)!important;border-radius:14px!important}
-  .day.selected{outline:3px solid var(--blue)!important;border-color:var(--blue)!important;background:var(--blue-soft)!important}
-  .day.holiday{border-color:#fb7185!important}
-  .day.rule-error{border-color:#f59e0b!important}
-  .calendar-wrap{border:2px solid var(--line)!important}
-  .modal{border:2px solid var(--line)!important}
-  .toast-note,.switch-user-row,.day-list-card,.insert-card,.userbox,.summary-card,.plan-card-white,.plan-shell,.plan-top,.plan-month-card,.plan-legend{
-    border:2px solid var(--line)!important;
-  }
-  .summary-grid div{border:2px solid var(--line)!important}
-  .person{border-bottom:2px solid var(--line)!important}
-  .close{border:2px solid var(--line)!important}
-  .btn.secondary{border:2px solid var(--line)!important}
-  .mobile-appbar{border-bottom:2px solid var(--line)!important;background:rgba(255,255,255,.96)!important}
-  .mobile-appbar strong{
-    flex:1;text-align:center;font-size:17px;color:#0f172a;
-  }
-  .icon-bell{border:2px solid var(--line)!important}
-  .sidebar{border-right:2px solid var(--line)!important}
-  .bottom-tabbar{border-top:2px solid var(--line)!important;background:rgba(255,255,255,.97)!important}
-  .bottom-tabbar button.active{background:var(--blue-soft)!important;color:var(--blue)!important;border-radius:14px}
-
-  /* Pulsanti grandi */
-  .btn{min-height:48px;font-size:15px;border-radius:14px}
-  .quick-form select,.quick-form .btn{min-height:48px}
-
-  /* Tag di stato un po' più marcati */
-  .tag{border:2px solid rgba(0,0,0,.05)}
+  /* ---- Temi di sfondo per pagina (facili da cambiare qui) ---- */
+  body.page-calendar{--page-bg:#f4f6fa}
+  body.page-plan{--page-bg:#e6f4ff;--accent:#0284c7}
+  body.page-reports{--page-bg:#eafbe9;--accent:#16a34a}
+  body.page-profile,
+  body.page-people,
+  body.page-registercolleague,
+  body.page-admin,
+  body.page-notifications{--page-bg:#fdf6e9}
 }

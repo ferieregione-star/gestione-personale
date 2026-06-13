@@ -188,7 +188,7 @@ function nav(id){
   render();
 }
 function loadEventsForPlanPeriod(){
-  var periods={estate:["2025-06","2025-07","2025-08","2025-09"], natale:["2025-12","2026-01"], pasqua:["2026-04"]};
+  var periods=planPeriods();
   var months=periods[selectedPlanPeriod]||periods.estate;
   months.forEach(loadEventsForMonth);
 }
@@ -294,13 +294,14 @@ function layout(content){
   var impBanner = adminUser ? ('<div class="impersonation-banner no-print">Modalità super admin: stai visualizzando come <b>'+fullName(currentUser)+'</b></div>') : "";
   var bottomNav =
     '<nav class="bottom-tabbar no-print">'+
-    '<button class="'+(page==="calendar"?"active":"")+'" onclick="nav(\'calendar\')"><span class="tab-icon">📅</span><span>Calendario</span></button>'+
     '<button class="'+(page==="plan"?"active":"")+'" onclick="nav(\'plan\')"><span class="tab-icon">🏖️</span><span>Ferie</span></button>'+
-    '<button class="'+(page==="profile"?"active":"")+'" onclick="nav(\'profile\')"><span class="tab-icon">👤</span><span>Profilo</span></button>'+
-    '<button class="'+(page==="more"?"active":"")+'" onclick="toggleMobileMenu()"><span class="tab-icon">⋯</span><span>Altro</span></button>'+
+    '<button class="tab-center '+(page==="calendar"?"active":"")+'" onclick="nav(\'calendar\')"><span class="tab-icon">📅</span></button>'+
+    '<button class="'+(page==="reports"?"active":"")+'" onclick="nav(\'reports\')"><span class="tab-icon">📊</span><span>Riepilogo</span></button>'+
     '</nav>';
   app.innerHTML =
-    '<div class="mobile-appbar no-print"><strong>'+pageTitleLabel()+'</strong><div>'+bellButton()+'</div></div>'+
+    '<div class="mobile-appbar no-print">'+
+    '<button class="mobile-avatar-btn" style="background:'+currentUser.color+'" onclick="nav(\'profile\')">'+currentUser.initials+'</button>'+
+    '<strong>'+pageTitleLabel()+'</strong><div>'+bellButton()+'</div></div>'+
     (mobileMenuOpen ? '<div class="mobile-overlay" onclick="toggleMobileMenu()"></div>' : '')+
     '<div class="app '+(mobileMenuOpen?'menu-open':'')+'"><aside class="sidebar">'+navHtml+'</aside><main class="main">'+
     '<div class="global-bell-wrap no-print desktop-bell">'+bellButton()+'</div>'+backButton()+impBanner+content+
@@ -444,6 +445,10 @@ async function removeEvent(date,userId){
    ========================================================= */
 function renderProfile(){
   var u=currentUser;
+  var managementLinks="";
+  if(canManageUsers()) managementLinks+='<button class="btn secondary full" onclick="nav(\'people\')">👥 Dipendenti</button>';
+  if(canRegisterColleagues()) managementLinks+='<button class="btn secondary full" onclick="nav(\'registercolleague\')">➕ Registra collega</button>';
+  if(canManageUsers()) managementLinks+='<button class="btn secondary full" onclick="nav(\'admin\')">⚙️ Admin</button>';
   layout(
     '<div class="top"><h1>DATI PERSONALI</h1><span class="pill">'+roleLabel(u.role)+'</span></div>'+
     '<div class="grid two">'+
@@ -459,7 +464,11 @@ function renderProfile(){
     '<label>Nuova password richiesta</label><input id="requestedPassword" type="password">'+
     '<button class="btn secondary" onclick="requestPasswordChange()">Invia richiesta</button>'+
     '<p id="profileMsg" class="small"></p></div>'+
-    '</div>'
+    '</div>'+
+    (managementLinks ? ('<div class="card"><h3 class="section-title">Gestione</h3>'+managementLinks+'</div>') : "")+
+    '<div class="card">'+
+    (adminUser?'<button class="btn secondary full" onclick="stopImpersonation()">Torna super admin</button>':'')+
+    '<button class="btn danger full" onclick="logout()">Esci</button></div>'
   );
 }
 async function saveProfile(){
@@ -883,7 +892,7 @@ function planSectorSelect(){
 }
 function planPrintAreaLabel(sectorId,areaId){ return areaId==="all" ? sectorName(sectorId).toUpperCase() : areaName(areaId).toUpperCase(); }
 function renderPlan(){
-  var periods={estate:["2025-06","2025-07","2025-08","2025-09"], natale:["2025-12","2026-01"], pasqua:["2026-04"]};
+  var periods=planPeriods();
   var months=periods[selectedPlanPeriod]||periods.estate;
   var sectorId = currentUser.role==="admin" ? selectedSectorId : currentUser.sectorId;
   if(!sectorId||sectorId==="all"||sectorId==="*") sectorId="prevenzione";
