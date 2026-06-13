@@ -527,6 +527,8 @@ async function saveColleague(){
   try{
     await writeUser(newUser);
     db.users.push(newUser);
+    db.lastRead[newUser.id]=Date.now();
+    queueMetaWrite();
     addAudit("Registrato collega "+fullName(newUser));
     msgEl.textContent="Collega registrato.";
   }catch(e){
@@ -788,6 +790,8 @@ async function approveRegistration(userId){
   u.approved=true;
   if(!u.visibleSectorIds||!u.visibleSectorIds.length) u.visibleSectorIds=[u.sectorId];
   if(!u.editableAreaIds) u.editableAreaIds=[];
+  db.lastRead[u.id]=Date.now();
+  queueMetaWrite();
   addAudit("Approvata registrazione di "+fullName(u));
   try{ await writeUser(u); }catch(e){}
   render();
