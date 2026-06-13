@@ -181,13 +181,13 @@ body.theme-admin .sidebar .nav button{color:#e5e7eb}
 body.theme-admin .sidebar .nav button.active,body.theme-admin .sidebar .nav button:hover{background:#173b6d}
 body.theme-admin .userbox{background:#102b4d!important;border-color:#173b6d!important}
 
-body.theme-referente{--bg:#fff1f2;--blue:#dc2626;--blue-soft:#fee2e2}
-body.theme-referente .sidebar{background:#7f1d1d!important;color:#fff}
-body.theme-referente .sidebar .nav button{color:#fee2e2}
+body.theme-referente{--bg:#fffbeb;--blue:#d97706;--blue-soft:#fef3c7}
+body.theme-referente .sidebar{background:#78350f!important;color:#fff}
+body.theme-referente .sidebar .nav button{color:#fef3c7}
 body.theme-referente .sidebar .nav button.active,
-body.theme-referente .sidebar .nav button:hover{background:#dc2626;color:#fff}
-body.theme-referente .userbox{background:#991b1b!important;border-color:#dc2626!important;color:#fff}
-body.theme-referente .brand span{color:#fee2e2}
+body.theme-referente .sidebar .nav button:hover{background:#d97706;color:#fff}
+body.theme-referente .userbox{background:#92400e!important;border-color:#d97706!important;color:#fff}
+body.theme-referente .brand span{color:#fef3c7}
 
 body.theme-dirigente{--bg:#ecfdf5;--blue:#16a34a;--blue-soft:#dcfce7}
 body.theme-dirigente .sidebar{background:#14532d!important;color:#fff}
@@ -446,4 +446,18 @@ body.theme-employee{--bg:#f8fafc}
 
 @media(min-width:761px){
   .desktop-only{display:flex;}
+}
+
+/* =========================================================
+   V65 - richieste utente: piano ferie solo barra %, niente
+   nomi su mobile; export PDF solo desktop; tema referente giallo
+   ========================================================= */
+@media(max-width:760px){
+  .plan-names{display:none!important}
+  .plan-card-white{min-height:48px!important;padding:6px!important;display:flex!important;flex-direction:column;justify-content:flex-end}
+  .plan-fill-wrap{position:absolute;left:6px;right:6px;bottom:6px;height:10px}
+  .print-btn{display:none!important}
+}
+@media(min-width:761px){
+  .plan-names{display:block}
 }
