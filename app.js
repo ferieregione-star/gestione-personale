@@ -292,12 +292,20 @@ function layout(content){
     (adminUser?'<br><button class="btn secondary full" onclick="stopImpersonation()">Torna super admin</button>':'')+
     '<button class="btn secondary full" onclick="logout()">Esci</button></div>';
   var impBanner = adminUser ? ('<div class="impersonation-banner no-print">Modalità super admin: stai visualizzando come <b>'+fullName(currentUser)+'</b></div>') : "";
+  var bottomNav =
+    '<nav class="bottom-tabbar no-print">'+
+    '<button class="'+(page==="calendar"?"active":"")+'" onclick="nav(\'calendar\')"><span class="tab-icon">📅</span><span>Calendario</span></button>'+
+    '<button class="'+(page==="plan"?"active":"")+'" onclick="nav(\'plan\')"><span class="tab-icon">🏖️</span><span>Ferie</span></button>'+
+    '<button class="'+(page==="notifications"?"active":"")+'" onclick="nav(\'notifications\')"><span class="tab-icon">🔔'+(unreadCount()?('<span class="tab-badge">'+unreadCount()+'</span>'):'')+'</span><span>Notifiche</span></button>'+
+    '<button class="'+(page==="profile"?"active":"")+'" onclick="nav(\'profile\')"><span class="tab-icon">👤</span><span>Profilo</span></button>'+
+    '<button class="'+(page==="more"?"active":"")+'" onclick="toggleMobileMenu()"><span class="tab-icon">⋯</span><span>Altro</span></button>'+
+    '</nav>';
   app.innerHTML =
-    '<div class="mobile-appbar no-print"><button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button><strong>'+pageTitleLabel()+'</strong><div>'+bellButton()+'</div></div>'+
+    '<div class="mobile-appbar no-print"><strong>'+pageTitleLabel()+'</strong><div>'+bellButton()+'</div></div>'+
     (mobileMenuOpen ? '<div class="mobile-overlay" onclick="toggleMobileMenu()"></div>' : '')+
     '<div class="app '+(mobileMenuOpen?'menu-open':'')+'"><aside class="sidebar">'+navHtml+'</aside><main class="main">'+
     '<div class="global-bell-wrap no-print desktop-bell">'+bellButton()+'</div>'+backButton()+impBanner+content+
-    '</main></div>';
+    '</main></div>'+bottomNav;
 }
 function avatarClass(u){ return u.role==="viewer"?"viewer":u.role==="sector_manager"?"referente":""; }
 function nameClass(u){ return u.role==="viewer"?"name-viewer":u.role==="sector_manager"?"name-referente":""; }
@@ -346,7 +354,7 @@ function renderCalendar(){
       '<div class="day-num">'+d+'</div>'+
       (errs.length?'<div class="danger-mark">!</div>':"")+
       (hol?('<div class="holiday-name">'+hol+'</div>'):"")+
-      '<div class="dot-row">'+(dots || ('<span class="empty-day">'+(hol?"Festivo":"Nessun assente")+'</span>'))+'</div>'+
+      '<div class="dot-row">'+(dots || ('<span class="empty-day">'+(hol?"Festivo":"Tutti presenti")+'</span>'))+'</div>'+
       '</button>';
   }
   var modal = modalOpen ? renderDayModal() : "";
@@ -368,13 +376,13 @@ function renderDayModal(){
   var canAdd=!isBlockedDay(selectedDate) && people.some(function(u){return canModifyUserEvents(u.id);});
   return '<div class="modal-backdrop" onclick="if(event.target.className===\'modal-backdrop\')closeModal()">'+
     '<div class="modal ios-sheet"><div class="modal-grabber"></div>'+
-    '<div class="modal-head"><div><h2>'+fmt(selectedDate)+'</h2><p class="small modal-subtitle">'+(hol?"Giorno non lavorativo":"Riepilogo presenze e assenze")+'</p></div>'+
+    '<div class="modal-head"><div><h2>'+fmt(selectedDate)+'</h2><p class="small modal-subtitle">'+(hol?"Giorno non lavorativo":"Chi è assente oggi")+'</p></div>'+
     '<button class="close" onclick="closeModal()">Chiudi</button></div>'+
     (hol?'<div class="warning">Giorno non lavorativo. Non puoi inserire nulla.</div>':"")+
-    (errs.length?('<div class="warning">⚠️ '+errs.join("<br>")+'</div>'):"")+
+    (errs.length?('<div class="warning">⚠️ '+(errs.length>1?errs.map(function(e,i){return (i+1)+". "+e;}).join("<br>"):errs[0])+'</div>'):"")+
     (canAdd?('<div class="quick-action">'+renderInlineEventForm()+'</div>'):"")+
-    '<div class="card day-list-card"><h3 class="section-title">Chi c\'è e chi no</h3>'+
-    (people.length ? people.map(function(u){return personRow(u,selectedDate,canModifyUserEvents(u.id));}).join("") : '<p class="small">Nessun riepilogo.</p>')+
+    '<div class="card day-list-card"><h3 class="section-title">Assenze del giorno</h3>'+
+    (people.length ? people.map(function(u){return personRow(u,selectedDate,canModifyUserEvents(u.id));}).join("") : '<p class="small">Tutti presenti, nessuna assenza registrata.</p>')+
     '</div></div></div>';
 }
 function statusOptionsHtml(){

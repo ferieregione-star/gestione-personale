@@ -232,52 +232,44 @@ function notificationText(actor,target,status,date){
   return fullName(actor)+" "+action+" di "+fullName(target)+" per il giorno "+fmt(date);
 }
 
-/* ---------- Regole smart working ---------- */
-function smartRuleWarnings(date,userId){
-  var warnings=[];
-  if(isBlockedDay(date)) return warnings;
-  var u=db.users.find(function(x){return x.id===userId;});
-  if(!u) return warnings;
-  var wk=weekDates(date);
-
-  var employeeSmart=wk.filter(function(d){return eventFor(d,userId)==="smart" && d!==date;});
-  if(employeeSmart.length) warnings.push(fullName(u)+" ha già uno smart working nella settimana ("+fmt(employeeSmart[0])+").");
-
-  var sectorSmart=db.users.filter(function(x){return x.approved&&isWorker(x)&&x.sectorId===u.sectorId&&x.id!==userId&&eventFor(date,x.id)==="smart";}).length;
-  if(sectorSmart>=3) warnings.push("Limite settore superato: più di 3 smart working complessivi nello stesso giorno.");
-
-  var areaSmartSameDay=db.users.filter(function(x){return x.approved&&isWorker(x)&&x.areaId===u.areaId&&x.id!==userId&&eventFor(date,x.id)==="smart";}).length;
-  if(areaSmartSameDay>=2) warnings.push("Limite area superato: più di 2 smart working della stessa area nello stesso giorno.");
-
-  var hasDouble=wk.some(function(d){return d!==date && db.users.filter(function(x){return x.approved&&isWorker(x)&&x.areaId===u.areaId&&eventFor(d,x.id)==="smart";}).length>=2;});
-  if(hasDouble && areaSmartSameDay>=1) warnings.push("Questa area ha già usato il giorno settimanale con 2 persone in smart working.");
-  return warnings;
-}
+/* ---------- Regole smart working ----------
+   1) Ogni dipendente: massimo 1 giorno di SW a settimana (bloccante)
+   2) Stessa area: massimo 2 persone in SW lo stesso giorno
+   3) Stesso settore: massimo 3 persone in SW lo stesso giorno (totale)
+   Le regole 2 e 3 vengono segnalate con un triangolo di avviso sul
+   giorno e un elenco di errori nel popup, ma non bloccano il salvataggio
+   (può essere comunque necessario per urgenze); la regola 1 blocca.
+---------------------------------------------- */
 function validateSmartRule(date,userId){
   if(isBlockedDay(date)) return {ok:false, message:"Non puoi inserire smart working su sabato, domenica o festivo."};
-  var warnings=smartRuleWarnings(date,userId);
-  if(warnings.length) return {ok:true, warning:warnings.join(" ")};
-  return {ok:true, message:"OK"};
+  var u=db.users.find(function(x){return x.id===userId;});
+  if(!u) return {ok:false, message:"Utente non trovato."};
+  var wk=weekDates(date);
+  var already=wk.filter(function(d){return d!==date && eventFor(d,userId)==="smart";});
+  if(already.length) return {ok:false, message:fullName(u)+" ha già uno smart working questa settimana ("+fmt(already[0])+"). Massimo 1 a settimana per persona."};
+  return {ok:true};
+}
+function countSmartArea(date,areaId,excludeUserId){
+  return db.users.filter(function(x){return x.approved&&isWorker(x)&&x.areaId===areaId&&x.id!==excludeUserId&&eventFor(date,x.id)==="smart";}).length;
+}
+function countSmartSector(date,sectorId,excludeUserId){
+  return db.users.filter(function(x){return x.approved&&isWorker(x)&&x.sectorId===sectorId&&x.id!==excludeUserId&&eventFor(date,x.id)==="smart";}).length;
 }
 function computedSmartRuleErrors(date){
   if(isBlockedDay(date)) return [];
   var errors=[];
+  db.areas.forEach(function(a){
+    var c=countSmartArea(date,a.id,null);
+    if(c>2) errors.push("Area "+a.name+": "+c+" persone in smart working lo stesso giorno (massimo 2).");
+  });
   db.sectors.forEach(function(s){
-    var c=db.users.filter(function(u){return u.approved&&isWorker(u)&&u.sectorId===s.id&&eventFor(date,u.id)==="smart";}).length;
-    if(c>3) errors.push("Settore "+s.name+": "+c+" smart working, massimo consigliato 3");
-  });
-  db.areas.forEach(function(a){
-    var c=db.users.filter(function(u){return u.approved&&isWorker(u)&&u.areaId===a.id&&eventFor(date,u.id)==="smart";}).length;
-    if(c>2) errors.push("Area "+a.name+": "+c+" smart working, massimo consigliato 2");
-  });
-  db.areas.forEach(function(a){
-    var doubles=weekDates(date).filter(function(d){return db.users.filter(function(u){return u.approved&&isWorker(u)&&u.areaId===a.id&&eventFor(d,u.id)==="smart";}).length>=2;});
-    if(doubles.length>1) errors.push("Area "+a.name+": più di un giorno nella settimana con 2 persone in smart working");
+    var c=countSmartSector(date,s.id,null);
+    if(c>3) errors.push("Settore "+s.name+": "+c+" persone in smart working lo stesso giorno (massimo 3 in totale).");
   });
   return errors;
 }
 function smartRuleErrorsForDay(date){
-  return computedSmartRuleErrors(date).map(function(e,i){return "Errore "+(i+1)+": "+e;});
+  return computedSmartRuleErrors(date);
 }
 function refreshRuleViolations(date){
   if(!db.ruleViolations) db.ruleViolations={};
