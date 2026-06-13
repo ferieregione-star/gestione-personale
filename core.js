@@ -99,11 +99,8 @@ function abbreviatePart(part){
 function shortPersonName(u){
   var names=(u.name||"").trim().split(/\s+/).filter(Boolean);
   var surnames=(u.surname||"").trim().split(/\s+/).filter(Boolean);
-  var first=abbreviatePart(names[0]||"");
-  var otherNames=names.slice(1).map(function(x){return (x[0]||"").toLowerCase()+".";}).join(" ");
-  var firstSurname=abbreviatePart(surnames[0]||"");
-  var otherSurnames=surnames.slice(1).map(function(x){return (x[0]||"").toLowerCase()+".";}).join(" ");
-  return [first,otherNames,firstSurname,otherSurnames].filter(Boolean).join(" ");
+  var initials=names.map(function(x){return x[0].toUpperCase()+".";}).join(" ");
+  return [initials, surnames.join(" ")].filter(Boolean).join(" ");
 }
 function createInitialsForUser(name,surname){
   var a=(name||"").trim()[0]||"", b=(surname||"").trim()[0]||"";

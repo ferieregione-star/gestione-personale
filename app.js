@@ -34,7 +34,7 @@ function renderLogin(message){
   message = message || "";
   document.body.classList.remove("theme-admin","theme-referente","theme-employee","theme-dirigente");
   app.innerHTML =
-    '<div class="login-page"><div class="login-box"><div class="logo">📅</div><div class="card">'+
+    '<div class="login-page"><div class="login-box"><div class="logo">🗓️</div><div class="card">'+
     '<div class="top"><h1>Gestione Personale</h1></div>'+
     (message ? ('<div class="notice">'+message+'</div>') : '')+
     '<label>Email</label><input id="loginEmail" autocomplete="username" placeholder="Email">'+
@@ -282,8 +282,8 @@ function layout(content){
   applyTheme();
   document.body.classList.remove("page-calendar","page-plan","page-profile","page-people","page-registercolleague","page-reports","page-admin","page-notifications");
   document.body.classList.add("page-"+page);
-  var navHtml='<div class="brand"><div class="brand-icon">📅</div><div><strong>Gestione Personale</strong></div></div><div class="nav">'+
-    navButton("calendar","📅 Calendario")+navButton("plan","🗓️ Piano ferie")+navButton("profile","👤 Dati personali")+
+  var navHtml='<div class="brand"><div class="brand-icon">🗓️</div><div><strong>Gestione Personale</strong></div></div><div class="nav">'+
+    navButton("calendar","🗓️ Calendario")+navButton("plan","🏖️ Piano ferie")+navButton("profile","👤 Dati personali")+
     (canManageUsers()?navButton("people","👥 Dipendenti"):"")+
     (canRegisterColleagues()?navButton("registercolleague","➕ Registra collega"):"")+
     navButton("reports","📊 Riepilogo")+
@@ -295,7 +295,7 @@ function layout(content){
   var bottomNav =
     '<nav class="bottom-tabbar no-print">'+
     '<button class="'+(page==="plan"?"active":"")+'" onclick="nav(\'plan\')"><span class="tab-icon">🏖️</span><span>Ferie</span></button>'+
-    '<button class="tab-center '+(page==="calendar"?"active":"")+'" onclick="nav(\'calendar\')"><span class="tab-icon">📅</span></button>'+
+    '<button class="tab-center '+(page==="calendar"?"active":"")+'" onclick="nav(\'calendar\')"><span class="tab-icon">🗓️</span></button>'+
     '<button class="'+(page==="reports"?"active":"")+'" onclick="nav(\'reports\')"><span class="tab-icon">📊</span><span>Riepilogo</span></button>'+
     '</nav>';
   app.innerHTML =
@@ -304,7 +304,7 @@ function layout(content){
     '<strong>'+pageTitleLabel()+'</strong><div>'+bellButton()+'</div></div>'+
     (mobileMenuOpen ? '<div class="mobile-overlay" onclick="toggleMobileMenu()"></div>' : '')+
     '<div class="app '+(mobileMenuOpen?'menu-open':'')+'"><aside class="sidebar">'+navHtml+'</aside><main class="main">'+
-    '<div class="global-bell-wrap no-print desktop-bell">'+bellButton()+'</div>'+backButton()+impBanner+content+
+    '<div class="global-bell-wrap no-print desktop-bell">'+bellButton()+'</div>'+impBanner+content+
     '</main></div>'+bottomNav;
 }
 function avatarClass(u){ return u.role==="viewer"?"viewer":u.role==="sector_manager"?"referente":""; }
