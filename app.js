@@ -359,9 +359,9 @@ function renderCalendar(){
   }
   var modal = modalOpen ? renderDayModal() : "";
   layout(
-    '<div class="top"><h1>'+contextTitle()+'</h1><div class="sector-filter">'+selectorControls()+'</div></div>'+
-    '<div class="calendar-wrap"><div class="calendar-toolbar"><button class="btn secondary" onclick="changeMonth(-1)">← Mese precedente</button>'+
-    '<div class="month-title">'+monthName()+'</div><button class="btn secondary" onclick="changeMonth(1)">Mese successivo →</button></div>'+
+    '<div class="top desktop-only page-context"><h1>'+contextTitle()+'</h1><div class="sector-filter">'+selectorControls()+'</div></div>'+
+    '<div class="calendar-wrap"><div class="calendar-toolbar compact-month"><button class="btn secondary month-nav prev" aria-label="Mese precedente" onclick="changeMonth(-1)">← <span>Mese precedente</span></button>'+
+    '<div class="month-title">'+monthName()+'</div><button class="btn secondary month-nav next" aria-label="Mese successivo" onclick="changeMonth(1)"><span>Mese successivo</span> →</button></div>'+
     '<div class="calendar-head"><div>LUN</div><div>MAR</div><div>MER</div><div>GIO</div><div>VEN</div></div>'+
     '<div class="calendar">'+days+'</div></div>'+
     '<div class="card" style="margin-top:16px"><div class="top"><h3 class="section-title">Riepilogo '+fmt(selectedDate)+'</h3><span class="pill">'+(isHoliday(selectedDate)||"Giorno lavorativo")+'</span></div>'+
@@ -450,7 +450,7 @@ function renderProfile(){
   if(canRegisterColleagues()) managementLinks+='<button class="btn secondary full" onclick="nav(\'registercolleague\')">➕ Registra collega</button>';
   if(canManageUsers()) managementLinks+='<button class="btn secondary full" onclick="nav(\'admin\')">⚙️ Admin</button>';
   layout(
-    '<div class="top"><h1>DATI PERSONALI</h1><span class="pill">'+roleLabel(u.role)+'</span></div>'+
+    '<div class="top desktop-only"><h1>DATI PERSONALI</h1><span class="pill">'+roleLabel(u.role)+'</span></div>'+
     '<div class="grid two">'+
     '<div class="card"><h3 class="section-title">I miei dati</h3><div class="form-grid">'+
     '<div><label>Nome</label><input id="profileName" value="'+u.name+'"></div>'+
@@ -503,7 +503,7 @@ function renderRegisterColleague(){
   var sectors = currentUser.role==="admin" ? db.sectors : db.sectors.filter(function(s){return s.id===currentUser.sectorId;});
   var sectorOpts=sectors.map(function(s){return '<option value="'+s.id+'">'+s.name+'</option>';}).join("");
   layout(
-    '<div class="top"><h1>REGISTRA COLLEGA</h1><span class="pill">'+roleLabel(currentUser.role)+'</span></div>'+
+    '<div class="top desktop-only"><h1>REGISTRA COLLEGA</h1><span class="pill">'+roleLabel(currentUser.role)+'</span></div>'+
     '<div class="card"><div class="form-grid">'+
     '<div><label>Nome</label><input id="colName"></div>'+
     '<div><label>Cognome</label><input id="colSurname"></div>'+
@@ -702,13 +702,13 @@ function renderReports(){
       '<div><strong>'+r.altro+'</strong><span>ALTRO</span></div>'+
       '</div><p class="small">Usate: C01 '+r.c01+' · C02 '+r.c02+' · F14 '+r.f14+'. Totale residuo ferie/festività: '+r.ferieResidue+' giorni.</p></div>';
   }).join("");
-  layout('<div class="top"><h1>RIEPILOGO</h1><div>'+selectorControls()+'</div></div><div class="summary-wrap">'+cards+'</div>');
+  layout('<div class="top desktop-only"><h1>RIEPILOGO</h1><div>'+selectorControls()+'</div></div><div class="summary-wrap">'+cards+'</div>');
 }
 function renderNotifications(){
   markNotificationsRead();
   var notes=visibleNotifications();
   var list = notes.length ? notes.map(function(n){return '<div class="toast-note"><b>'+n.text+'</b><br><span class="small">'+n.displayAt+'</span></div>';}).join("") : '<p class="small">Nessuna notifica.</p>';
-  layout('<div class="top"><h1>NOTIFICHE</h1><span class="pill">'+notes.length+' totali</span></div><div class="card">'+list+'</div>');
+  layout('<div class="top desktop-only"><h1>NOTIFICHE</h1><span class="pill">'+notes.length+' totali</span></div><div class="card">'+list+'</div>');
 }
 
 /* =========================================================
@@ -906,7 +906,7 @@ function renderPlan(){
   var content=months.map(function(m){return renderPlanMonthLayout(m,sectorId,selectedPlanArea);}).join("");
   var modal = planModalOpen ? renderPlanDayModal() : "";
   layout(
-    '<div class="plan-shell"><div class="plan-top no-print"><h1>PIANO FERIE</h1><div class="plan-controls">'+
+    '<div class="plan-shell"><div class="plan-top no-print"><h1 class="desktop-only">PIANO FERIE</h1><div class="plan-controls">'+
     planSectorSelect()+
     '<label>VISUALIZZAZIONE:</label><select onchange="selectedPlanArea=this.value;render()">'+areaOptions+'</select>'+
     '<select onchange="selectedPlanPeriod=this.value;loadEventsForPlanPeriod();render()">'+

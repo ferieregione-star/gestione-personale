@@ -75,3 +75,14 @@ problema se restano nel repo.
 - Limite ~16-30 utenti/dispositivi contemporanei: l'architettura a collezioni separate
   riduce drasticamente le letture Firestore rispetto al blob unico, restando ben dentro
   la quota gratuita giornaliera per questo numero di utenti.
+
+
+## V64 Responsive - modifiche incluse in questo pacchetto
+
+- Calendario mobile riscritto: 5 colonne fluide con `minmax(0, 1fr)`, senza taglio laterale e senza scroll orizzontale.
+- Toolbar mese compatta su mobile: freccia sinistra, mese centrato, freccia destra.
+- Rimossi su mobile i titoli duplicati dentro la pagina (`GESTIONALE - SETTORE`, `DATI PERSONALI`, `RIEPILOGO`, `PIANO FERIE`), perché il titolo è già nella barra superiore.
+- Aggiunto `viewport-fit=cover` per iPhone e gestione `safe-area-inset-bottom` per non far coprire i contenuti dalla barra inferiore.
+- Bottom navigation mantenuta solo su mobile; desktop invariato con sidebar.
+- PWA cache aggiornata a `gestione-personale-v64-responsive` per forzare il refresh dei file nuovi.
+- Icone 192/512 incluse nella cartella `icons/`.
