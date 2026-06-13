@@ -1,8 +1,10 @@
-const CACHE_NAME = "gestione-personale-v61";
+const CACHE_NAME = "gestione-personale-v63";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css",
+  "./core.js",
+  "./firestore-sync.js",
   "./app.js",
   "./manifest.json",
   "./icons/icon-192.png",

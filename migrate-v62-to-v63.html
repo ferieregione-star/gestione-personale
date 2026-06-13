@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="it"><head><meta charset="UTF-8"><title>Migrazione dati v62 -> v63</title>
+<style>body{font-family:sans-serif;max-width:700px;margin:40px auto;padding:0 16px;line-height:1.5}
+button{padding:12px 18px;font-size:16px;cursor:pointer;margin:6px 0}
+pre{background:#f1f5f9;padding:12px;border-radius:8px;overflow:auto;font-size:13px}
+.ok{color:#16a34a;font-weight:bold}.err{color:#dc2626;font-weight:bold}</style>
+</head><body>
+<h1>Migrazione dati: documento unico -> collezioni separate</h1>
+<p>Questa pagina legge il vecchio documento <code>gestionePersonale/main</code> e crea i documenti
+nelle nuove collezioni (<code>sectors</code>, <code>areas</code>, <code>users</code>, <code>events</code>,
+<code>notifications</code>, <code>requests</code>, <code>audit</code>, <code>meta</code>) usate dalla v63.</p>
+<p><b>Eseguila UNA SOLA VOLTA</b>, prima di pubblicare la v63. Non cancella il vecchio documento
+(puoi farlo a mano dopo aver verificato che tutto funziona).</p>
+<button onclick="migrate()">Avvia migrazione</button>
+<pre id="log"></pre>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCkMCGwXiUkoQIKlKWwrzpRvT03LaeE248",
+  authDomain: "gestione-personale-e2fd0.firebaseapp.com",
+  projectId: "gestione-personale-e2fd0",
+  storageBucket: "gestione-personale-e2fd0.firebasestorage.app",
+  messagingSenderId: "942817368916",
+  appId: "1:942817368916:web:9777683063d6aa3959c6c1",
+  measurementId: "G-PLJ9DZNC40"
+};
+
+function log(msg, cls){
+  const el=document.getElementById("log");
+  el.innerHTML += (cls?('<span class="'+cls+'">'+msg+'</span>'):msg) + "\n";
+}
+
+async function migrate(){
+  document.querySelector("button").disabled=true;
+  if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+  const dbf = firebase.firestore();
+  log("Leggo gestionePersonale/main ...");
+  const snap = await dbf.collection("gestionePersonale").doc("main").get();
+  if(!snap.exists){ log("Documento non trovato. Nulla da migrare.", "err"); return; }
+  const data = snap.data().db || {};
+  log("Documento trovato. Inizio migrazione...");
+
+  const batchLimit = 400;
+  let writes = [];
+  function add(ref, obj){ writes.push([ref, obj]); }
+
+  // Sectors
+  (data.sectors||[]).forEach(s => add(dbf.collection("sectors").doc(s.id), s));
+  log("Settori: " + (data.sectors||[]).length);
+
+  // Areas
+  (data.areas||[]).forEach(a => add(dbf.collection("areas").doc(a.id), a));
+  log("Aree: " + (data.areas||[]).length);
+
+  // Users
+  (data.users||[]).forEach(u => add(dbf.collection("users").doc(u.id), u));
+  log("Utenti: " + (data.users||[]).length);
+
+  // Events (un documento per data)
+  const eventDates = Object.keys(data.events||{});
+  eventDates.forEach(date => add(dbf.collection("events").doc(date), data.events[date]));
+  log("Giorni con eventi: " + eventDates.length);
+
+  // Notifications (ultimi 80)
+  const notes = (data.notifications||[]).slice(0,80);
+  notes.forEach(n => add(dbf.collection("notifications").doc(n.id), n));
+  log("Notifiche migrate: " + notes.length);
+
+  // Requests
+  (data.requests||[]).forEach(r => {
+    const reqCopy = Object.assign({}, r, {createdAt: r.createdAt || Date.now()});
+    add(dbf.collection("requests").doc(r.id), reqCopy);
+  });
+  log("Richieste: " + (data.requests||[]).length);
+
+  // Audit (ultimi 40)
+  const audit = (data.audit||[]).slice(0,40).map(a => Object.assign({}, a, {atTs: a.atTs || Date.now()}));
+  audit.forEach(a => add(dbf.collection("audit").doc(a.id), a));
+  log("Audit migrati: " + audit.length);
+
+  // Meta
+  add(dbf.collection("meta").doc("config"), {lastRead: data.lastRead||{}, schema: 63});
+  log("Meta (lastRead) migrato.");
+
+  log("Scrittura di " + writes.length + " documenti in batch...");
+  for(let i=0; i<writes.length; i+=batchLimit){
+    const batch = dbf.batch();
+    writes.slice(i, i+batchLimit).forEach(([ref,obj]) => batch.set(ref, obj));
+    await batch.commit();
+    log("  batch " + (i/batchLimit + 1) + " ok");
+  }
+
+  log("MIGRAZIONE COMPLETATA.", "ok");
+  log("Ora puoi pubblicare la cartella v63 (sostituisce index.html, app.js, core.js, firestore-sync.js, styles.css, sw.js, manifest.json).");
+}
+</script>
+</body></html>
