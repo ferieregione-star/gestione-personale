@@ -34,7 +34,7 @@ function renderLogin(message){
   message = message || "";
   document.body.classList.remove("theme-admin","theme-referente","theme-employee","theme-dirigente");
   app.innerHTML =
-    '<div class="login-page"><div class="login-box"><div class="logo">'+icon("calendar")+'</div><div class="card">'+
+    '<div class="login-page"><div class="login-box"><div class="logo app-logo"><img src="icons/icon-192.png" alt="Gestione Personale" width="76" height="76"></div><div class="card">'+
     '<div class="top"><h1>Gestione Personale</h1></div>'+
     (message ? ('<div class="notice">'+message+'</div>') : '')+
     '<label>Email</label><input id="loginEmail" autocomplete="username" placeholder="Email">'+
@@ -121,7 +121,7 @@ async function registerUser(){
 
   try{
     await writeUser(newUser);
-    db.users.push(newUser);
+    addIfAbsent(db.users, newUser);
     pushNotification({
       text:"Nuova utenza da abilitare: "+name+" "+surname+" - "+sectorName(sectorId)+" / "+areaName(areaId),
       scope:"admin", type:"registration", actorId:"system", sectorId:sectorId, areaId:areaId
@@ -155,7 +155,7 @@ async function sendForgotPassword(){
   var req={id:uid("req"), type:"forgot_password", userId:u.id, newPassword:"", status:"pending", at:new Date().toLocaleString("it-IT"), createdAt:Date.now()};
   try{
     await writeRequest(req);
-    db.requests.unshift(req);
+    addIfAbsent(db.requests, req, true);
     pushNotification({text:"Password dimenticata: "+fullName(u)+" chiede reset", scope:"admin", actorId:"system", type:"password", sectorId:u.sectorId, areaId:u.areaId});
     msgEl.textContent="Richiesta inviata.";
   }catch(e){
@@ -220,7 +220,7 @@ function stopImpersonation(){
 function renderSwitchUserPanel(){
   if(currentUser.role!=="admin" && !adminUser) return "";
   var list=db.users.filter(function(u){return u.approved && u.role!=="admin";}).map(function(u){
-    return '<button class="switch-user-row" onclick="startImpersonation(\''+u.id+'\')"><span>'+fullName(u)+'</span><small>'+roleLabel(u.role)+' · '+sectorName(u.sectorId)+' / '+areaName(u.areaId)+'</small></button>';
+    return '<button class="switch-user-row" onclick="startImpersonation(\''+u.id+'\')"><span>'+fullName(u)+'</span><small>'+roleLabel(u.role)+' · '+personSectorAreaLabel(u)+'</small></button>';
   }).join("");
   var banner = adminUser ? ('<div class="warning">Stai visualizzando come '+fullName(currentUser)+'. <button class="btn secondary" onclick="stopImpersonation()">Torna super admin</button></div>') : "";
   return '<div class="card switch-card"><h3 class="section-title">Cambio utente</h3>'+banner+'<div class="switch-list">'+list+'</div></div>';
@@ -313,7 +313,7 @@ function nameClass(u){ return u.role==="viewer"?"name-viewer":u.role==="sector_m
 function personRow(u,date,editable){
   var st=eventFor(date,u.id);
   return '<div class="person"><div class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</div>'+
-    '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+sectorName(u.sectorId)+' / '+areaName(u.areaId)+'</small></div>'+
+    '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+personSectorAreaLabel(u)+'</small></div>'+
     statusTag(st)+
     ((editable && isAbsent(st)) ? ('<button class="btn danger" onclick="removeEvent(\''+date+'\',\''+u.id+'\')">Rimuovi</button>') : "")+
     '</div>';
@@ -331,7 +331,15 @@ function changeMonth(delta){
   loadEventsForMonth(monthKeyOf(selectedDate));
   render();
 }
-function openDay(date){ selectedDate=date; modalOpen=true; render(); }
+function openDay(date){ selectedDate=date; render(); }
+function goToToday(){
+  selectedDate=todayStr();
+  viewYear=Number(selectedDate.slice(0,4));
+  viewMonth=Number(selectedDate.slice(5,7))-1;
+  loadEventsForMonth(monthKeyOf(selectedDate));
+  render();
+}
+function openManageModal(){ modalOpen=true; render(); }
 function closeModal(){ modalOpen=false; insertOpen=false; insertUserId=null; insertCode=null; insertError=""; render(); }
 
 function renderCalendar(){
@@ -349,7 +357,9 @@ function renderCalendar(){
     var abs = hol ? [] : visibleUsers().filter(function(u){return isAbsent(eventFor(date,u.id));});
     var dots=abs.map(function(u){
       var st=eventFor(date,u.id), s=STATUS[st];
-      return '<span class="person-dot" title="'+fullName(u)+' - '+s.label+'" style="background:'+s.color+'">'+s.short+'</span>';
+      var color = st==="smart" ? smartColorForArea(u.areaId) : s.color;
+      var whiteCls = (color==="#ffffff") ? " dot-white" : "";
+      return '<span class="person-dot'+whiteCls+'" title="'+fullName(u)+' - '+s.label+'" style="background:'+color+'">'+s.short+'</span>';
     }).join("");
     days += '<button class="day '+(selectedDate===date?'selected':'')+' '+(hol?'holiday':'')+' '+(errs.length?'rule-error':'')+'" onclick="openDay(\''+date+'\')">'+
       '<div class="day-num">'+d+'</div>'+
@@ -363,9 +373,27 @@ function renderCalendar(){
     '<div class="top desktop-only page-context"><h1>'+contextTitle()+'</h1><div class="sector-filter">'+selectorControls()+'</div></div>'+
     '<div class="calendar-wrap"><div class="calendar-toolbar compact-month"><button class="btn secondary month-nav prev" aria-label="Mese precedente" onclick="changeMonth(-1)">← <span>Mese precedente</span></button>'+
     '<div class="month-title">'+monthName()+'</div><button class="btn secondary month-nav next" aria-label="Mese successivo" onclick="changeMonth(1)"><span>Mese successivo</span> →</button></div>'+
+    '<button class="btn secondary today-btn" onclick="goToToday()">Torna a oggi</button>'+
     '<div class="calendar-head"><div>LUN</div><div>MAR</div><div>MER</div><div>GIO</div><div>VEN</div></div>'+
-    '<div class="calendar">'+days+'</div></div>'+modal
+    '<div class="calendar">'+days+'</div></div>'+
+    renderSelectedDaySummary()+modal
   );
+}
+function renderSelectedDaySummary(){
+  var people = isBlockedDay(selectedDate) ? [] : visibleUsers().filter(function(u){return isAbsent(eventFor(selectedDate,u.id));});
+  var canAdd = !isBlockedDay(selectedDate) && visibleUsers().some(function(u){return canModifyUserEvents(u.id);});
+  var rows;
+  if(people.length){
+    rows=people.map(function(u){
+      var st=eventFor(selectedDate,u.id);
+      return '<div class="day-summary-row"><b>'+fullName(u)+'</b>'+statusTag(st)+'</div>';
+    }).join("");
+  }else{
+    rows='<p class="empty-state">Tutti presenti</p>';
+  }
+  return '<div class="card day-summary-card">'+rows+
+    (canAdd?('<button class="btn secondary full manage-btn" onclick="openManageModal()">Gestisci assenze</button>'):"")+
+    '</div>';
 }
 function renderDayModal(){
   var hol=isHoliday(selectedDate)||isWeekend(selectedDate);
@@ -426,7 +454,8 @@ function renderInsertSheet(){
   var codeCards=INSERT_CODES.map(function(code){
     var s=STATUS[code];
     var sel=insertCode===code;
-    return '<button class="insert-code-card '+(sel?'selected':'')+'" style="--code-color:'+s.color+'" onclick="selectInsertCode(\''+code+'\')">'+
+    var cardColor = (s.color==="#ffffff") ? "#64748b" : s.color;
+    return '<button class="insert-code-card '+(sel?'selected':'')+'" style="--code-color:'+cardColor+'" onclick="selectInsertCode(\''+code+'\')">'+
       '<span class="insert-code-short">'+s.short+'</span><span class="insert-code-label">'+s.label.replace(/^[A-Z0-9]+\s*-\s*/,"")+'</span></button>';
   }).join("");
   return '<div class="modal-backdrop insert-backdrop" onclick="if(event.target.classList.contains(\'insert-backdrop\'))closeInsertSheet()">'+
@@ -456,7 +485,7 @@ async function saveInsertedEvent(){
   db.events[date][userId]=st;
   refreshRuleViolations(date);
   addAudit(STATUS[st].label+" per "+fullName(u)+" il "+fmt(date));
-  pushNotification({text:notificationText(currentUser,u,st,date), scope:"sector", sectorId:u.sectorId, actorId:currentUser.id, type:"event"});
+  pushNotification({text:notificationText(currentUser,u,st,date), scope:"sector", sectorId:u.sectorId, areaId:u.areaId, actorId:currentUser.id, type:"event"});
   try{ await writeEventDay(date, db.events[date]); }catch(e){}
   closeInsertSheet();
 }
@@ -465,7 +494,7 @@ async function removeEvent(date,userId){
   var u=db.users.find(function(x){return x.id===userId;});
   if(db.events[date]) delete db.events[date][userId];
   refreshRuleViolations(date);
-  pushNotification({text:notificationText(currentUser,u,"present",date), scope:"sector", sectorId:u.sectorId, actorId:currentUser.id, type:"event"});
+  pushNotification({text:notificationText(currentUser,u,"present",date), scope:"sector", sectorId:u.sectorId, areaId:u.areaId, actorId:currentUser.id, type:"event"});
   addAudit("Rimossa assenza di "+fullName(u)+" il "+fmt(date));
   try{ await writeEventDay(date, db.events[date]||{}); }catch(e){}
   render();
@@ -509,7 +538,7 @@ async function requestPasswordChange(){
   var req={id:uid("req"), type:"password", userId:currentUser.id, newPassword:pwd, status:"pending", at:new Date().toLocaleString("it-IT"), createdAt:Date.now()};
   try{
     await writeRequest(req);
-    db.requests.unshift(req);
+    addIfAbsent(db.requests, req, true);
     pushNotification({text:fullName(currentUser)+" ha richiesto cambio password", scope:"admin", actorId:"system", type:"password", sectorId:currentUser.sectorId, areaId:currentUser.areaId});
     msgEl.textContent="Richiesta inviata.";
   }catch(e){
@@ -560,10 +589,12 @@ async function saveColleague(){
   if(!name||!surname||!email||!areaId){ msgEl.textContent="Compila tutti i dati."; return; }
   if(currentUser.role==="sector_manager" && (currentUser.editableAreaIds||[]).indexOf(areaId)<0){ msgEl.textContent="Non puoi registrare colleghi in questa area."; return; }
   if(db.users.some(function(u){return u.email.toLowerCase()===email;})){ msgEl.textContent="Email già presente."; return; }
+  var btn=document.querySelector("button[onclick='saveColleague()']");
+  if(btn){ if(btn.disabled) return; btn.disabled=true; btn.textContent="Registrazione in corso..."; }
   var newUser={id:uid("user"), email:email, password:password, name:name, surname:surname, role:"employee", sectorId:sectorId, areaId:areaId, visibleSectorIds:[sectorId], editableAreaIds:[], c01:c01, c02:c02, f14:f14, approved:true, initials:createInitialsForUser(name,surname), color:"#0ea5e9"};
   try{
     await writeUser(newUser);
-    db.users.push(newUser);
+    addIfAbsent(db.users, newUser);
     db.lastRead[newUser.id]=Date.now();
     queueMetaWrite();
     addAudit("Registrato collega "+fullName(newUser));
@@ -571,6 +602,7 @@ async function saveColleague(){
   }catch(e){
     msgEl.textContent="Errore di connessione, riprova.";
   }
+  if(btn){ btn.disabled=false; btn.textContent="Registra collega"; }
 }
 
 /* =========================================================
@@ -587,7 +619,7 @@ function renderPeople(){
   var rows=usersForAdminPeople().map(function(u){
     return '<div class="person clickable" onclick="selectedEmployeeId=\''+u.id+'\';render()">'+
       '<div class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</div>'+
-      '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+u.email+' · '+sectorName(u.sectorId)+' / '+areaName(u.areaId)+' · '+roleLabel(u.role)+'</small></div>'+
+      '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+u.email+' · '+personSectorAreaLabel(u)+' · '+roleLabel(u.role)+'</small></div>'+
       '<span class="tag '+(u.approved?'approved':'pending')+'">'+(u.approved?'Attivo':'In attesa')+'</span></div>';
   }).join("");
   var detail = selectedEmployeeId ? renderEmployeeDetail(db.users.find(function(u){return u.id===selectedEmployeeId;})) : '<div class="card"><p class="small">Seleziona un utente per modificare i dati consentiti.</p></div>';
@@ -713,7 +745,7 @@ function renderReports(){
     var usedPct = r.totaleDisponibile ? Math.min(100,Math.round((r.ferieUsate/r.totaleDisponibile)*100)) : 0;
     return '<div class="summary-card"><div class="person" style="border-bottom:0;padding-top:0">'+
       '<div class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</div>'+
-      '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+sectorName(u.sectorId)+' / '+areaName(u.areaId)+'</small></div></div>'+
+      '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+personSectorAreaLabel(u)+'</small></div></div>'+
       '<div class="summary-bar"><span style="width:'+usedPct+'%"></span></div>'+
       '<div class="summary-grid">'+
       '<div><strong>'+r.c01Residue+'</strong><span>C01 residue</span></div>'+
@@ -739,7 +771,7 @@ function renderAdmin(){
   var pending=pendingRegistrations();
   var newUsers=pending.map(function(u){
     return '<div class="person"><div class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</div>'+
-      '<div class="meta"><b class="'+nameClass(u)+'">Richiesta registrazione: '+fullName(u)+'</b><small>'+u.email+' · '+sectorName(u.sectorId)+' / '+areaName(u.areaId)+'</small></div>'+
+      '<div class="meta"><b class="'+nameClass(u)+'">Richiesta registrazione: '+fullName(u)+'</b><small>'+u.email+' · '+personSectorAreaLabel(u)+'</small></div>'+
       '<div class="actions"><button class="btn primary" onclick="approveRegistration(\''+u.id+'\')">Approva</button>'+
       '<button class="btn secondary" onclick="page=\'people\';selectedEmployeeId=\''+u.id+'\';selectedSectorId=\''+u.sectorId+'\';selectedAreaFilter=\''+u.areaId+'\';render()">Modifica</button>'+
       '<button class="btn danger" onclick="deleteUser(\''+u.id+'\')">Elimina</button></div></div>';
@@ -994,7 +1026,7 @@ function renderPlanGrid(month,sectorId,areaId){
     }else{
       names=onHoliday.map(function(u){return '<div class="plan-person" style="color:'+areaColor(u.areaId)+'">'+shortPersonName(u)+'</div>';}).join("");
     }
-    return '<div role="button" tabindex="0" class="plan-card-white plan-clickable" data-date="'+date+'" data-sector="'+sectorId+'" data-area="'+areaId+'">'+
+    return '<div role="button" tabindex="0" class="plan-card-white plan-clickable '+(isHoliday(date)?'plan-holiday':'')+'" data-date="'+date+'" data-sector="'+sectorId+'" data-area="'+areaId+'">'+
       '<div class="plan-fill-wrap">'+fill+'</div><div class="plan-day-num">'+day+'</div><div class="plan-names">'+names+'</div>'+
       (pct?('<div class="plan-percent">'+pct+'%</div>'):"")+'</div>';
   }).join("")+'</div>';

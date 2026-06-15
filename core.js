@@ -16,11 +16,17 @@ const STATUS = {
   present:{label:"In servizio", short:"S", cls:"present", color:"#16a34a"},
   smart:{label:"SW - Smart working", short:"SW", cls:"smart", color:"#2563eb"},
   c01:{label:"C01 - Ferie anno attuale", short:"C01", cls:"ferie", color:"#f97316"},
-  c02:{label:"C02 - Ferie anno precedente", short:"C02", cls:"ferie", color:"#fb923c"},
+  c02:{label:"C02 - Ferie anno precedente", short:"C02", cls:"ferie", color:"#ca8a04"},
   f14:{label:"F14 - Festività soppresse", short:"F14", cls:"permesso", color:"#7c3aed"},
-  a01:{label:"A01 - Malattia", short:"A01", cls:"malattia", color:"#ef4444"},
-  altro:{label:"ALTRO", short:"ALT", cls:"altro", color:"#64748b"}
+  a01:{label:"A01 - Malattia", short:"A01", cls:"malattia", color:"#6b7280"},
+  altro:{label:"ALTRO", short:"ALT", cls:"altro", color:"#ffffff"}
 };
+/* Colore dell'icona SW in base all'area della persona:
+   Prevenzione/Territorio -> blu, Veterinaria/Convenzionata -> verde */
+function smartColorForArea(areaId){
+  if(areaId==="vet"||areaId==="conv") return "#16a34a";
+  return "#2563eb";
+}
 const ROLE_LABELS = {admin:"Super admin", employee:"Dipendente", viewer:"Dirigente", sector_manager:"Referente"};
 
 const INITIAL_SECTORS = [
@@ -102,6 +108,10 @@ function todayStr(){ return new Date().toISOString().slice(0,10); }
 
 /* ---------- Helper generici ---------- */
 function uid(prefix){ prefix = prefix || "id"; return prefix+"-"+Date.now()+"-"+Math.floor(Math.random()*9999); }
+function addIfAbsent(arr,item,prepend){
+  if(arr.some(function(x){return x.id===item.id;})) return;
+  if(prepend) arr.unshift(item); else arr.push(item);
+}
 function fmt(date){ return date.split("-").reverse().join("/"); }
 function fullName(u){ return (u.name + " " + (u.surname||"")).trim(); }
 function sortByName(a,b){ return fullName(a).localeCompare(fullName(b),"it",{sensitivity:"base"}); }
@@ -218,15 +228,32 @@ function pushNotification(opts){
   db.notifications=db.notifications.slice(0,120);
   queueNotificationWrite(entry);
 }
+function managesWholeSector(u,sectorId){
+  var allAreas=areasOfSector(sectorId).map(function(a){return a.id;});
+  if(allAreas.length===0) return true;
+  return allAreas.every(function(a){return (u.editableAreaIds||[]).indexOf(a)>=0;});
+}
+function personSectorAreaLabel(u){
+  if(u.role==="sector_manager"){
+    if(managesWholeSector(u,u.sectorId)) return sectorName(u.sectorId);
+    var editable=u.editableAreaIds||[];
+    return editable.length ? editable.map(areaName).join(" e ") : areaName(u.areaId);
+  }
+  return sectorName(u.sectorId)+' / '+areaName(u.areaId);
+}
 function visibleNotifications(){
   if(!currentUser) return [];
   return db.notifications.filter(function(n){
     if(currentUser.role==="admin") return n.scope==="admin";
     if(currentUser.role==="viewer") return false;
-    if(currentUser.role==="sector_manager"||currentUser.role==="employee"){
-      return n.scope==="sector" && currentUser.sectorId===n.sectorId && n.actorId!==currentUser.id;
-    }
-    return false;
+    if(currentUser.role!=="sector_manager" && currentUser.role!=="employee") return false;
+    if(n.scope!=="sector") return false;
+    if(n.actorId===currentUser.id) return false;
+    if(n.sectorId!==currentUser.sectorId) return false;
+    if(!n.areaId) return true;
+    if(currentUser.role==="employee") return n.areaId===currentUser.areaId;
+    if(managesWholeSector(currentUser,currentUser.sectorId)) return true;
+    return n.areaId===currentUser.areaId || (currentUser.editableAreaIds||[]).indexOf(n.areaId)>=0;
   });
 }
 function unreadCount(){
