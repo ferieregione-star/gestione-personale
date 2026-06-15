@@ -34,7 +34,7 @@ function renderLogin(message){
   message = message || "";
   document.body.classList.remove("theme-admin","theme-referente","theme-employee","theme-dirigente");
   app.innerHTML =
-    '<div class="login-page"><div class="login-box"><div class="logo">🗓️</div><div class="card">'+
+    '<div class="login-page"><div class="login-box"><div class="logo">'+icon("calendar")+'</div><div class="card">'+
     '<div class="top"><h1>Gestione Personale</h1></div>'+
     (message ? ('<div class="notice">'+message+'</div>') : '')+
     '<label>Email</label><input id="loginEmail" autocomplete="username" placeholder="Email">'+
@@ -52,7 +52,7 @@ function renderRegister(){
   page="register";
   var sectorOptions=db.sectors.map(function(s){return '<option value="'+s.id+'">'+s.name+'</option>';}).join("");
   app.innerHTML =
-    '<div class="login-page"><div class="login-box"><div class="logo">👤</div><div class="card">'+
+    '<div class="login-page"><div class="login-box"><div class="logo">'+icon("user")+'</div><div class="card">'+
     '<div class="top"><h1>Registrazione</h1><span class="pill">Registrazione</span></div>'+
     '<div class="form-grid"><div><label>Nome</label><input id="regName"></div><div><label>Cognome</label><input id="regSurname"></div></div>'+
     '<label>Email</label><input id="regEmail">'+
@@ -139,7 +139,7 @@ async function registerUser(){
 function renderForgotPassword(){
   page="forgot";
   app.innerHTML =
-    '<div class="login-page"><div class="login-box"><div class="logo">🔐</div><div class="card">'+
+    '<div class="login-page"><div class="login-box"><div class="logo">'+icon("key")+'</div><div class="card">'+
     '<div class="top"><h1>Password dimenticata</h1><span class="pill">richiesta admin</span></div>'+
     '<label>Email</label><input id="forgotEmail">'+
     '<button class="btn primary full" onclick="sendForgotPassword()">Invia richiesta</button>'+
@@ -260,7 +260,7 @@ function navButton(id,label){
 function bellButton(){
   if(!currentUser||(currentUser.role!=="sector_manager"&&currentUser.role!=="employee")) return "";
   var n=unreadCount();
-  return '<button class="icon-bell global-bell-btn" onclick="nav(\'notifications\')" title="Notifiche">🔔'+(n?('<span class="num">'+n+'</span>'):'')+'</button>';
+  return '<button class="icon-bell global-bell-btn" onclick="nav(\'notifications\')" title="Notifiche">'+icon("bell")+(n?('<span class="num">'+n+'</span>'):'')+'</button>';
 }
 function contextTitle(){
   return "GESTIONALE - "+sectorName(selectedSectorId)+(selectedAreaFilter!=="all" ? (" / "+areaName(selectedAreaFilter)) : "");
@@ -283,21 +283,21 @@ function layout(content){
   applyTheme();
   document.body.classList.remove("page-calendar","page-plan","page-profile","page-people","page-registercolleague","page-reports","page-admin","page-notifications");
   document.body.classList.add("page-"+page);
-  var navHtml='<div class="brand"><div class="brand-icon">🗓️</div><div><strong>Gestione Personale</strong></div></div><div class="nav">'+
-    navButton("calendar","🗓️ Calendario")+navButton("plan","🏖️ Piano ferie")+navButton("profile","👤 Dati personali")+
-    (canManageUsers()?navButton("people","👥 Dipendenti"):"")+
-    (canRegisterColleagues()?navButton("registercolleague","➕ Registra collega"):"")+
-    navButton("reports","📊 Riepilogo")+
-    (canManageUsers()?navButton("admin","⚙️ Admin"):"")+
+  var navHtml='<div class="brand"><div class="brand-icon">'+icon("calendar","brand-svg")+'</div><div><strong>Gestione Personale</strong></div></div><div class="nav">'+
+    navButton("calendar",icon("calendar")+" Calendario")+navButton("plan",icon("beach")+" Piano ferie")+navButton("profile",icon("user")+" Dati personali")+
+    (canManageUsers()?navButton("people",icon("users")+" Dipendenti"):"")+
+    (canRegisterColleagues()?navButton("registercolleague",icon("plus")+" Registra collega"):"")+
+    navButton("reports",icon("chart")+" Riepilogo")+
+    (canManageUsers()?navButton("admin",icon("settings")+" Admin"):"")+
     '</div><div class="userbox small"><b>'+fullName(currentUser)+'</b><br>'+userContextLabel(currentUser)+
     (adminUser?'<br><button class="btn secondary full" onclick="stopImpersonation()">Torna super admin</button>':'')+
     '<button class="btn secondary full" onclick="logout()">Esci</button></div>';
   var impBanner = adminUser ? ('<div class="impersonation-banner no-print">Modalità super admin: stai visualizzando come <b>'+fullName(currentUser)+'</b></div>') : "";
   var bottomNav =
     '<nav class="bottom-tabbar no-print">'+
-    '<button class="'+(page==="plan"?"active":"")+'" onclick="nav(\'plan\')"><span class="tab-icon">🏖️</span><span>Ferie</span></button>'+
-    '<button class="tab-center '+(page==="calendar"?"active":"")+'" onclick="nav(\'calendar\')"><span class="tab-icon">🗓️</span></button>'+
-    '<button class="'+(page==="reports"?"active":"")+'" onclick="nav(\'reports\')"><span class="tab-icon">📊</span><span>Riepilogo</span></button>'+
+    '<button class="'+(page==="plan"?"active":"")+'" onclick="nav(\'plan\')"><span class="tab-icon">'+icon("beach")+'</span><span>Ferie</span></button>'+
+    '<button class="tab-center '+(page==="calendar"?"active":"")+'" onclick="nav(\'calendar\')"><span class="tab-icon">'+icon("calendar")+'</span></button>'+
+    '<button class="'+(page==="reports"?"active":"")+'" onclick="nav(\'reports\')"><span class="tab-icon">'+icon("chart")+'</span><span>Riepilogo</span></button>'+
     '</nav>';
   app.innerHTML =
     '<div class="mobile-appbar no-print">'+
@@ -378,7 +378,7 @@ function renderDayModal(){
     '<div class="modal-head"><div><h2>'+fmt(selectedDate)+'</h2><p class="small modal-subtitle">'+(hol?"Giorno non lavorativo":"Assenze e stati particolari")+'</p></div>'+
     '<button class="close" onclick="closeModal()">Chiudi</button></div>'+
     (hol?'<div class="warning">Giorno non lavorativo. Non puoi inserire nulla.</div>':"")+
-    (errs.length?('<div class="warning">⚠️ '+(errs.length>1?errs.map(function(e,i){return (i+1)+". "+e;}).join("<br>"):errs[0])+'</div>'):"")+
+    (errs.length?('<div class="warning">'+icon('warning')+' '+(errs.length>1?errs.map(function(e,i){return (i+1)+". "+e;}).join("<br>"):errs[0])+'</div>'):"")+
     '<div class="card day-list-card">'+
     (people.length ? people.map(function(u){return personRow(u,selectedDate,canModifyUserEvents(u.id));}).join("") : '<p class="empty-state">Nessuna assenza inserita per questo giorno</p>')+
     '</div>'+
@@ -477,9 +477,9 @@ async function removeEvent(date,userId){
 function renderProfile(){
   var u=currentUser;
   var managementLinks="";
-  if(canManageUsers()) managementLinks+='<button class="btn secondary full" onclick="nav(\'people\')">👥 Dipendenti</button>';
-  if(canRegisterColleagues()) managementLinks+='<button class="btn secondary full" onclick="nav(\'registercolleague\')">➕ Registra collega</button>';
-  if(canManageUsers()) managementLinks+='<button class="btn secondary full" onclick="nav(\'admin\')">⚙️ Admin</button>';
+  if(canManageUsers()) managementLinks+='<button class="btn secondary full" onclick="nav(\'people\')">'+icon('users')+' Dipendenti</button>';
+  if(canRegisterColleagues()) managementLinks+='<button class="btn secondary full" onclick="nav(\'registercolleague\')">'+icon('plus')+' Registra collega</button>';
+  if(canManageUsers()) managementLinks+='<button class="btn secondary full" onclick="nav(\'admin\')">'+icon('settings')+' Admin</button>';
   layout(
     '<div class="top desktop-only"><h1>DATI PERSONALI</h1><span class="pill">'+roleLabel(u.role)+'</span></div>'+
     '<div class="grid two">'+
@@ -603,6 +603,7 @@ function renderEmployeeDetail(u){
   var canEdit=canEditEmployeeData(u.id);
   if(!canEdit) return '<div class="card"><p class="small">Puoi visualizzare questo utente, ma non modificarlo.</p>'+personRow(u,selectedDate,false)+'</div>';
   var sectorOpts=db.sectors.map(function(s){return '<option value="'+s.id+'" '+(u.sectorId===s.id?'selected':'')+'>'+s.name+'</option>';}).join("");
+  var areaOpts=areasOfSector(u.sectorId).map(function(a){return '<option value="'+a.id+'" '+(u.areaId===a.id?'selected':'')+'>'+a.name+'</option>';}).join("");
   var extra="";
   if(canEditProtectedData()){
     extra='<label>Aree modificabili se referente</label><div class="check-list">'+
@@ -617,7 +618,7 @@ function renderEmployeeDetail(u){
     '<div><label>Email</label><input id="d_email" value="'+u.email+'" '+protectedDisabled+'></div>'+
     '<div><label>Password</label><input id="d_password" value="'+u.password+'" '+protectedDisabled+'></div>'+
     '<div><label>Settore</label><select id="d_sector" onchange="refreshDetailAreas()" '+protectedDisabled+'>'+sectorOpts+'</select></div>'+
-    '<div><label>Area</label><select id="d_area" '+protectedDisabled+'></select></div>'+
+    '<div><label>Area</label><select id="d_area" '+protectedDisabled+'>'+areaOpts+'</select></div>'+
     '<div><label>Ruolo</label><select id="d_role" '+protectedDisabled+'>'+
       '<option value="employee" '+(u.role==="employee"?'selected':'')+'>Dipendente</option>'+
       '<option value="viewer" '+(u.role==="viewer"?'selected':'')+'>Dirigente</option>'+
