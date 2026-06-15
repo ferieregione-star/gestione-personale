@@ -584,6 +584,13 @@ body.theme-employee{--bg:#f8fafc}
 
 /* Pulsante "Torna a oggi" */
 .today-btn{width:100%;margin-top:10px;font-weight:800}
+@media(max-width:760px){
+  .today-btn{
+    width:fit-content!important;display:flex;align-items:center;justify-content:center;margin:8px auto 0;
+    min-height:34px!important;height:34px;padding:0 18px;
+    font-size:13px;border-radius:999px;
+  }
+}
 
 /* Riepilogo inline del giorno selezionato (sotto il calendario) */
 .day-summary-card{margin-top:14px}
@@ -611,3 +618,15 @@ body.theme-employee{--bg:#f8fafc}
    ========================================================= */
 .logo.app-logo{background:transparent;border-radius:22px;overflow:hidden;width:76px;height:76px}
 .logo.app-logo img{width:100%;height:100%;display:block;border-radius:22px}
+
+/* =========================================================
+   V71 - piano ferie mobile: nessuna sezione "In servizio",
+   solo assenti o "Tutti in servizio"
+   ========================================================= */
+.plan-allpresent-mobile{display:none}
+@media(max-width:760px){
+  .plan-present-card{display:none}
+  .plan-ferie-title{display:none}
+  .plan-ferie-card .small{display:none}
+  .plan-allpresent-mobile{display:block}
+}

@@ -192,7 +192,7 @@ function canModifyUserEvents(userId){
   var u=db.users.find(function(x){return x.id===userId;});
   if(!u||!isWorker(u)) return false;
   if(currentUser.role==="admin") return true;
-  if(currentUser.role==="sector_manager") return (currentUser.editableAreaIds||[]).indexOf(u.areaId)>=0;
+  if(currentUser.role==="sector_manager") return effectiveEditableAreaIds(currentUser).indexOf(u.areaId)>=0;
   if(currentUser.role==="employee") return currentUser.id===u.id;
   return false;
 }
@@ -200,7 +200,7 @@ function canEditEmployeeData(userId){
   var u=db.users.find(function(x){return x.id===userId;});
   if(!u) return false;
   if(currentUser.role==="admin") return true;
-  if(currentUser.role==="sector_manager") return (currentUser.editableAreaIds||[]).indexOf(u.areaId)>=0;
+  if(currentUser.role==="sector_manager") return effectiveEditableAreaIds(currentUser).indexOf(u.areaId)>=0;
   return false;
 }
 function canEditProtectedData(){ return currentUser.role==="admin"; }
@@ -228,10 +228,18 @@ function pushNotification(opts){
   db.notifications=db.notifications.slice(0,120);
   queueNotificationWrite(entry);
 }
+/* Aree effettivamente gestite da un referente: se editableAreaIds non è
+   configurato (account creati senza impostarlo), il referente gestisce
+   almeno la propria area. */
+function effectiveEditableAreaIds(u){
+  if(u.editableAreaIds && u.editableAreaIds.length) return u.editableAreaIds;
+  return [u.areaId];
+}
 function managesWholeSector(u,sectorId){
   var allAreas=areasOfSector(sectorId).map(function(a){return a.id;});
   if(allAreas.length===0) return true;
-  return allAreas.every(function(a){return (u.editableAreaIds||[]).indexOf(a)>=0;});
+  var editable=effectiveEditableAreaIds(u);
+  return allAreas.every(function(a){return editable.indexOf(a)>=0;});
 }
 function personSectorAreaLabel(u){
   if(u.role==="sector_manager"){
@@ -253,7 +261,7 @@ function visibleNotifications(){
     if(!n.areaId) return true;
     if(currentUser.role==="employee") return n.areaId===currentUser.areaId;
     if(managesWholeSector(currentUser,currentUser.sectorId)) return true;
-    return n.areaId===currentUser.areaId || (currentUser.editableAreaIds||[]).indexOf(n.areaId)>=0;
+    return n.areaId===currentUser.areaId || effectiveEditableAreaIds(currentUser).indexOf(n.areaId)>=0;
   });
 }
 function unreadCount(){
@@ -301,16 +309,38 @@ function countSmartArea(date,areaId,excludeUserId){
 function countSmartSector(date,sectorId,excludeUserId){
   return db.users.filter(function(x){return x.approved&&isWorker(x)&&x.sectorId===sectorId&&x.id!==excludeUserId&&eventFor(date,x.id)==="smart";}).length;
 }
+/* Settori/aree "rilevanti" per l'utente corrente: gli avvisi SW
+   non devono mostrare errori di altri settori che non lo riguardano. */
+function rulesScopeSectors(){
+  if(!currentUser) return [];
+  if(currentUser.role==="admin"){
+    if(selectedSectorId==="all") return db.sectors;
+    return db.sectors.filter(function(s){return s.id===selectedSectorId;});
+  }
+  if(currentUser.role==="viewer"){
+    return db.sectors.filter(function(s){return (currentUser.visibleSectorIds||[]).indexOf(s.id)>=0;});
+  }
+  return db.sectors.filter(function(s){return s.id===currentUser.sectorId;});
+}
+function rulesScopeAreas(){
+  if(!currentUser) return [];
+  var sectorIds=rulesScopeSectors().map(function(s){return s.id;});
+  var areas=db.areas.filter(function(a){return sectorIds.indexOf(a.sectorId)>=0;});
+  if(currentUser.role==="admin" && selectedAreaFilter!=="all"){
+    areas=areas.filter(function(a){return a.id===selectedAreaFilter;});
+  }
+  return areas;
+}
 function computedSmartRuleErrors(date){
   if(isBlockedDay(date)) return [];
   var errors=[];
-  db.areas.forEach(function(a){
+  rulesScopeAreas().forEach(function(a){
     var c=countSmartArea(date,a.id,null);
     if(c>2) errors.push("Area "+a.name+": "+c+" persone in smart working lo stesso giorno (massimo 2).");
   });
-  db.sectors.forEach(function(s){
+  rulesScopeSectors().forEach(function(s){
     var c=countSmartSector(date,s.id,null);
-    if(c>3) errors.push("Settore "+s.name+": "+c+" persone in smart working lo stesso giorno (massimo 3 in totale).");
+    if(c>3) errors.push(s.name+": "+c+" persone in smart working lo stesso giorno (massimo 3 in totale).");
   });
   return errors;
 }

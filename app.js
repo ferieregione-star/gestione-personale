@@ -572,7 +572,7 @@ function refreshColAreas(){
   var sec=document.getElementById("colSector").value;
   var sel=document.getElementById("colArea");
   var areas=areasOfSector(sec);
-  if(currentUser.role==="sector_manager") areas=areas.filter(function(a){return (currentUser.editableAreaIds||[]).indexOf(a.id)>=0;});
+  if(currentUser.role==="sector_manager") areas=areas.filter(function(a){return effectiveEditableAreaIds(currentUser).indexOf(a.id)>=0;});
   sel.innerHTML=areas.map(function(a){return '<option value="'+a.id+'">'+a.name+'</option>';}).join("");
 }
 async function saveColleague(){
@@ -587,7 +587,7 @@ async function saveColleague(){
   var f14=Number(document.getElementById("colF14").value||0);
   var msgEl=document.getElementById("colMsg");
   if(!name||!surname||!email||!areaId){ msgEl.textContent="Compila tutti i dati."; return; }
-  if(currentUser.role==="sector_manager" && (currentUser.editableAreaIds||[]).indexOf(areaId)<0){ msgEl.textContent="Non puoi registrare colleghi in questa area."; return; }
+  if(currentUser.role==="sector_manager" && effectiveEditableAreaIds(currentUser).indexOf(areaId)<0){ msgEl.textContent="Non puoi registrare colleghi in questa area."; return; }
   if(db.users.some(function(u){return u.email.toLowerCase()===email;})){ msgEl.textContent="Email già presente."; return; }
   var btn=document.querySelector("button[onclick='saveColleague()']");
   if(btn){ if(btn.disabled) return; btn.disabled=true; btn.textContent="Registrazione in corso..."; }
@@ -934,8 +934,11 @@ function renderPlanDayModal(){
     '<div class="modal ios-sheet"><div class="modal-grabber"></div>'+
     '<div class="modal-head"><div><h2>'+fmt(selectedPlanDate)+'</h2><p class="small">Piano ferie - '+(areaId==="all"?sectorName(sectorId):areaName(areaId))+'</p></div>'+
     '<button class="close" onclick="closePlanDay()">Chiudi</button></div>'+
-    '<div class="card day-list-card"><h3 class="section-title">In ferie</h3>'+(holidays.length?holidays.map(function(u){return personRow(u,selectedPlanDate,false);}).join(""):'<p class="small">Nessuno in ferie.</p>')+'</div>'+
-    '<div class="card day-list-card"><h3 class="section-title">In servizio</h3>'+(present.length?present.map(function(u){return personRow(u,selectedPlanDate,false);}).join(""):'<p class="small">Nessuno in servizio.</p>')+'</div>'+
+    '<div class="card day-list-card plan-ferie-card"><h3 class="section-title plan-ferie-title">In ferie</h3>'+
+    (holidays.length?holidays.map(function(u){return personRow(u,selectedPlanDate,false);}).join(""):'<p class="small">Nessuno in ferie.</p>')+
+    (holidays.length?"":'<p class="empty-state plan-allpresent-mobile">Tutti in servizio</p>')+
+    '</div>'+
+    '<div class="card day-list-card plan-present-card"><h3 class="section-title">In servizio</h3>'+(present.length?present.map(function(u){return personRow(u,selectedPlanDate,false);}).join(""):'<p class="small">Nessuno in servizio.</p>')+'</div>'+
     '</div></div>';
 }
 function planSectorSelect(){
