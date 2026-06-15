@@ -34,7 +34,7 @@ function renderLogin(message){
   message = message || "";
   document.body.classList.remove("theme-admin","theme-referente","theme-employee","theme-dirigente");
   app.innerHTML =
-    '<div class="login-page"><div class="login-box"><div class="logo app-logo"><img src="icons/icon-192.png" alt="Gestione Personale" width="76" height="76"></div><div class="card">'+
+    '<div class="login-page"><div class="login-box"><div class="logo">📅</div><div class="card">'+
     '<div class="top"><h1>Gestione Personale</h1></div>'+
     (message ? ('<div class="notice">'+message+'</div>') : '')+
     '<label>Email</label><input id="loginEmail" autocomplete="username" placeholder="Email">'+
@@ -52,7 +52,7 @@ function renderRegister(){
   page="register";
   var sectorOptions=db.sectors.map(function(s){return '<option value="'+s.id+'">'+s.name+'</option>';}).join("");
   app.innerHTML =
-    '<div class="login-page"><div class="login-box"><div class="logo">'+icon("user")+'</div><div class="card">'+
+    '<div class="login-page"><div class="login-box"><div class="logo">👤</div><div class="card">'+
     '<div class="top"><h1>Registrazione</h1><span class="pill">Registrazione</span></div>'+
     '<div class="form-grid"><div><label>Nome</label><input id="regName"></div><div><label>Cognome</label><input id="regSurname"></div></div>'+
     '<label>Email</label><input id="regEmail">'+
@@ -121,7 +121,7 @@ async function registerUser(){
 
   try{
     await writeUser(newUser);
-    addIfAbsent(db.users, newUser);
+    db.users.push(newUser);
     pushNotification({
       text:"Nuova utenza da abilitare: "+name+" "+surname+" - "+sectorName(sectorId)+" / "+areaName(areaId),
       scope:"admin", type:"registration", actorId:"system", sectorId:sectorId, areaId:areaId
@@ -139,7 +139,7 @@ async function registerUser(){
 function renderForgotPassword(){
   page="forgot";
   app.innerHTML =
-    '<div class="login-page"><div class="login-box"><div class="logo">'+icon("key")+'</div><div class="card">'+
+    '<div class="login-page"><div class="login-box"><div class="logo">🔐</div><div class="card">'+
     '<div class="top"><h1>Password dimenticata</h1><span class="pill">richiesta admin</span></div>'+
     '<label>Email</label><input id="forgotEmail">'+
     '<button class="btn primary full" onclick="sendForgotPassword()">Invia richiesta</button>'+
@@ -155,7 +155,7 @@ async function sendForgotPassword(){
   var req={id:uid("req"), type:"forgot_password", userId:u.id, newPassword:"", status:"pending", at:new Date().toLocaleString("it-IT"), createdAt:Date.now()};
   try{
     await writeRequest(req);
-    addIfAbsent(db.requests, req, true);
+    db.requests.unshift(req);
     pushNotification({text:"Password dimenticata: "+fullName(u)+" chiede reset", scope:"admin", actorId:"system", type:"password", sectorId:u.sectorId, areaId:u.areaId});
     msgEl.textContent="Richiesta inviata.";
   }catch(e){
@@ -184,12 +184,11 @@ function backButton(){
 function nav(id){
   if(page!==id) navStack.push(page);
   page=id; modalOpen=false; planModalOpen=false; mobileMenuOpen=false;
-  insertOpen=false; insertUserId=null; insertCode=null; insertError="";
   if(id==="plan") loadEventsForPlanPeriod();
   render();
 }
 function loadEventsForPlanPeriod(){
-  var periods=planPeriods();
+  var periods={estate:["2025-06","2025-07","2025-08","2025-09"], natale:["2025-12","2026-01"], pasqua:["2026-04"]};
   var months=periods[selectedPlanPeriod]||periods.estate;
   months.forEach(loadEventsForMonth);
 }
@@ -220,7 +219,7 @@ function stopImpersonation(){
 function renderSwitchUserPanel(){
   if(currentUser.role!=="admin" && !adminUser) return "";
   var list=db.users.filter(function(u){return u.approved && u.role!=="admin";}).map(function(u){
-    return '<button class="switch-user-row" onclick="startImpersonation(\''+u.id+'\')"><span>'+fullName(u)+'</span><small>'+roleLabel(u.role)+' · '+personSectorAreaLabel(u)+'</small></button>';
+    return '<button class="switch-user-row" onclick="startImpersonation(\''+u.id+'\')"><span>'+fullName(u)+'</span><small>'+roleLabel(u.role)+' · '+sectorName(u.sectorId)+' / '+areaName(u.areaId)+'</small></button>';
   }).join("");
   var banner = adminUser ? ('<div class="warning">Stai visualizzando come '+fullName(currentUser)+'. <button class="btn secondary" onclick="stopImpersonation()">Torna super admin</button></div>') : "";
   return '<div class="card switch-card"><h3 class="section-title">Cambio utente</h3>'+banner+'<div class="switch-list">'+list+'</div></div>';
@@ -260,7 +259,7 @@ function navButton(id,label){
 function bellButton(){
   if(!currentUser||(currentUser.role!=="sector_manager"&&currentUser.role!=="employee")) return "";
   var n=unreadCount();
-  return '<button class="icon-bell global-bell-btn" onclick="nav(\'notifications\')" title="Notifiche">'+icon("bell")+(n?('<span class="num">'+n+'</span>'):'')+'</button>';
+  return '<button class="icon-bell global-bell-btn" onclick="nav(\'notifications\')" title="Notifiche">🔔'+(n?('<span class="num">'+n+'</span>'):'')+'</button>';
 }
 function contextTitle(){
   return "GESTIONALE - "+sectorName(selectedSectorId)+(selectedAreaFilter!=="all" ? (" / "+areaName(selectedAreaFilter)) : "");
@@ -283,29 +282,29 @@ function layout(content){
   applyTheme();
   document.body.classList.remove("page-calendar","page-plan","page-profile","page-people","page-registercolleague","page-reports","page-admin","page-notifications");
   document.body.classList.add("page-"+page);
-  var navHtml='<div class="brand"><div class="brand-icon">'+icon("calendar","brand-svg")+'</div><div><strong>Gestione Personale</strong></div></div><div class="nav">'+
-    navButton("calendar",icon("calendar")+" Calendario")+navButton("plan",icon("beach")+" Piano ferie")+navButton("profile",icon("user")+" Dati personali")+
-    (canManageUsers()?navButton("people",icon("users")+" Dipendenti"):"")+
-    (canRegisterColleagues()?navButton("registercolleague",icon("plus")+" Registra collega"):"")+
-    navButton("reports",icon("chart")+" Riepilogo")+
-    (canManageUsers()?navButton("admin",icon("settings")+" Admin"):"")+
+  var navHtml='<div class="brand"><div class="brand-icon">📅</div><div><strong>Gestione Personale</strong></div></div><div class="nav">'+
+    navButton("calendar","📅 Calendario")+navButton("plan","🗓️ Piano ferie")+navButton("profile","👤 Dati personali")+
+    (canManageUsers()?navButton("people","👥 Dipendenti"):"")+
+    (canRegisterColleagues()?navButton("registercolleague","➕ Registra collega"):"")+
+    navButton("reports","📊 Riepilogo")+
+    (canManageUsers()?navButton("admin","⚙️ Admin"):"")+
     '</div><div class="userbox small"><b>'+fullName(currentUser)+'</b><br>'+userContextLabel(currentUser)+
     (adminUser?'<br><button class="btn secondary full" onclick="stopImpersonation()">Torna super admin</button>':'')+
     '<button class="btn secondary full" onclick="logout()">Esci</button></div>';
   var impBanner = adminUser ? ('<div class="impersonation-banner no-print">Modalità super admin: stai visualizzando come <b>'+fullName(currentUser)+'</b></div>') : "";
   var bottomNav =
     '<nav class="bottom-tabbar no-print">'+
-    '<button class="'+(page==="plan"?"active":"")+'" onclick="nav(\'plan\')"><span class="tab-icon">'+icon("beach")+'</span><span>Ferie</span></button>'+
-    '<button class="tab-center '+(page==="calendar"?"active":"")+'" onclick="nav(\'calendar\')"><span class="tab-icon">'+icon("calendar")+'</span></button>'+
-    '<button class="'+(page==="reports"?"active":"")+'" onclick="nav(\'reports\')"><span class="tab-icon">'+icon("chart")+'</span><span>Riepilogo</span></button>'+
+    '<button class="'+(page==="calendar"?"active":"")+'" onclick="nav(\'calendar\')"><span class="tab-icon">📅</span><span>Calendario</span></button>'+
+    '<button class="'+(page==="plan"?"active":"")+'" onclick="nav(\'plan\')"><span class="tab-icon">🏖️</span><span>Ferie</span></button>'+
+    '<button class="'+(page==="notifications"?"active":"")+'" onclick="nav(\'notifications\')"><span class="tab-icon">🔔'+(unreadCount()?('<span class="tab-badge">'+unreadCount()+'</span>'):'')+'</span><span>Notifiche</span></button>'+
+    '<button class="'+(page==="profile"?"active":"")+'" onclick="nav(\'profile\')"><span class="tab-icon">👤</span><span>Profilo</span></button>'+
+    '<button class="'+(page==="more"?"active":"")+'" onclick="toggleMobileMenu()"><span class="tab-icon">⋯</span><span>Altro</span></button>'+
     '</nav>';
   app.innerHTML =
-    '<div class="mobile-appbar no-print">'+
-    '<button class="mobile-avatar-btn" style="background:'+currentUser.color+'" onclick="nav(\'profile\')">'+currentUser.initials+'</button>'+
-    '<strong>'+pageTitleLabel()+'</strong><div>'+bellButton()+'</div></div>'+
+    '<div class="mobile-appbar no-print"><strong>'+pageTitleLabel()+'</strong><div>'+bellButton()+'</div></div>'+
     (mobileMenuOpen ? '<div class="mobile-overlay" onclick="toggleMobileMenu()"></div>' : '')+
     '<div class="app '+(mobileMenuOpen?'menu-open':'')+'"><aside class="sidebar">'+navHtml+'</aside><main class="main">'+
-    '<div class="global-bell-wrap no-print desktop-bell">'+bellButton()+'</div>'+impBanner+content+
+    '<div class="global-bell-wrap no-print desktop-bell">'+bellButton()+'</div>'+backButton()+impBanner+content+
     '</main></div>'+bottomNav;
 }
 function avatarClass(u){ return u.role==="viewer"?"viewer":u.role==="sector_manager"?"referente":""; }
@@ -313,7 +312,7 @@ function nameClass(u){ return u.role==="viewer"?"name-viewer":u.role==="sector_m
 function personRow(u,date,editable){
   var st=eventFor(date,u.id);
   return '<div class="person"><div class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</div>'+
-    '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+personSectorAreaLabel(u)+'</small></div>'+
+    '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+sectorName(u.sectorId)+' / '+areaName(u.areaId)+'</small></div>'+
     statusTag(st)+
     ((editable && isAbsent(st)) ? ('<button class="btn danger" onclick="removeEvent(\''+date+'\',\''+u.id+'\')">Rimuovi</button>') : "")+
     '</div>';
@@ -331,16 +330,8 @@ function changeMonth(delta){
   loadEventsForMonth(monthKeyOf(selectedDate));
   render();
 }
-function openDay(date){ selectedDate=date; render(); }
-function goToToday(){
-  selectedDate=todayStr();
-  viewYear=Number(selectedDate.slice(0,4));
-  viewMonth=Number(selectedDate.slice(5,7))-1;
-  loadEventsForMonth(monthKeyOf(selectedDate));
-  render();
-}
-function openManageModal(){ modalOpen=true; render(); }
-function closeModal(){ modalOpen=false; insertOpen=false; insertUserId=null; insertCode=null; insertError=""; render(); }
+function openDay(date){ selectedDate=date; modalOpen=true; render(); }
+function closeModal(){ modalOpen=false; render(); }
 
 function renderCalendar(){
   loadEventsForMonth(monthKeyOf(dateKey(1)));
@@ -357,144 +348,93 @@ function renderCalendar(){
     var abs = hol ? [] : visibleUsers().filter(function(u){return isAbsent(eventFor(date,u.id));});
     var dots=abs.map(function(u){
       var st=eventFor(date,u.id), s=STATUS[st];
-      var color = st==="smart" ? smartColorForArea(u.areaId) : s.color;
-      var whiteCls = (color==="#ffffff") ? " dot-white" : "";
-      return '<span class="person-dot'+whiteCls+'" title="'+fullName(u)+' - '+s.label+'" style="background:'+color+'">'+s.short+'</span>';
+      return '<span class="person-dot" title="'+fullName(u)+' - '+s.label+'" style="background:'+s.color+'">'+s.short+'</span>';
     }).join("");
     days += '<button class="day '+(selectedDate===date?'selected':'')+' '+(hol?'holiday':'')+' '+(errs.length?'rule-error':'')+'" onclick="openDay(\''+date+'\')">'+
       '<div class="day-num">'+d+'</div>'+
       (errs.length?'<div class="danger-mark">!</div>':"")+
       (hol?('<div class="holiday-name">'+hol+'</div>'):"")+
-      '<div class="dot-row">'+dots+'</div>'+
+      '<div class="dot-row">'+(dots || ('<span class="empty-day">'+(hol?"Festivo":"Tutti presenti")+'</span>'))+'</div>'+
       '</button>';
   }
-  var modal = insertOpen ? renderInsertSheet() : (modalOpen ? renderDayModal() : "");
+  var modal = modalOpen ? renderDayModal() : "";
   layout(
-    '<div class="top desktop-only page-context"><h1>'+contextTitle()+'</h1><div class="sector-filter">'+selectorControls()+'</div></div>'+
-    '<div class="calendar-wrap"><div class="calendar-toolbar compact-month"><button class="btn secondary month-nav prev" aria-label="Mese precedente" onclick="changeMonth(-1)">← <span>Mese precedente</span></button>'+
-    '<div class="month-title">'+monthName()+'</div><button class="btn secondary month-nav next" aria-label="Mese successivo" onclick="changeMonth(1)"><span>Mese successivo</span> →</button></div>'+
-    '<button class="btn secondary today-btn" onclick="goToToday()">Torna a oggi</button>'+
+    '<div class="top"><h1>'+contextTitle()+'</h1><div class="sector-filter">'+selectorControls()+'</div></div>'+
+    '<div class="calendar-wrap"><div class="calendar-toolbar"><button class="btn secondary" onclick="changeMonth(-1)">← Mese precedente</button>'+
+    '<div class="month-title">'+monthName()+'</div><button class="btn secondary" onclick="changeMonth(1)">Mese successivo →</button></div>'+
     '<div class="calendar-head"><div>LUN</div><div>MAR</div><div>MER</div><div>GIO</div><div>VEN</div></div>'+
     '<div class="calendar">'+days+'</div></div>'+
-    renderSelectedDaySummary()+modal
+    '<div class="card" style="margin-top:16px"><div class="top"><h3 class="section-title">Riepilogo '+fmt(selectedDate)+'</h3><span class="pill">'+(isHoliday(selectedDate)||"Giorno lavorativo")+'</span></div>'+
+    (isBlockedDay(selectedDate) ? '<p class="small">Giorno non lavorativo.</p>' : visibleUsers().map(function(u){return personRow(u,selectedDate,canModifyUserEvents(u.id));}).join(""))+
+    '</div>'+modal
   );
-}
-function renderSelectedDaySummary(){
-  var people = isBlockedDay(selectedDate) ? [] : visibleUsers().filter(function(u){return isAbsent(eventFor(selectedDate,u.id));});
-  var canAdd = !isBlockedDay(selectedDate) && visibleUsers().some(function(u){return canModifyUserEvents(u.id);});
-  var rows;
-  if(people.length){
-    rows=people.map(function(u){
-      var st=eventFor(selectedDate,u.id);
-      return '<div class="day-summary-row"><b>'+fullName(u)+'</b>'+statusTag(st)+'</div>';
-    }).join("");
-  }else{
-    rows='<p class="empty-state">Tutti presenti</p>';
-  }
-  return '<div class="card day-summary-card">'+rows+
-    (canAdd?('<button class="btn secondary full manage-btn" onclick="openManageModal()">Gestisci assenze</button>'):"")+
-    '</div>';
 }
 function renderDayModal(){
   var hol=isHoliday(selectedDate)||isWeekend(selectedDate);
   var errs=smartRuleErrorsForDay(selectedDate);
-  var allPeople=isBlockedDay(selectedDate)?[]:visibleUsers();
-  var people=allPeople.filter(function(u){return isAbsent(eventFor(selectedDate,u.id));});
-  var canAdd=!isBlockedDay(selectedDate) && allPeople.some(function(u){return canModifyUserEvents(u.id);});
+  var people=isBlockedDay(selectedDate)?[]:visibleUsers();
+  var canAdd=!isBlockedDay(selectedDate) && people.some(function(u){return canModifyUserEvents(u.id);});
   return '<div class="modal-backdrop" onclick="if(event.target.className===\'modal-backdrop\')closeModal()">'+
     '<div class="modal ios-sheet"><div class="modal-grabber"></div>'+
-    '<div class="modal-head"><div><h2>'+fmt(selectedDate)+'</h2><p class="small modal-subtitle">'+(hol?"Giorno non lavorativo":"Assenze e stati particolari")+'</p></div>'+
+    '<div class="modal-head"><div><h2>'+fmt(selectedDate)+'</h2><p class="small modal-subtitle">'+(hol?"Giorno non lavorativo":"Chi è assente oggi")+'</p></div>'+
     '<button class="close" onclick="closeModal()">Chiudi</button></div>'+
     (hol?'<div class="warning">Giorno non lavorativo. Non puoi inserire nulla.</div>':"")+
-    (errs.length?('<div class="warning">'+icon('warning')+' '+(errs.length>1?errs.map(function(e,i){return (i+1)+". "+e;}).join("<br>"):errs[0])+'</div>'):"")+
-    '<div class="card day-list-card">'+
-    (people.length ? people.map(function(u){return personRow(u,selectedDate,canModifyUserEvents(u.id));}).join("") : '<p class="empty-state">Nessuna assenza inserita per questo giorno</p>')+
-    '</div>'+
-    (canAdd?('<button class="btn primary full insert-btn" onclick="openInsertSheet()">+ Inserisci</button>'):"")+
-    '</div></div>';
+    (errs.length?('<div class="warning">⚠️ '+(errs.length>1?errs.map(function(e,i){return (i+1)+". "+e;}).join("<br>"):errs[0])+'</div>'):"")+
+    (canAdd?('<div class="quick-action">'+renderInlineEventForm()+'</div>'):"")+
+    '<div class="card day-list-card"><h3 class="section-title">Assenze del giorno</h3>'+
+    (people.length ? people.map(function(u){return personRow(u,selectedDate,canModifyUserEvents(u.id));}).join("") : '<p class="small">Tutti presenti, nessuna assenza registrata.</p>')+
+    '</div></div></div>';
 }
-function openInsertSheet(){
-  var editable=visibleUsers().filter(function(u){return canModifyUserEvents(u.id);});
-  insertUserId = currentUser.role==="employee" ? currentUser.id : (editable.length===1 ? editable[0].id : null);
-  insertCode=null;
-  insertError="";
-  insertOpen=true;
-  render();
+function statusOptionsHtml(){
+  return '<option value="c01">C01 - Ferie anno attuale</option>'+
+    '<option value="c02">C02 - Ferie anno precedente</option>'+
+    '<option value="f14">F14 - Festività soppresse</option>'+
+    '<option value="smart">SW - Smart working</option>'+
+    '<option value="a01">A01 - Malattia</option>'+
+    '<option value="altro">ALTRO</option>'+
+    '<option value="present">In servizio / rimuovi assenza</option>';
 }
-function closeInsertSheet(){
-  insertOpen=false;
-  insertUserId=null;
-  insertCode=null;
-  insertError="";
-  render();
-}
-function selectInsertUser(userId){
-  insertUserId=userId;
-  insertError="";
-  render();
-}
-function selectInsertCode(code){
-  insertCode=code;
-  insertError="";
-  render();
-}
-function renderInsertSheet(){
+function renderInlineEventForm(){
   var people=visibleUsers().filter(function(u){return canModifyUserEvents(u.id);});
-  var showPeoplePicker=currentUser.role!=="employee" && people.length>1;
-  var peopleHtml="";
-  if(showPeoplePicker){
-    peopleHtml='<div class="insert-section-label">Per chi</div><div class="insert-people">'+
-      people.map(function(u){
-        var sel=insertUserId===u.id;
-        return '<button class="insert-person '+(sel?'selected':'')+'" onclick="selectInsertUser(\''+u.id+'\')">'+
-          '<span class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</span>'+
-          '<span>'+fullName(u)+'</span></button>';
-      }).join("")+'</div>';
+  if(currentUser.role==="employee"){
+    return '<div class="card insert-card"><h3 class="section-title">Inserisci / modifica</h3><div class="quick-form">'+
+      '<select id="eventStatus">'+statusOptionsHtml()+'</select>'+
+      '<button class="btn primary" onclick="saveEventFromPopup()">Salva</button></div><p id="eventError" class="error"></p></div>';
   }
-  var codeCards=INSERT_CODES.map(function(code){
-    var s=STATUS[code];
-    var sel=insertCode===code;
-    var cardColor = (s.color==="#ffffff") ? "#64748b" : s.color;
-    return '<button class="insert-code-card '+(sel?'selected':'')+'" style="--code-color:'+cardColor+'" onclick="selectInsertCode(\''+code+'\')">'+
-      '<span class="insert-code-short">'+s.short+'</span><span class="insert-code-label">'+s.label.replace(/^[A-Z0-9]+\s*-\s*/,"")+'</span></button>';
-  }).join("");
-  return '<div class="modal-backdrop insert-backdrop" onclick="if(event.target.classList.contains(\'insert-backdrop\'))closeInsertSheet()">'+
-    '<div class="modal ios-sheet insert-sheet"><div class="modal-grabber"></div>'+
-    '<div class="modal-head"><div><h2>Inserisci assenza</h2><p class="small modal-subtitle">'+fmt(selectedDate)+'</p></div>'+
-    '<button class="close" onclick="closeInsertSheet()">Annulla</button></div>'+
-    peopleHtml+
-    '<div class="insert-section-label">Tipo</div><div class="insert-codes">'+codeCards+'</div>'+
-    (insertError?('<p class="error">'+insertError+'</p>'):"")+
-    '<button class="btn primary full insert-save-btn" onclick="saveInsertedEvent()">Salva</button>'+
-    '</div></div>';
+  var opts=people.map(function(u){return '<option value="'+u.id+'">'+fullName(u)+' - '+areaName(u.areaId)+'</option>';}).join("");
+  return '<div class="card insert-card"><h3 class="section-title">Inserisci / modifica</h3><div class="quick-form manager">'+
+    '<select id="eventUser">'+opts+'</select>'+
+    '<select id="eventStatus">'+statusOptionsHtml()+'</select>'+
+    '<button class="btn primary" onclick="saveEventFromPopup()">Salva</button></div><p id="eventError" class="error"></p></div>';
 }
-async function saveInsertedEvent(){
-  if(!insertUserId){ insertError="Seleziona la persona."; render(); return; }
-  if(!insertCode){ insertError="Seleziona il tipo di assenza."; render(); return; }
+async function saveEventFromPopup(){
+  var userEl=document.getElementById("eventUser");
+  var userId = userEl ? userEl.value : currentUser.id;
+  var st=normalizeEventCode(document.getElementById("eventStatus").value);
   var date=selectedDate;
-  var userId=insertUserId;
-  var st=insertCode;
   var u=db.users.find(function(x){return x.id===userId;});
+  var errEl=document.getElementById("eventError");
   if(st==="smart"){
     var v=validateSmartRule(date,userId);
-    if(!v.ok){ insertError=v.message; render(); return; }
+    if(!v.ok){ errEl.textContent=v.message; return; }
   }
-  if(isBlockedDay(date)){ insertError="Non puoi inserire su sabato, domenica o giorno festivo."; render(); return; }
-  if(!canModifyUserEvents(userId)){ insertError="Non puoi modificare questo utente."; render(); return; }
+  if(isBlockedDay(date)){ errEl.textContent="Non puoi inserire su sabato, domenica o giorno festivo."; return; }
+  if(!canModifyUserEvents(userId)){ errEl.textContent="Non puoi modificare questo utente."; return; }
   if(!db.events[date]) db.events[date]={};
-  db.events[date][userId]=st;
+  if(st==="present") delete db.events[date][userId];
+  else db.events[date][userId]=st;
   refreshRuleViolations(date);
   addAudit(STATUS[st].label+" per "+fullName(u)+" il "+fmt(date));
-  pushNotification({text:notificationText(currentUser,u,st,date), scope:"sector", sectorId:u.sectorId, areaId:u.areaId, actorId:currentUser.id, type:"event"});
+  pushNotification({text:notificationText(currentUser,u,st,date), scope:"sector", sectorId:u.sectorId, actorId:currentUser.id, type:"event"});
   try{ await writeEventDay(date, db.events[date]); }catch(e){}
-  closeInsertSheet();
+  render();
 }
 async function removeEvent(date,userId){
   if(isBlockedDay(date)||!canModifyUserEvents(userId)) return;
   var u=db.users.find(function(x){return x.id===userId;});
   if(db.events[date]) delete db.events[date][userId];
   refreshRuleViolations(date);
-  pushNotification({text:notificationText(currentUser,u,"present",date), scope:"sector", sectorId:u.sectorId, areaId:u.areaId, actorId:currentUser.id, type:"event"});
+  pushNotification({text:notificationText(currentUser,u,"present",date), scope:"sector", sectorId:u.sectorId, actorId:currentUser.id, type:"event"});
   addAudit("Rimossa assenza di "+fullName(u)+" il "+fmt(date));
   try{ await writeEventDay(date, db.events[date]||{}); }catch(e){}
   render();
@@ -505,31 +445,33 @@ async function removeEvent(date,userId){
    ========================================================= */
 function renderProfile(){
   var u=currentUser;
-  var managementLinks="";
-  if(canManageUsers()) managementLinks+='<button class="btn secondary full" onclick="nav(\'people\')">'+icon('users')+' Dipendenti</button>';
-  if(canRegisterColleagues()) managementLinks+='<button class="btn secondary full" onclick="nav(\'registercolleague\')">'+icon('plus')+' Registra collega</button>';
-  if(canManageUsers()) managementLinks+='<button class="btn secondary full" onclick="nav(\'admin\')">'+icon('settings')+' Admin</button>';
   layout(
-    '<div class="top desktop-only"><h1>DATI PERSONALI</h1><span class="pill">'+roleLabel(u.role)+'</span></div>'+
+    '<div class="top"><h1>DATI PERSONALI</h1><span class="pill">'+roleLabel(u.role)+'</span></div>'+
     '<div class="grid two">'+
-    '<div class="card"><h3 class="section-title">I miei dati</h3><div class="profile-view">'+
-    '<div class="profile-field"><label>Nome</label><div class="profile-value">'+u.name+'</div></div>'+
-    '<div class="profile-field"><label>Cognome</label><div class="profile-value">'+(u.surname||"")+'</div></div>'+
-    '<div class="profile-field"><label>Email</label><div class="profile-value">'+u.email+'</div></div>'+
-    '<div class="profile-field"><label>Settore</label><div class="profile-value">'+sectorName(u.sectorId)+'</div></div>'+
-    '<div class="profile-field"><label>Area</label><div class="profile-value">'+areaName(u.areaId)+'</div></div>'+
-    '<div class="profile-field"><label>Ruolo</label><div class="profile-value">'+roleLabel(u.role)+'</div></div>'+
-    '</div></div>'+
+    '<div class="card"><h3 class="section-title">I miei dati</h3><div class="form-grid">'+
+    '<div><label>Nome</label><input id="profileName" value="'+u.name+'"></div>'+
+    '<div><label>Cognome</label><input id="profileSurname" value="'+(u.surname||"")+'"></div>'+
+    '<div><label>Email</label><input value="'+u.email+'" disabled></div>'+
+    '<div><label>Settore</label><input value="'+sectorName(u.sectorId)+'" disabled></div>'+
+    '<div><label>Area</label><input value="'+areaName(u.areaId)+'" disabled></div>'+
+    '<div><label>Ruolo</label><input value="'+roleLabel(u.role)+'" disabled></div>'+
+    '</div><button class="btn primary" onclick="saveProfile()">Salva nome e cognome</button></div>'+
     '<div class="card"><h3 class="section-title">Richiesta cambio password</h3>'+
     '<label>Nuova password richiesta</label><input id="requestedPassword" type="password">'+
-    '<button class="btn primary full" onclick="requestPasswordChange()">Richiedi cambio password</button>'+
+    '<button class="btn secondary" onclick="requestPasswordChange()">Invia richiesta</button>'+
     '<p id="profileMsg" class="small"></p></div>'+
-    '</div>'+
-    (managementLinks ? ('<div class="card"><h3 class="section-title">Gestione</h3>'+managementLinks+'</div>') : "")+
-    '<div class="card">'+
-    (adminUser?'<button class="btn secondary full" onclick="stopImpersonation()">Torna super admin</button>':'')+
-    '<button class="btn danger full" onclick="logout()">Esci</button></div>'
+    '</div>'
   );
+}
+async function saveProfile(){
+  currentUser.name=document.getElementById("profileName").value.trim();
+  currentUser.surname=document.getElementById("profileSurname").value.trim();
+  currentUser.initials=createInitialsForUser(currentUser.name,currentUser.surname);
+  var u=db.users.find(function(x){return x.id===currentUser.id;});
+  Object.assign(u,currentUser);
+  addAudit(fullName(currentUser)+" ha aggiornato nome/cognome");
+  try{ await writeUser(u); }catch(e){}
+  render();
 }
 async function requestPasswordChange(){
   var pwd=document.getElementById("requestedPassword").value;
@@ -538,7 +480,7 @@ async function requestPasswordChange(){
   var req={id:uid("req"), type:"password", userId:currentUser.id, newPassword:pwd, status:"pending", at:new Date().toLocaleString("it-IT"), createdAt:Date.now()};
   try{
     await writeRequest(req);
-    addIfAbsent(db.requests, req, true);
+    db.requests.unshift(req);
     pushNotification({text:fullName(currentUser)+" ha richiesto cambio password", scope:"admin", actorId:"system", type:"password", sectorId:currentUser.sectorId, areaId:currentUser.areaId});
     msgEl.textContent="Richiesta inviata.";
   }catch(e){
@@ -553,7 +495,7 @@ function renderRegisterColleague(){
   var sectors = currentUser.role==="admin" ? db.sectors : db.sectors.filter(function(s){return s.id===currentUser.sectorId;});
   var sectorOpts=sectors.map(function(s){return '<option value="'+s.id+'">'+s.name+'</option>';}).join("");
   layout(
-    '<div class="top desktop-only"><h1>REGISTRA COLLEGA</h1><span class="pill">'+roleLabel(currentUser.role)+'</span></div>'+
+    '<div class="top"><h1>REGISTRA COLLEGA</h1><span class="pill">'+roleLabel(currentUser.role)+'</span></div>'+
     '<div class="card"><div class="form-grid">'+
     '<div><label>Nome</label><input id="colName"></div>'+
     '<div><label>Cognome</label><input id="colSurname"></div>'+
@@ -572,7 +514,7 @@ function refreshColAreas(){
   var sec=document.getElementById("colSector").value;
   var sel=document.getElementById("colArea");
   var areas=areasOfSector(sec);
-  if(currentUser.role==="sector_manager") areas=areas.filter(function(a){return effectiveEditableAreaIds(currentUser).indexOf(a.id)>=0;});
+  if(currentUser.role==="sector_manager") areas=areas.filter(function(a){return (currentUser.editableAreaIds||[]).indexOf(a.id)>=0;});
   sel.innerHTML=areas.map(function(a){return '<option value="'+a.id+'">'+a.name+'</option>';}).join("");
 }
 async function saveColleague(){
@@ -587,14 +529,12 @@ async function saveColleague(){
   var f14=Number(document.getElementById("colF14").value||0);
   var msgEl=document.getElementById("colMsg");
   if(!name||!surname||!email||!areaId){ msgEl.textContent="Compila tutti i dati."; return; }
-  if(currentUser.role==="sector_manager" && effectiveEditableAreaIds(currentUser).indexOf(areaId)<0){ msgEl.textContent="Non puoi registrare colleghi in questa area."; return; }
+  if(currentUser.role==="sector_manager" && (currentUser.editableAreaIds||[]).indexOf(areaId)<0){ msgEl.textContent="Non puoi registrare colleghi in questa area."; return; }
   if(db.users.some(function(u){return u.email.toLowerCase()===email;})){ msgEl.textContent="Email già presente."; return; }
-  var btn=document.querySelector("button[onclick='saveColleague()']");
-  if(btn){ if(btn.disabled) return; btn.disabled=true; btn.textContent="Registrazione in corso..."; }
   var newUser={id:uid("user"), email:email, password:password, name:name, surname:surname, role:"employee", sectorId:sectorId, areaId:areaId, visibleSectorIds:[sectorId], editableAreaIds:[], c01:c01, c02:c02, f14:f14, approved:true, initials:createInitialsForUser(name,surname), color:"#0ea5e9"};
   try{
     await writeUser(newUser);
-    addIfAbsent(db.users, newUser);
+    db.users.push(newUser);
     db.lastRead[newUser.id]=Date.now();
     queueMetaWrite();
     addAudit("Registrato collega "+fullName(newUser));
@@ -602,7 +542,6 @@ async function saveColleague(){
   }catch(e){
     msgEl.textContent="Errore di connessione, riprova.";
   }
-  if(btn){ btn.disabled=false; btn.textContent="Registra collega"; }
 }
 
 /* =========================================================
@@ -619,7 +558,7 @@ function renderPeople(){
   var rows=usersForAdminPeople().map(function(u){
     return '<div class="person clickable" onclick="selectedEmployeeId=\''+u.id+'\';render()">'+
       '<div class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</div>'+
-      '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+u.email+' · '+personSectorAreaLabel(u)+' · '+roleLabel(u.role)+'</small></div>'+
+      '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+u.email+' · '+sectorName(u.sectorId)+' / '+areaName(u.areaId)+' · '+roleLabel(u.role)+'</small></div>'+
       '<span class="tag '+(u.approved?'approved':'pending')+'">'+(u.approved?'Attivo':'In attesa')+'</span></div>';
   }).join("");
   var detail = selectedEmployeeId ? renderEmployeeDetail(db.users.find(function(u){return u.id===selectedEmployeeId;})) : '<div class="card"><p class="small">Seleziona un utente per modificare i dati consentiti.</p></div>';
@@ -635,7 +574,6 @@ function renderEmployeeDetail(u){
   var canEdit=canEditEmployeeData(u.id);
   if(!canEdit) return '<div class="card"><p class="small">Puoi visualizzare questo utente, ma non modificarlo.</p>'+personRow(u,selectedDate,false)+'</div>';
   var sectorOpts=db.sectors.map(function(s){return '<option value="'+s.id+'" '+(u.sectorId===s.id?'selected':'')+'>'+s.name+'</option>';}).join("");
-  var areaOpts=areasOfSector(u.sectorId).map(function(a){return '<option value="'+a.id+'" '+(u.areaId===a.id?'selected':'')+'>'+a.name+'</option>';}).join("");
   var extra="";
   if(canEditProtectedData()){
     extra='<label>Aree modificabili se referente</label><div class="check-list">'+
@@ -650,7 +588,7 @@ function renderEmployeeDetail(u){
     '<div><label>Email</label><input id="d_email" value="'+u.email+'" '+protectedDisabled+'></div>'+
     '<div><label>Password</label><input id="d_password" value="'+u.password+'" '+protectedDisabled+'></div>'+
     '<div><label>Settore</label><select id="d_sector" onchange="refreshDetailAreas()" '+protectedDisabled+'>'+sectorOpts+'</select></div>'+
-    '<div><label>Area</label><select id="d_area" '+protectedDisabled+'>'+areaOpts+'</select></div>'+
+    '<div><label>Area</label><select id="d_area" '+protectedDisabled+'></select></div>'+
     '<div><label>Ruolo</label><select id="d_role" '+protectedDisabled+'>'+
       '<option value="employee" '+(u.role==="employee"?'selected':'')+'>Dipendente</option>'+
       '<option value="viewer" '+(u.role==="viewer"?'selected':'')+'>Dirigente</option>'+
@@ -745,23 +683,24 @@ function renderReports(){
     var usedPct = r.totaleDisponibile ? Math.min(100,Math.round((r.ferieUsate/r.totaleDisponibile)*100)) : 0;
     return '<div class="summary-card"><div class="person" style="border-bottom:0;padding-top:0">'+
       '<div class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</div>'+
-      '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+personSectorAreaLabel(u)+'</small></div></div>'+
+      '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+sectorName(u.sectorId)+' / '+areaName(u.areaId)+'</small></div></div>'+
       '<div class="summary-bar"><span style="width:'+usedPct+'%"></span></div>'+
       '<div class="summary-grid">'+
       '<div><strong>'+r.c01Residue+'</strong><span>C01 residue</span></div>'+
       '<div><strong>'+r.c02Residue+'</strong><span>C02 residue</span></div>'+
       '<div><strong>'+r.f14Residue+'</strong><span>F14 residue</span></div>'+
+      '<div><strong>'+r.smart+'</strong><span>SW usati</span></div>'+
       '<div><strong>'+r.a01+'</strong><span>A01 malattia</span></div>'+
       '<div><strong>'+r.altro+'</strong><span>ALTRO</span></div>'+
       '</div><p class="small">Usate: C01 '+r.c01+' · C02 '+r.c02+' · F14 '+r.f14+'. Totale residuo ferie/festività: '+r.ferieResidue+' giorni.</p></div>';
   }).join("");
-  layout('<div class="top desktop-only"><h1>RIEPILOGO</h1><div>'+selectorControls()+'</div></div><div class="summary-wrap">'+cards+'</div>');
+  layout('<div class="top"><h1>RIEPILOGO</h1><div>'+selectorControls()+'</div></div><div class="summary-wrap">'+cards+'</div>');
 }
 function renderNotifications(){
   markNotificationsRead();
   var notes=visibleNotifications();
   var list = notes.length ? notes.map(function(n){return '<div class="toast-note"><b>'+n.text+'</b><br><span class="small">'+n.displayAt+'</span></div>';}).join("") : '<p class="small">Nessuna notifica.</p>';
-  layout('<div class="top desktop-only"><h1>NOTIFICHE</h1><span class="pill">'+notes.length+' totali</span></div><div class="card">'+list+'</div>');
+  layout('<div class="top"><h1>NOTIFICHE</h1><span class="pill">'+notes.length+' totali</span></div><div class="card">'+list+'</div>');
 }
 
 /* =========================================================
@@ -771,7 +710,7 @@ function renderAdmin(){
   var pending=pendingRegistrations();
   var newUsers=pending.map(function(u){
     return '<div class="person"><div class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</div>'+
-      '<div class="meta"><b class="'+nameClass(u)+'">Richiesta registrazione: '+fullName(u)+'</b><small>'+u.email+' · '+personSectorAreaLabel(u)+'</small></div>'+
+      '<div class="meta"><b class="'+nameClass(u)+'">Richiesta registrazione: '+fullName(u)+'</b><small>'+u.email+' · '+sectorName(u.sectorId)+' / '+areaName(u.areaId)+'</small></div>'+
       '<div class="actions"><button class="btn primary" onclick="approveRegistration(\''+u.id+'\')">Approva</button>'+
       '<button class="btn secondary" onclick="page=\'people\';selectedEmployeeId=\''+u.id+'\';selectedSectorId=\''+u.sectorId+'\';selectedAreaFilter=\''+u.areaId+'\';render()">Modifica</button>'+
       '<button class="btn danger" onclick="deleteUser(\''+u.id+'\')">Elimina</button></div></div>';
@@ -934,11 +873,8 @@ function renderPlanDayModal(){
     '<div class="modal ios-sheet"><div class="modal-grabber"></div>'+
     '<div class="modal-head"><div><h2>'+fmt(selectedPlanDate)+'</h2><p class="small">Piano ferie - '+(areaId==="all"?sectorName(sectorId):areaName(areaId))+'</p></div>'+
     '<button class="close" onclick="closePlanDay()">Chiudi</button></div>'+
-    '<div class="card day-list-card plan-ferie-card"><h3 class="section-title plan-ferie-title">In ferie</h3>'+
-    (holidays.length?holidays.map(function(u){return personRow(u,selectedPlanDate,false);}).join(""):'<p class="small">Nessuno in ferie.</p>')+
-    (holidays.length?"":'<p class="empty-state plan-allpresent-mobile">Tutti in servizio</p>')+
-    '</div>'+
-    '<div class="card day-list-card plan-present-card"><h3 class="section-title">In servizio</h3>'+(present.length?present.map(function(u){return personRow(u,selectedPlanDate,false);}).join(""):'<p class="small">Nessuno in servizio.</p>')+'</div>'+
+    '<div class="card day-list-card"><h3 class="section-title">In ferie</h3>'+(holidays.length?holidays.map(function(u){return personRow(u,selectedPlanDate,false);}).join(""):'<p class="small">Nessuno in ferie.</p>')+'</div>'+
+    '<div class="card day-list-card"><h3 class="section-title">In servizio</h3>'+(present.length?present.map(function(u){return personRow(u,selectedPlanDate,false);}).join(""):'<p class="small">Nessuno in servizio.</p>')+'</div>'+
     '</div></div>';
 }
 function planSectorSelect(){
@@ -948,7 +884,7 @@ function planSectorSelect(){
 }
 function planPrintAreaLabel(sectorId,areaId){ return areaId==="all" ? sectorName(sectorId).toUpperCase() : areaName(areaId).toUpperCase(); }
 function renderPlan(){
-  var periods=planPeriods();
+  var periods={estate:["2025-06","2025-07","2025-08","2025-09"], natale:["2025-12","2026-01"], pasqua:["2026-04"]};
   var months=periods[selectedPlanPeriod]||periods.estate;
   var sectorId = currentUser.role==="admin" ? selectedSectorId : currentUser.sectorId;
   if(!sectorId||sectorId==="all"||sectorId==="*") sectorId="prevenzione";
@@ -962,7 +898,7 @@ function renderPlan(){
   var content=months.map(function(m){return renderPlanMonthLayout(m,sectorId,selectedPlanArea);}).join("");
   var modal = planModalOpen ? renderPlanDayModal() : "";
   layout(
-    '<div class="plan-shell"><div class="plan-top no-print"><h1 class="desktop-only">PIANO FERIE</h1><div class="plan-controls">'+
+    '<div class="plan-shell"><div class="plan-top no-print"><h1>PIANO FERIE</h1><div class="plan-controls">'+
     planSectorSelect()+
     '<label>VISUALIZZAZIONE:</label><select onchange="selectedPlanArea=this.value;render()">'+areaOptions+'</select>'+
     '<select onchange="selectedPlanPeriod=this.value;loadEventsForPlanPeriod();render()">'+
@@ -1029,7 +965,7 @@ function renderPlanGrid(month,sectorId,areaId){
     }else{
       names=onHoliday.map(function(u){return '<div class="plan-person" style="color:'+areaColor(u.areaId)+'">'+shortPersonName(u)+'</div>';}).join("");
     }
-    return '<div role="button" tabindex="0" class="plan-card-white plan-clickable '+(isHoliday(date)?'plan-holiday':'')+'" data-date="'+date+'" data-sector="'+sectorId+'" data-area="'+areaId+'">'+
+    return '<div role="button" tabindex="0" class="plan-card-white plan-clickable" data-date="'+date+'" data-sector="'+sectorId+'" data-area="'+areaId+'">'+
       '<div class="plan-fill-wrap">'+fill+'</div><div class="plan-day-num">'+day+'</div><div class="plan-names">'+names+'</div>'+
       (pct?('<div class="plan-percent">'+pct+'%</div>'):"")+'</div>';
   }).join("")+'</div>';

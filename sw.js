@@ -1,4 +1,4 @@
-const CACHE_NAME = "gestione-personale-v64-responsive";
+const CACHE_NAME = "gestione-personale-v63";
 const APP_SHELL = [
   "./",
   "./index.html",
