@@ -1,7 +1,3 @@
-var insertSheetOpen=false;
-var selectedInsertUserId=null;
-var selectedInsertStatus=null;
-
 /* =========================================================
    LOGIN / REGISTRAZIONE / PASSWORD
    ========================================================= */
@@ -188,6 +184,7 @@ function backButton(){
 function nav(id){
   if(page!==id) navStack.push(page);
   page=id; modalOpen=false; planModalOpen=false; mobileMenuOpen=false;
+  insertOpen=false; insertUserId=null; insertCode=null; insertError="";
   if(id==="plan") loadEventsForPlanPeriod();
   render();
 }
@@ -334,8 +331,8 @@ function changeMonth(delta){
   loadEventsForMonth(monthKeyOf(selectedDate));
   render();
 }
-function openDay(date){ selectedDate=date; modalOpen=true; insertSheetOpen=false; selectedInsertUserId=null; selectedInsertStatus=null; render(); }
-function closeModal(){ modalOpen=false; insertSheetOpen=false; selectedInsertUserId=null; selectedInsertStatus=null; render(); }
+function openDay(date){ selectedDate=date; modalOpen=true; render(); }
+function closeModal(){ modalOpen=false; insertOpen=false; insertUserId=null; insertCode=null; insertError=""; render(); }
 
 function renderCalendar(){
   loadEventsForMonth(monthKeyOf(dateKey(1)));
@@ -351,22 +348,22 @@ function renderCalendar(){
     var errs=smartRuleErrorsForDay(date);
     var abs = hol ? [] : visibleUsers().filter(function(u){return isAbsent(eventFor(date,u.id));});
     var dots=abs.map(function(u){
-      var st=eventFor(date,u.id), s=STATUS[st]||STATUS.altro;
+      var st=eventFor(date,u.id), s=STATUS[st];
       return '<span class="person-dot" title="'+fullName(u)+' - '+s.label+'" style="background:'+s.color+'">'+s.short+'</span>';
     }).join("");
-    days += '<button class="day '+(selectedDate===date && modalOpen?'selected':'')+' '+(hol?'holiday':'')+' '+(errs.length?'rule-error':'')+'" onclick="openDay(\''+date+'\')">'+
-      '<div class="day-num">'+d+'</div>'+ 
-      (errs.length?'<div class="danger-mark">!</div>':"")+ 
-      (hol?('<div class="holiday-name">'+hol+'</div>'):"")+ 
-      '<div class="dot-row">'+dots+'</div>'+ 
+    days += '<button class="day '+(selectedDate===date?'selected':'')+' '+(hol?'holiday':'')+' '+(errs.length?'rule-error':'')+'" onclick="openDay(\''+date+'\')">'+
+      '<div class="day-num">'+d+'</div>'+
+      (errs.length?'<div class="danger-mark">!</div>':"")+
+      (hol?('<div class="holiday-name">'+hol+'</div>'):"")+
+      '<div class="dot-row">'+dots+'</div>'+
       '</button>';
   }
-  var modal = modalOpen ? renderDayModal() : "";
+  var modal = insertOpen ? renderInsertSheet() : (modalOpen ? renderDayModal() : "");
   layout(
-    '<div class="top desktop-only page-context"><h1>'+contextTitle()+'</h1><div class="sector-filter">'+selectorControls()+'</div></div>'+ 
-    '<div class="calendar-wrap mobile-ios-calendar"><div class="calendar-toolbar compact-month"><button class="btn secondary month-nav prev" aria-label="Mese precedente" onclick="changeMonth(-1)">← <span>Mese precedente</span></button>'+ 
-    '<div class="month-title">'+monthName()+'</div><button class="btn secondary month-nav next" aria-label="Mese successivo" onclick="changeMonth(1)"><span>Mese successivo</span> →</button></div>'+ 
-    '<div class="calendar-head"><div>LUN</div><div>MAR</div><div>MER</div><div>GIO</div><div>VEN</div></div>'+ 
+    '<div class="top desktop-only page-context"><h1>'+contextTitle()+'</h1><div class="sector-filter">'+selectorControls()+'</div></div>'+
+    '<div class="calendar-wrap"><div class="calendar-toolbar compact-month"><button class="btn secondary month-nav prev" aria-label="Mese precedente" onclick="changeMonth(-1)">← <span>Mese precedente</span></button>'+
+    '<div class="month-title">'+monthName()+'</div><button class="btn secondary month-nav next" aria-label="Mese successivo" onclick="changeMonth(1)"><span>Mese successivo</span> →</button></div>'+
+    '<div class="calendar-head"><div>LUN</div><div>MAR</div><div>MER</div><div>GIO</div><div>VEN</div></div>'+
     '<div class="calendar">'+days+'</div></div>'+modal
   );
 }
@@ -374,97 +371,94 @@ function renderDayModal(){
   var hol=isHoliday(selectedDate)||isWeekend(selectedDate);
   var errs=smartRuleErrorsForDay(selectedDate);
   var allPeople=isBlockedDay(selectedDate)?[]:visibleUsers();
-  var absentPeople=allPeople.filter(function(u){return isAbsent(eventFor(selectedDate,u.id));});
-  var editablePeople=allPeople.filter(function(u){return canModifyUserEvents(u.id);});
-  var canAdd=!isBlockedDay(selectedDate) && editablePeople.length>0;
+  var people=allPeople.filter(function(u){return isAbsent(eventFor(selectedDate,u.id));});
+  var canAdd=!isBlockedDay(selectedDate) && allPeople.some(function(u){return canModifyUserEvents(u.id);});
   return '<div class="modal-backdrop" onclick="if(event.target.className===\'modal-backdrop\')closeModal()">'+
-    '<div class="modal ios-sheet"><div class="modal-grabber"></div>'+ 
-    '<div class="modal-head"><div><h2>'+fmt(selectedDate)+'</h2><p class="small modal-subtitle">'+(hol?"Giorno non lavorativo":"Assenze e stati del giorno")+'</p></div>'+ 
-    '<button class="close" onclick="closeModal()">Chiudi</button></div>'+ 
-    (hol?'<div class="warning">Giorno non lavorativo. Non puoi inserire nulla.</div>':"")+ 
-    (errs.length?('<div class="warning">⚠️ '+(errs.length>1?errs.map(function(e,i){return (i+1)+". "+e;}).join("<br>"):errs[0])+'</div>'):"")+ 
-    (canAdd?('<div class="quick-action">'+renderInlineEventForm()+'</div>'):"")+ 
-    '<div class="card day-list-card"><h3 class="section-title">Riepilogo del giorno</h3>'+ 
-    (absentPeople.length ? absentPeople.map(function(u){return personRow(u,selectedDate,canModifyUserEvents(u.id));}).join("") : '<p class="small empty-summary">Nessuna assenza inserita per questo giorno</p>')+ 
-    '</div>'+ 
-    (insertSheetOpen ? renderInsertSheet() : "")+
+    '<div class="modal ios-sheet"><div class="modal-grabber"></div>'+
+    '<div class="modal-head"><div><h2>'+fmt(selectedDate)+'</h2><p class="small modal-subtitle">'+(hol?"Giorno non lavorativo":"Assenze e stati particolari")+'</p></div>'+
+    '<button class="close" onclick="closeModal()">Chiudi</button></div>'+
+    (hol?'<div class="warning">Giorno non lavorativo. Non puoi inserire nulla.</div>':"")+
+    (errs.length?('<div class="warning">⚠️ '+(errs.length>1?errs.map(function(e,i){return (i+1)+". "+e;}).join("<br>"):errs[0])+'</div>'):"")+
+    '<div class="card day-list-card">'+
+    (people.length ? people.map(function(u){return personRow(u,selectedDate,canModifyUserEvents(u.id));}).join("") : '<p class="empty-state">Nessuna assenza inserita per questo giorno</p>')+
+    '</div>'+
+    (canAdd?('<button class="btn primary full insert-btn" onclick="openInsertSheet()">+ Inserisci</button>'):"")+
     '</div></div>';
 }
-function statusOptionsHtml(){
-  return eventCodeOptions().map(function(o){return '<option value="'+o.value+'">'+o.title+'</option>';}).join("");
-}
-function eventCodeOptions(){
-  return [
-    {value:"c01", title:"C01 – Ferie anno attuale", icon:"🏖️"},
-    {value:"c02", title:"C02 – Ferie anno precedente", icon:"🌤️"},
-    {value:"smart", title:"SV – Smart working", icon:"💻"},
-    {value:"f14", title:"F14 – Festività soppresse", icon:"🎗️"},
-    {value:"a01", title:"A01 – Malattia", icon:"🩺"},
-    {value:"altro", title:"ALTRO – Altro codice previsto", icon:"•••"}
-  ];
-}
-function statusLongLabel(st){
-  st=normalizeEventCode(st);
-  if(st==="smart") return "SV – Smart working";
-  if(st==="c01") return "C01 – Ferie anno attuale";
-  if(st==="c02") return "C02 – Ferie anno precedente";
-  if(st==="f14") return "F14 – Festività soppresse";
-  if(st==="a01") return "A01 – Malattia";
-  if(st==="altro") return "ALTRO – Altro codice previsto";
-  var x=STATUS[st];
-  return x ? x.label : st;
-}
-function renderInlineEventForm(){
-  return '<div class="insert-card-lite"><button class="btn primary insert-open-btn" onclick="openInsertSheet()"><span class="plus">＋</span> Inserisci</button><p id="eventError" class="error"></p></div>';
-}
 function openInsertSheet(){
-  var people=visibleUsers().filter(function(u){return canModifyUserEvents(u.id);});
-  insertSheetOpen=true;
-  selectedInsertStatus=null;
-  selectedInsertUserId=(currentUser.role==="employee") ? currentUser.id : (people[0] ? people[0].id : null);
+  var editable=visibleUsers().filter(function(u){return canModifyUserEvents(u.id);});
+  insertUserId = currentUser.role==="employee" ? currentUser.id : (editable.length===1 ? editable[0].id : null);
+  insertCode=null;
+  insertError="";
+  insertOpen=true;
   render();
 }
-function closeInsertSheet(){ insertSheetOpen=false; selectedInsertUserId=null; selectedInsertStatus=null; render(); }
-function selectInsertUser(userId){ selectedInsertUserId=userId; render(); }
-function selectInsertStatus(st){ selectedInsertStatus=normalizeEventCode(st); render(); }
+function closeInsertSheet(){
+  insertOpen=false;
+  insertUserId=null;
+  insertCode=null;
+  insertError="";
+  render();
+}
+function selectInsertUser(userId){
+  insertUserId=userId;
+  insertError="";
+  render();
+}
+function selectInsertCode(code){
+  insertCode=code;
+  insertError="";
+  render();
+}
 function renderInsertSheet(){
   var people=visibleUsers().filter(function(u){return canModifyUserEvents(u.id);});
-  var userCards="";
-  if(currentUser.role!=="employee"){
-    userCards='<h3 class="sheet-section-title">Persona</h3><div class="choice-grid people-choice-grid">'+people.map(function(u){
-      return '<button class="choice-card person-choice '+(selectedInsertUserId===u.id?'selected':'')+'" onclick="selectInsertUser(\''+u.id+'\')"><span class="avatar mini" style="background:'+u.color+'">'+u.initials+'</span><strong>'+fullName(u)+'</strong><small>'+areaName(u.areaId)+'</small></button>';
-    }).join("")+'</div>';
+  var showPeoplePicker=currentUser.role!=="employee" && people.length>1;
+  var peopleHtml="";
+  if(showPeoplePicker){
+    peopleHtml='<div class="insert-section-label">Per chi</div><div class="insert-people">'+
+      people.map(function(u){
+        var sel=insertUserId===u.id;
+        return '<button class="insert-person '+(sel?'selected':'')+'" onclick="selectInsertUser(\''+u.id+'\')">'+
+          '<span class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</span>'+
+          '<span>'+fullName(u)+'</span></button>';
+      }).join("")+'</div>';
   }
-  var codeCards='<h3 class="sheet-section-title">Tipo assenza / stato</h3><div class="choice-grid code-choice-grid">'+eventCodeOptions().map(function(o){
-    return '<button class="choice-card code-choice '+(selectedInsertStatus===o.value?'selected':'')+'" onclick="selectInsertStatus(\''+o.value+'\')"><span class="choice-icon">'+o.icon+'</span><strong>'+o.title.split(' – ')[0]+'</strong><small>'+o.title.split(' – ')[1]+'</small></button>';
-  }).join("")+'</div>';
-  return '<div class="insert-sheet-overlay" onclick="if(event.target.className===\'insert-sheet-overlay\')closeInsertSheet()">'+
-    '<div class="insert-sheet"><div class="modal-grabber"></div><div class="sheet-head"><h2>Inserisci assenza</h2><button class="close" onclick="closeInsertSheet()">Chiudi</button></div>'+ 
-    userCards+codeCards+
-    '<button class="btn primary full sheet-save" onclick="saveEventFromPopup()">Salva</button><p id="eventError" class="error"></p></div></div>';
+  var codeCards=INSERT_CODES.map(function(code){
+    var s=STATUS[code];
+    var sel=insertCode===code;
+    return '<button class="insert-code-card '+(sel?'selected':'')+'" style="--code-color:'+s.color+'" onclick="selectInsertCode(\''+code+'\')">'+
+      '<span class="insert-code-short">'+s.short+'</span><span class="insert-code-label">'+s.label.replace(/^[A-Z0-9]+\s*-\s*/,"")+'</span></button>';
+  }).join("");
+  return '<div class="modal-backdrop insert-backdrop" onclick="if(event.target.classList.contains(\'insert-backdrop\'))closeInsertSheet()">'+
+    '<div class="modal ios-sheet insert-sheet"><div class="modal-grabber"></div>'+
+    '<div class="modal-head"><div><h2>Inserisci assenza</h2><p class="small modal-subtitle">'+fmt(selectedDate)+'</p></div>'+
+    '<button class="close" onclick="closeInsertSheet()">Annulla</button></div>'+
+    peopleHtml+
+    '<div class="insert-section-label">Tipo</div><div class="insert-codes">'+codeCards+'</div>'+
+    (insertError?('<p class="error">'+insertError+'</p>'):"")+
+    '<button class="btn primary full insert-save-btn" onclick="saveInsertedEvent()">Salva</button>'+
+    '</div></div>';
 }
-async function saveEventFromPopup(){
-  var userId = selectedInsertUserId || currentUser.id;
-  var st=normalizeEventCode(selectedInsertStatus||"");
+async function saveInsertedEvent(){
+  if(!insertUserId){ insertError="Seleziona la persona."; render(); return; }
+  if(!insertCode){ insertError="Seleziona il tipo di assenza."; render(); return; }
   var date=selectedDate;
+  var userId=insertUserId;
+  var st=insertCode;
   var u=db.users.find(function(x){return x.id===userId;});
-  var errEl=document.getElementById("eventError");
-  if(!userId || !u){ if(errEl) errEl.textContent="Seleziona una persona."; return; }
-  if(!st || !STATUS[st]){ if(errEl) errEl.textContent="Seleziona il tipo di assenza."; return; }
   if(st==="smart"){
     var v=validateSmartRule(date,userId);
-    if(!v.ok){ if(errEl) errEl.textContent=v.message; return; }
+    if(!v.ok){ insertError=v.message; render(); return; }
   }
-  if(isBlockedDay(date)){ if(errEl) errEl.textContent="Non puoi inserire su sabato, domenica o giorno festivo."; return; }
-  if(!canModifyUserEvents(userId)){ if(errEl) errEl.textContent="Non puoi modificare questo utente."; return; }
+  if(isBlockedDay(date)){ insertError="Non puoi inserire su sabato, domenica o giorno festivo."; render(); return; }
+  if(!canModifyUserEvents(userId)){ insertError="Non puoi modificare questo utente."; render(); return; }
   if(!db.events[date]) db.events[date]={};
   db.events[date][userId]=st;
   refreshRuleViolations(date);
-  addAudit(statusLongLabel(st)+" per "+fullName(u)+" il "+fmt(date));
+  addAudit(STATUS[st].label+" per "+fullName(u)+" il "+fmt(date));
   pushNotification({text:notificationText(currentUser,u,st,date), scope:"sector", sectorId:u.sectorId, actorId:currentUser.id, type:"event"});
   try{ await writeEventDay(date, db.events[date]); }catch(e){}
-  insertSheetOpen=false; selectedInsertUserId=null; selectedInsertStatus=null;
-  render();
+  closeInsertSheet();
 }
 async function removeEvent(date,userId){
   if(isBlockedDay(date)||!canModifyUserEvents(userId)) return;
@@ -487,36 +481,26 @@ function renderProfile(){
   if(canRegisterColleagues()) managementLinks+='<button class="btn secondary full" onclick="nav(\'registercolleague\')">➕ Registra collega</button>';
   if(canManageUsers()) managementLinks+='<button class="btn secondary full" onclick="nav(\'admin\')">⚙️ Admin</button>';
   layout(
-    '<div class="top desktop-only"><h1>DATI PERSONALI</h1><span class="pill">'+roleLabel(u.role)+'</span></div>'+ 
-    '<div class="grid two profile-readonly-grid">'+
-    '<div class="card profile-readonly-card"><h3 class="section-title">I miei dati</h3><div class="readonly-list">'+
-    '<div class="readonly-row"><span>Nome</span><strong>'+u.name+'</strong></div>'+ 
-    '<div class="readonly-row"><span>Cognome</span><strong>'+(u.surname||"")+'</strong></div>'+ 
-    '<div class="readonly-row"><span>Email</span><strong>'+u.email+'</strong></div>'+ 
-    '<div class="readonly-row"><span>Settore</span><strong>'+sectorName(u.sectorId)+'</strong></div>'+ 
-    '<div class="readonly-row"><span>Area</span><strong>'+areaName(u.areaId)+'</strong></div>'+ 
-    '<div class="readonly-row"><span>Ruolo</span><strong>'+roleLabel(u.role)+'</strong></div>'+ 
-    '</div><p class="small">I dati personali sono in sola lettura. Per modifiche anagrafiche contatta un amministratore.</p></div>'+ 
-    '<div class="card"><h3 class="section-title">Richiedi cambio password</h3>'+ 
-    '<label>Nuova password richiesta</label><input id="requestedPassword" type="password" autocomplete="new-password">'+
-    '<button class="btn primary full" onclick="requestPasswordChange()">Richiedi cambio password</button>'+ 
-    '<p id="profileMsg" class="small"></p></div>'+ 
-    '</div>'+ 
+    '<div class="top desktop-only"><h1>DATI PERSONALI</h1><span class="pill">'+roleLabel(u.role)+'</span></div>'+
+    '<div class="grid two">'+
+    '<div class="card"><h3 class="section-title">I miei dati</h3><div class="profile-view">'+
+    '<div class="profile-field"><label>Nome</label><div class="profile-value">'+u.name+'</div></div>'+
+    '<div class="profile-field"><label>Cognome</label><div class="profile-value">'+(u.surname||"")+'</div></div>'+
+    '<div class="profile-field"><label>Email</label><div class="profile-value">'+u.email+'</div></div>'+
+    '<div class="profile-field"><label>Settore</label><div class="profile-value">'+sectorName(u.sectorId)+'</div></div>'+
+    '<div class="profile-field"><label>Area</label><div class="profile-value">'+areaName(u.areaId)+'</div></div>'+
+    '<div class="profile-field"><label>Ruolo</label><div class="profile-value">'+roleLabel(u.role)+'</div></div>'+
+    '</div></div>'+
+    '<div class="card"><h3 class="section-title">Richiesta cambio password</h3>'+
+    '<label>Nuova password richiesta</label><input id="requestedPassword" type="password">'+
+    '<button class="btn primary full" onclick="requestPasswordChange()">Richiedi cambio password</button>'+
+    '<p id="profileMsg" class="small"></p></div>'+
+    '</div>'+
     (managementLinks ? ('<div class="card"><h3 class="section-title">Gestione</h3>'+managementLinks+'</div>') : "")+
     '<div class="card">'+
     (adminUser?'<button class="btn secondary full" onclick="stopImpersonation()">Torna super admin</button>':'')+
     '<button class="btn danger full" onclick="logout()">Esci</button></div>'
   );
-}
-async function saveProfile(){
-  currentUser.name=document.getElementById("profileName").value.trim();
-  currentUser.surname=document.getElementById("profileSurname").value.trim();
-  currentUser.initials=createInitialsForUser(currentUser.name,currentUser.surname);
-  var u=db.users.find(function(x){return x.id===currentUser.id;});
-  Object.assign(u,currentUser);
-  addAudit(fullName(currentUser)+" ha aggiornato nome/cognome");
-  try{ await writeUser(u); }catch(e){}
-  render();
 }
 async function requestPasswordChange(){
   var pwd=document.getElementById("requestedPassword").value;
@@ -731,11 +715,11 @@ function renderReports(){
       '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+sectorName(u.sectorId)+' / '+areaName(u.areaId)+'</small></div></div>'+
       '<div class="summary-bar"><span style="width:'+usedPct+'%"></span></div>'+
       '<div class="summary-grid">'+
-      '<div><strong>'+r.c01Residue+'</strong><span>C01 – Ferie anno attuale residue</span></div>'+
-      '<div><strong>'+r.c02Residue+'</strong><span>C02 – Ferie anno precedente residue</span></div>'+
-      '<div><strong>'+r.f14Residue+'</strong><span>F14 – Festività soppresse residue</span></div>'+
-      '<div><strong>'+r.a01+'</strong><span>A01 – Malattia</span></div>'+
-      '<div><strong>'+r.altro+'</strong><span>ALTRO – Altro codice previsto</span></div>'+
+      '<div><strong>'+r.c01Residue+'</strong><span>C01 residue</span></div>'+
+      '<div><strong>'+r.c02Residue+'</strong><span>C02 residue</span></div>'+
+      '<div><strong>'+r.f14Residue+'</strong><span>F14 residue</span></div>'+
+      '<div><strong>'+r.a01+'</strong><span>A01 malattia</span></div>'+
+      '<div><strong>'+r.altro+'</strong><span>ALTRO</span></div>'+
       '</div><p class="small">Usate: C01 '+r.c01+' · C02 '+r.c02+' · F14 '+r.f14+'. Totale residuo ferie/festività: '+r.ferieResidue+' giorni.</p></div>';
   }).join("");
   layout('<div class="top desktop-only"><h1>RIEPILOGO</h1><div>'+selectorControls()+'</div></div><div class="summary-wrap">'+cards+'</div>');
@@ -912,11 +896,13 @@ function renderPlanDayModal(){
   var areaId=selectedPlanAreaForModal || selectedPlanArea || "all";
   var people=planPeople(sectorId,areaId).sort(sortByName);
   var holidays=people.filter(function(u){return isFerieCode(eventFor(selectedPlanDate,u.id));}).sort(sortByName);
+  var present=people.filter(function(u){return !isFerieCode(eventFor(selectedPlanDate,u.id));}).sort(sortByName);
   return '<div class="modal-backdrop plan-day-backdrop" onclick="if(event.target.classList.contains(\'plan-day-backdrop\'))closePlanDay()">'+
     '<div class="modal ios-sheet"><div class="modal-grabber"></div>'+
     '<div class="modal-head"><div><h2>'+fmt(selectedPlanDate)+'</h2><p class="small">Piano ferie - '+(areaId==="all"?sectorName(sectorId):areaName(areaId))+'</p></div>'+
     '<button class="close" onclick="closePlanDay()">Chiudi</button></div>'+
-    '<div class="card day-list-card"><h3 class="section-title">In ferie</h3>'+(holidays.length?holidays.map(function(u){return personRow(u,selectedPlanDate,false);}).join(""):'<p class="small">Nessuna assenza inserita per questo giorno</p>')+'</div>'+
+    '<div class="card day-list-card"><h3 class="section-title">In ferie</h3>'+(holidays.length?holidays.map(function(u){return personRow(u,selectedPlanDate,false);}).join(""):'<p class="small">Nessuno in ferie.</p>')+'</div>'+
+    '<div class="card day-list-card"><h3 class="section-title">In servizio</h3>'+(present.length?present.map(function(u){return personRow(u,selectedPlanDate,false);}).join(""):'<p class="small">Nessuno in servizio.</p>')+'</div>'+
     '</div></div>';
 }
 function planSectorSelect(){

@@ -13,8 +13,8 @@ const SESSION_STORE = "gestione_personale_session_v63";
 const DATA_SCHEMA_VERSION = 63;
 
 const STATUS = {
-  present:{label:"", short:"", cls:"present", color:"#16a34a"},
-  smart:{label:"SV – Smart working", short:"SV", cls:"smart", color:"#2563eb"},
+  present:{label:"In servizio", short:"S", cls:"present", color:"#16a34a"},
+  smart:{label:"SW - Smart working", short:"SW", cls:"smart", color:"#2563eb"},
   c01:{label:"C01 - Ferie anno attuale", short:"C01", cls:"ferie", color:"#f97316"},
   c02:{label:"C02 - Ferie anno precedente", short:"C02", cls:"ferie", color:"#fb923c"},
   f14:{label:"F14 - Festività soppresse", short:"F14", cls:"permesso", color:"#7c3aed"},
@@ -74,6 +74,11 @@ let selectedAreaFilter = "all";
 let selectedEmployeeId = null;
 let selectedPlanPeriod = "estate";
 let selectedPlanArea = "all";
+let insertOpen = false;
+let insertUserId = null;
+let insertCode = null;
+let insertError = "";
+const INSERT_CODES = ["c01","c02","f14","smart","a01","altro"];
 const app = document.getElementById("app");
 
 function todayStr(){ return new Date().toISOString().slice(0,10); }
