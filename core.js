@@ -85,18 +85,18 @@ let insertUserId = null;
 let insertCode = null;
 let insertError = "";
 const INSERT_CODES = ["c01","c02","f14","smart","a01","altro"];
-/* ---------- Icone minimal (SVG inline) ---------- */
+/* ---------- Icone SVG minimali ---------- */
 const ICONS = {
-  calendar:'<rect x="3" y="4" width="18" height="17" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/>',
-  beach:'<path d="M12 2v6"/><path d="M3 12c0-4 4-7 9-7s9 3 9 7H3z"/><path d="M12 12v10"/><path d="M8 22c0-2 2-3 4-3s4 1 4 3"/>',
-  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
-  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-3.5 3-5.5 7-5.5s7 2 7 5.5"/><path d="M15.5 5.2c1.6.4 2.7 1.7 2.7 3.2 0 1.5-1 2.7-2.4 3.1"/><path d="M16.5 14.5c2.7.6 4.5 2.3 4.5 4.5"/>',
-  plus:'<circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>',
-  settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a8 8 0 0 0 0-3l1.9-1.5-2-3.4-2.2.9a8 8 0 0 0-2.6-1.5L16 2h-4l-.5 2.5a8 8 0 0 0-2.6 1.5l-2.2-.9-2 3.4L6.6 10.5a8 8 0 0 0 0 3l-1.9 1.5 2 3.4 2.2-.9c.8.7 1.7 1.2 2.6 1.5L11.5 22h4l.5-2.5a8 8 0 0 0 2.6-1.5l2.2.9 2-3.4z"/>',
-  bell:'<path d="M6 10a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 14 6 10z"/><path d="M10 19a2 2 0 0 0 4 0"/>',
-  chart:'<line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="11" width="3" height="7"/><rect x="11" y="6" width="3" height="12"/><rect x="16" y="14" width="3" height="4"/>',
-  key:'<circle cx="8" cy="14" r="4.5"/><path d="M11.5 10.5 20 2"/><path d="M16 6l2 2"/><path d="M18.5 3.5l2 2"/>',
-  warning:'<path d="M12 3 2 21h20z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.3" r=".6" fill="currentColor" stroke="none"/>'
+  calendar:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16"/><path d="M8 3v4M16 3v4"/>',
+  beach:'<path d="M2 12h20M12 2v10"/><path d="M6 7c1-2 3-3 6-3s5 1 6 3"/><path d="M10 22c0-3 1-4 2-4s2 1 2 4"/>',
+  user:'<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/>',
+  users:'<circle cx="8" cy="8" r="3"/><path d="M2 20c0-3 2.5-5 6-5s6 2 6 5"/><path d="M16 6c1.5.5 2.5 1.8 2.5 3.2S17.5 12 16 12.4"/><path d="M18 16c2 .5 4 2 4 4"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  settings:'<circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>',
+  bell:'<path d="M6 10a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10.5 20a1.5 1.5 0 0 0 3 0"/>',
+  chart:'<path d="M4 20h16"/><path d="M7 20v-6M12 20V8M17 20v-3"/>',
+  key:'<circle cx="7.5" cy="14.5" r="3.5"/><path d="M10.5 11.5L19 3"/><path d="M17 5l2 2"/>',
+  warning:'<path d="M10.3 3.3 2 19h20L13.7 3.3a2 2 0 0 0-3.4 0z"/><line x1="12" y1="10" x2="12" y2="14"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/>'
 };
 function icon(name,extraClass){
   return '<svg class="icon-svg '+(extraClass||"")+'" viewBox="0 0 24 24" aria-hidden="true">'+(ICONS[name]||"")+'</svg>';

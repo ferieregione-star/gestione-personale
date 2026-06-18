@@ -1,466 +1,419 @@
 /* =========================================================
-   Gestione Personale — v100
-   CSS unificato: desktop + mobile responsivo + PWA
+   Gestione Personale v100 — Design System
    ========================================================= */
 
-/* ---------- Variabili ---------- */
-:root{
-  --bg:#eef2f7;--panel:#fff;--text:#0f172a;--muted:#64748b;
-  --line:#e2e8f0;--blue:#0b5cff;--blue-soft:#eaf1ff;
-  --red:#dc2626;--orange:#f97316;--purple:#7c3aed;--green:#16a34a;
-  --shadow:0 16px 40px rgba(15,23,42,.08)
+/* ---- Token ---- */
+:root {
+  --c-bg:       #F2F4F7;
+  --c-surface:  #FFFFFF;
+  --c-border:   #E4E7ED;
+  --c-text:     #111827;
+  --c-muted:    #6B7280;
+  --c-blue:     #2563EB;
+  --c-blue-lt:  #EFF6FF;
+  --c-green:    #16A34A;
+  --c-green-lt: #DCFCE7;
+  --c-red:      #DC2626;
+  --c-red-lt:   #FEE2E2;
+  --c-amber:    #D97706;
+  --c-amber-lt: #FEF3C7;
+  --c-purple:   #7C3AED;
+  --c-purple-lt:#EDE9FE;
+  --c-orange:   #EA580C;
+  --c-shadow:   0 1px 4px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+  --r-card:     16px;
+  --r-btn:      10px;
+  --r-pill:     999px;
 }
 
-/* ---------- Reset ---------- */
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-button,input,select,textarea{font-family:inherit;font-size:15px}
-button{cursor:pointer;border:0}
-input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;margin:6px 0 12px}
-input:disabled,select:disabled{background:#f8fafc;color:#64748b}
-label{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase}
+/* ---- Reset ---- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body { background: var(--c-bg); color: var(--c-text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif; font-size: 15px; line-height: 1.5; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; border: none; background: none; }
+input, select, textarea { width: 100%; border: 1.5px solid var(--c-border); border-radius: var(--r-btn); padding: 10px 12px; background: #fff; color: var(--c-text); outline: none; transition: border-color .15s; }
+input:focus, select:focus, textarea:focus { border-color: var(--c-blue); }
+input:disabled, select:disabled { background: var(--c-bg); color: var(--c-muted); }
+label { display: block; font-size: 11px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+h1, h2, h3 { font-weight: 800; }
 
-/* ---------- Login ---------- */
-.login-page{min-height:100vh;display:grid;place-items:center;padding:30px}
-.login-box{width:100%;max-width:520px}
-.logo{width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,#0b5cff,#7c3aed);display:grid;place-items:center;color:#fff;font-size:34px;margin:0 auto 18px}
-.logo.app-logo{background:transparent;overflow:hidden}
-.logo.app-logo img{width:100%;height:100%;display:block;border-radius:22px}
-.forgot-link{display:block;text-align:center;margin-top:10px;color:#0b5cff;font-weight:900;background:transparent}
+/* ---- Icon SVG ---- */
+.ico { display: inline-block; width: 18px; height: 18px; vertical-align: -3px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.ico-lg { width: 22px; height: 22px; vertical-align: -5px; }
+.ico-sm { width: 15px; height: 15px; vertical-align: -2px; }
 
-/* ---------- Carta / Layout base ---------- */
-.card{background:var(--panel);border-radius:20px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
-.btn{border-radius:12px;padding:12px 14px;font-weight:900}
-.btn.full{width:100%}
-.primary{background:var(--blue);color:white}
-.secondary{background:#eef2f7;color:#111827}
-.danger{background:#fee2e2;color:#991b1b}
-.success{background:#dcfce7;color:#166534}
-.small{font-size:13px;color:var(--muted);line-height:1.45}
-.error{color:#dc2626;font-size:13px;font-weight:800}
-.notice{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;border-radius:14px;padding:12px;font-size:13px;font-weight:700;margin-bottom:16px}
-.warning{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:14px;padding:12px;font-size:13px;font-weight:800;margin-bottom:16px}
+/* ---- Buttons ---- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--r-btn); padding: 9px 16px; font-size: 14px; font-weight: 700; transition: opacity .15s, transform .1s; white-space: nowrap; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--c-blue); color: #fff; }
+.btn-secondary { background: var(--c-surface); color: var(--c-text); border: 1.5px solid var(--c-border); }
+.btn-danger { background: var(--c-red-lt); color: var(--c-red); }
+.btn-ghost { color: var(--c-muted); }
+.btn-full { width: 100%; }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+.btn:disabled { opacity: .45; pointer-events: none; }
 
-/* ---------- Layout app desktop ---------- */
-.app{display:grid;grid-template-columns:286px 1fr;min-height:100vh}
-.sidebar{background:#fff;border-right:1px solid var(--line);padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
-.brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}
-.brand-icon{width:46px;height:46px;border-radius:14px;background:var(--blue);display:grid;place-items:center;color:white;font-size:24px}
-.brand strong{font-size:20px}
-.nav button{width:100%;text-align:left;background:transparent;color:#334155;padding:13px 14px;border-radius:12px;font-weight:850;margin:4px 0}
-.nav button.active,.nav button:hover{background:var(--blue);color:white}
-.nav-badge{float:right;background:#dc2626;color:white;border-radius:999px;min-width:22px;height:22px;display:inline-grid;place-items:center;font-size:11px;font-weight:950;padding:0 6px}
-.userbox{position:absolute;left:18px;right:18px;bottom:18px;background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:14px}
-.main{padding:28px;max-width:1480px;width:100%}
+/* ---- Card ---- */
+.card { background: var(--c-surface); border-radius: var(--r-card); padding: 16px; box-shadow: var(--c-shadow); margin-bottom: 14px; }
 
-/* ---------- Barre mobili (nascoste su desktop) ---------- */
-.mobile-appbar{display:none}
-.mobile-overlay{display:none}
-.bottom-tabbar{display:none}
+/* ---- Badges / Pill / Tags ---- */
+.pill { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: var(--r-pill); font-size: 12px; font-weight: 700; background: var(--c-blue-lt); color: var(--c-blue); }
+.tag { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: var(--r-pill); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.tag-present  { background: var(--c-green-lt); color: var(--c-green); }
+.tag-smart    { background: #DBEAFE; color: #1D4ED8; }
+.tag-ferie    { background: #FFEDD5; color: #C2410C; }
+.tag-malattia { background: var(--c-red-lt); color: #B91C1C; }
+.tag-permesso { background: var(--c-purple-lt); color: #6D28D9; }
+.tag-altro    { background: #F3F4F6; color: #374151; }
+.tag-blocked  { background: #F3F4F6; color: var(--c-muted); }
+.tag-pending  { background: var(--c-amber-lt); color: #92400E; }
+.tag-approved { background: var(--c-green-lt); color: var(--c-green); }
 
-/* ---------- Elementi comuni ---------- */
-.top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:20px}
-.top h1{margin:0;font-size:34px;letter-spacing:-.8px;text-transform:uppercase}
-.pill{display:inline-flex;align-items:center;gap:6px;background:var(--blue-soft);color:var(--blue);font-size:13px;font-weight:900;border-radius:999px;padding:8px 12px}
-.grid{display:grid;gap:16px}
-.two{grid-template-columns:1.15fr .85fr}
-.three{grid-template-columns:repeat(3,1fr)}
-.four{grid-template-columns:repeat(4,1fr)}
-.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.section-title{margin:0 0 12px;font-size:18px}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
+/* ---- Avvisi ---- */
+.notice  { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; border-radius: var(--r-card); padding: 12px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+.warning { background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; border-radius: var(--r-card); padding: 12px 14px; font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+.error-msg { color: var(--c-red); font-size: 13px; font-weight: 700; margin-top: 4px; }
 
-/* ---------- Riga persona ---------- */
-.person{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
-.person:last-child{border-bottom:0}
-.person.clickable{cursor:pointer}
-.person.clickable:hover{background:#f8fafc}
-.avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;flex:0 0 auto}
-.avatar.viewer{background:#dc2626!important}
-.avatar.referente{background:#7c3aed!important}
-.name-viewer{color:#dc2626!important}
-.name-referente{color:#7c3aed!important}
-.meta{flex:1;min-width:0}
-.meta b{display:block}
-.meta small{color:var(--muted)}
+/* ---- Avatar ---- */
+.avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+.avatar-sm { width: 30px; height: 30px; font-size: 11px; }
 
-/* ---------- Tag ---------- */
-.tag{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap}
-.present{background:#dcfce7;color:#166534}
-.smart{background:#dbeafe;color:#1d4ed8}
-.ferie{background:#ffedd5;color:#c2410c}
-.malattia{background:#fee2e2;color:#b91c1c}
-.permesso{background:#ede9fe;color:#6d28d9}
-.altro{background:#e5e7eb;color:#374151}
-.pending{background:#fef3c7;color:#92400e}
-.approved{background:#dcfce7;color:#166534}
-.danger-tag{background:#fee2e2;color:#991b1b}
+/* ---- Person row ---- */
+.person-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--c-border); }
+.person-row:last-child { border-bottom: none; }
+.person-row.clickable { cursor: pointer; border-radius: 8px; padding: 10px 6px; margin: 0 -6px; }
+.person-row.clickable:hover { background: var(--c-bg); }
+.person-meta { flex: 1; min-width: 0; }
+.person-meta strong { display: block; font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.person-meta small { font-size: 12px; color: var(--c-muted); }
 
-/* ---------- Calendario ---------- */
-.calendar-wrap{background:#fff;border-radius:20px;padding:16px;box-shadow:var(--shadow)}
-.cal-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px}
-.cal-toolbar-nav{display:flex;align-items:center;gap:8px;flex:1;justify-content:center}
-.month-title{font-size:28px;font-weight:950}
-.sector-filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.sector-filter select{width:220px;margin:0}
-.calendar-head{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:10px}
-.calendar-head div{text-align:center;color:#1d4ed8;font-weight:950;font-size:13px}
-.calendar{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-.day{min-height:132px;border:1px solid var(--line);background:#fff;border-radius:16px;padding:10px;text-align:left;position:relative}
-.day.blank{background:#fff;border:1px dashed #cbd5e1;opacity:.55;cursor:default}
-.day.blank:hover{outline:0}
-.day:hover{outline:2px solid #bfdbfe}
-.day.selected{outline:2px solid var(--blue);background:#f8fbff}
-.day.holiday{background:#fff1f2;border-color:#fecdd3}
-.day.rule-error{border-color:#dc2626!important;background:#fff7ed!important}
-.day-num{font-size:22px;font-weight:950;margin-bottom:8px}
-.holiday-name{font-size:11px;color:#dc2626;font-weight:950;text-transform:uppercase;line-height:1.15;margin-bottom:5px}
-.danger-mark{position:absolute;top:9px;right:9px;background:#dc2626;color:white;border-radius:999px;width:24px;height:24px;display:grid;place-items:center;font-weight:950}
-.dot-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
-.person-dot{width:22px;height:22px;border-radius:999px;display:grid;place-items:center;color:white;font-size:9px;font-weight:950}
-.person-dot.dot-white{color:#334155!important;border:1px solid #cbd5e1}
-.empty-day{font-size:12px;color:var(--muted);font-weight:700}
+/* ---- Section title ---- */
+.sec-title { font-size: 13px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
 
-/* --- Pulsante "Torna a oggi" --- */
-.today-btn-inline{
-  flex:0 0 36px;width:36px;height:36px;min-height:36px;
-  padding:0;border-radius:50%;font-size:18px;font-weight:900;
-  border:2px solid var(--blue)!important;color:var(--blue)!important;
-  background:#eaf1ff!important;display:grid;place-items:center;line-height:1;
-}
+/* ---- Forms ---- */
+.form-row { margin-bottom: 12px; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
-/* --- Filtri vista calendario --- */
-.cal-view-filters{display:flex;gap:6px;margin-bottom:10px}
-.cal-view-btn{flex:0 0 auto;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:800;background:#f1f5f9;color:#475569;border:2px solid var(--line)}
-.cal-view-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+/* ====================================================
+   LOGIN
+   ==================================================== */
+.login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+.login-box { width: 100%; max-width: 420px; }
+.login-logo { width: 72px; height: 72px; border-radius: 20px; overflow: hidden; margin: 0 auto 20px; display: block; }
+.login-logo img { width: 100%; height: 100%; display: block; }
+.login-card { background: var(--c-surface); border-radius: 20px; padding: 24px; box-shadow: var(--c-shadow); }
+.login-title { font-size: 22px; font-weight: 800; margin-bottom: 20px; text-align: center; }
+.forgot-link { display: block; text-align: center; margin-top: 12px; color: var(--c-blue); font-size: 14px; font-weight: 600; }
 
-/* --- Riepilogo giorno sotto calendario --- */
-.day-summary-card{margin-top:14px}
-.day-summary-title{font-size:14px;font-weight:900;color:var(--muted);padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:4px}
-.day-summary-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
-.day-summary-row:last-of-type{border-bottom:0}
-.day-summary-area{display:inline-block;margin-left:8px;font-size:12px;font-weight:700;color:var(--muted);background:#f1f5f9;border-radius:8px;padding:2px 7px}
-.empty-state{text-align:center;color:var(--muted);font-weight:700;padding:28px 12px;margin:0}
+/* ====================================================
+   DESKTOP LAYOUT (≥ 761px)
+   ==================================================== */
+.app-shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+.sidebar { background: var(--c-surface); border-right: 1px solid var(--c-border); padding: 20px 14px 80px; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 4px 6px 20px; }
+.sidebar-brand-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--c-blue); display: grid; place-items: center; color: #fff; flex-shrink: 0; }
+.sidebar-brand-name { font-size: 15px; font-weight: 800; }
+.sidebar-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.nav-btn { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-size: 14px; font-weight: 600; color: var(--c-muted); text-align: left; width: 100%; transition: background .12s, color .12s; }
+.nav-btn:hover { background: var(--c-bg); color: var(--c-text); }
+.nav-btn.active { background: var(--c-blue-lt); color: var(--c-blue); }
+.nav-badge { margin-left: auto; background: var(--c-red); color: #fff; border-radius: var(--r-pill); min-width: 20px; height: 20px; display: grid; place-items: center; font-size: 11px; font-weight: 800; padding: 0 5px; }
+.sidebar-user { border-top: 1px solid var(--c-border); padding-top: 14px; margin-top: 10px; }
+.sidebar-user-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.sidebar-user-role { font-size: 12px; color: var(--c-muted); margin-bottom: 10px; }
 
-/* --- Banner TUTTI IN SERVIZIO --- */
-.all-present-banner{display:flex;align-items:center;justify-content:center;gap:10px;background:#dcfce7;border:2px solid #86efac;border-radius:16px;padding:24px 16px;font-size:20px;font-weight:950;color:#166534;margin:12px 0}
-.all-present-icon{color:#166534;width:28px;height:28px;vertical-align:-6px}
+.main-content { padding: 28px; max-width: 1200px; }
+.page-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.page-header h1 { font-size: 26px; font-weight: 800; }
+.grid-2 { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; }
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
 
-/* ---------- Modale ---------- */
-.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.48);display:grid;place-items:center;z-index:50;padding:24px}
-.modal{width:min(980px,100%);max-height:90vh;overflow:auto;background:white;border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.25);padding:20px}
-.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
-.modal-head h2{margin:0}
-.close{border-radius:12px;background:#eef2f7;padding:10px 14px;font-weight:900}
-.modal-grabber{width:40px;height:5px;background:var(--line);border-radius:99px;margin:0 auto 10px}
-.day-list-card{padding:6px 14px}
-.insert-btn{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px}
+/* ====================================================
+   MOBILE SHELL (≤ 760px)
+   ==================================================== */
+.topbar { display: none; }
+.bottom-nav { display: none; }
 
-/* --- Foglio inserimento assenza --- */
-.insert-sheet{display:flex;flex-direction:column;gap:4px}
-.insert-section-label{font-size:12px;font-weight:900;text-transform:uppercase;color:var(--muted);margin:14px 0 8px}
-.insert-people{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
-.insert-person{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:10px 12px;min-width:84px;font-size:12px;font-weight:800;color:var(--text)}
-.insert-person .avatar{width:38px;height:38px;font-size:13px}
-.insert-person.selected{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
-.insert-codes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.insert-code-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:#fff;border:2px solid var(--line);border-radius:18px;padding:14px;text-align:left;min-height:84px}
-.insert-code-short{font-size:18px;font-weight:950;color:var(--code-color,#334155);background:color-mix(in srgb, var(--code-color,#334155) 14%, white);border-radius:10px;padding:3px 10px}
-.insert-code-label{font-size:13px;font-weight:800;color:var(--text);line-height:1.25}
-.insert-code-card.selected{border-color:var(--code-color,var(--blue));background:color-mix(in srgb, var(--code-color,var(--blue)) 10%, white);box-shadow:0 0 0 2px color-mix(in srgb, var(--code-color,var(--blue)) 35%, transparent)}
-.insert-save-btn{margin-top:18px}
+@media (max-width: 760px) {
+  html, body { overflow-x: hidden; }
+  body { background: var(--c-bg); }
 
-/* ---------- Campanella ---------- */
-.icon-bell{position:relative;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:#fff;display:inline-grid;place-items:center;font-size:20px;box-shadow:0 4px 14px rgba(15,23,42,.06)}
-.icon-bell .num{position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border-radius:999px;min-width:21px;height:21px;display:grid;place-items:center;font-size:11px;font-weight:950;padding:0 5px}
-.global-bell-wrap{position:fixed;top:18px;right:22px;z-index:60}
-.global-bell-btn{box-shadow:0 8px 24px rgba(15,23,42,.18)}
-.userbox .icon-bell{display:none!important}
-.toast-note{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+  .app-shell { display: block; }
+  .sidebar { display: none; }
+  .main-content { padding: 12px 12px calc(80px + env(safe-area-inset-bottom)); max-width: 100%; }
+  .grid-2, .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
 
-/* ---------- Profilo ---------- */
-.profile-view{display:grid;gap:10px}
-.profile-field label{display:block;margin-bottom:2px}
-.profile-value{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-weight:800;color:var(--text)}
-
-/* ---------- Check list ---------- */
-.check-list{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;margin:6px 0 12px}
-.check-row{display:block;text-transform:none;color:var(--text);font-size:14px;font-weight:700;margin:6px 0}
-.check-row input{width:auto;margin-right:8px}
-
-/* ---------- Switch utente ---------- */
-.switch-card .switch-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:8px}
-.switch-user-row{display:flex;flex-direction:column;align-items:flex-start;gap:4px;background:#f8fafc;border:2px solid var(--line);border-radius:14px;padding:12px 14px;text-align:left;width:100%}
-.switch-user-row:hover{border-color:var(--blue);background:var(--blue-soft)}
-.switch-user-row span{font-weight:900;font-size:14px;color:var(--text)}
-.switch-user-row small{font-size:12px;color:var(--muted);font-weight:700}
-
-/* ---------- Riepilogo ---------- */
-.summary-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
-.summary-card{background:#fff;border-radius:20px;padding:18px;box-shadow:var(--shadow)}
-.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
-.summary-grid div{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px}
-.summary-grid strong{display:block;font-size:26px}
-.summary-grid span{font-size:12px;color:var(--muted);font-weight:800}
-.summary-bar{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:12px 0}
-.summary-bar span{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#f97316)}
-
-/* ---------- Piano ferie ---------- */
-.plan-shell{background:#fff;border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
-.plan-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 26px;background:#fff}
-.plan-top h1{margin:0;color:#1d4ed8;font-size:34px;font-weight:950;letter-spacing:.5px}
-.plan-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.plan-controls select{width:auto;min-width:210px;margin:0}
-.plan-blue-line{height:5px;background:#2563eb}
-.plan-month-card{padding:24px 26px;border-bottom:1px solid #e5e7eb;background:#fff}
-.plan-month-card h2{margin:0 0 18px;font-size:22px}
-.area-title{text-align:center;margin:0 0 18px;font-size:18px;font-weight:950}
-.area-title.blue{color:#2563eb}
-.area-title.red{color:#ef4444}
-.plan-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:start}
-.plan-card-white{position:relative;min-height:120px;height:auto;background:#fff;border:2px solid #d1d5db;border-radius:12px;padding:14px 14px 26px;overflow:visible;box-shadow:0 1px 2px rgba(15,23,42,.05)}
-.plan-card-white:hover{border-color:#94a3b8}
-.plan-card-white.plan-holiday .plan-day-num{color:#dc2626}
-.plan-card-white.plan-holiday{border-color:#fca5a5}
-.plan-fill-wrap{position:absolute;left:10px;right:10px;bottom:8px;height:8px;background:#f3f4f6;border-radius:999px;overflow:hidden}
-.plan-fill{height:100%;border-radius:999px}
-.plan-day-num{font-size:22px;font-weight:950;text-align:center;margin-bottom:10px;position:relative;z-index:1}
-.plan-names{font-size:13px;font-weight:900;line-height:1.45;position:relative;z-index:1;min-height:34px;overflow-wrap:anywhere}
-.plan-person{font-weight:950;margin-bottom:2px}
-.plan-card-split{display:grid;grid-template-columns:1fr 1fr;gap:4px;min-height:34px;font-size:12px;font-weight:900;line-height:1.4;position:relative;z-index:1}
-.plan-card-split>div:first-child{border-right:1px solid #e5e7eb;padding-right:4px}
-.plan-card-split>div:last-child{padding-left:4px}
-.plan-percent{position:absolute;right:12px;bottom:18px;font-size:12px;font-weight:950;color:#334155}
-.plan-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:20px 26px;background:#fff}
-.plan-legend span{font-size:13px;font-weight:800;color:#475569}
-.plan-legend i{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:middle;margin-right:7px}
-.legend-area{margin-left:18px}
-
-/* ---------- Icone SVG ---------- */
-.icon-svg{width:20px;height:20px;display:inline-block;vertical-align:-4px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.nav button .icon-svg{margin-right:8px;vertical-align:-5px;color:currentColor}
-.tab-icon .icon-svg{width:22px;height:22px;vertical-align:middle}
-.logo .icon-svg{width:34px;height:34px;color:#fff;stroke-width:1.6}
-.brand-icon .icon-svg{width:24px;height:24px;color:#fff}
-.warning .icon-svg{margin-right:4px;vertical-align:-3px;color:#9a3412}
-
-/* ---------- Temi per ruolo ---------- */
-body.theme-admin .sidebar{background:#0b1f3a;color:#fff}
-body.theme-admin .sidebar .brand span,body.theme-admin .sidebar .userbox{color:#e5e7eb}
-body.theme-admin .sidebar .nav button{color:#e5e7eb}
-body.theme-admin .sidebar .nav button.active,body.theme-admin .sidebar .nav button:hover{background:#173b6d}
-body.theme-admin .userbox{background:#102b4d;border-color:#173b6d}
-
-body.theme-referente{--bg:#fffbeb;--blue:#d97706;--blue-soft:#fef3c7}
-body.theme-referente .sidebar{background:#78350f;color:#fff}
-body.theme-referente .sidebar .nav button{color:#fef3c7}
-body.theme-referente .sidebar .nav button.active,body.theme-referente .sidebar .nav button:hover{background:#d97706;color:#fff}
-body.theme-referente .userbox{background:#92400e;border-color:#d97706;color:#fff}
-
-body.theme-dirigente{--bg:#ecfdf5;--blue:#16a34a;--blue-soft:#dcfce7}
-body.theme-dirigente .sidebar{background:#14532d;color:#fff}
-body.theme-dirigente .sidebar .nav button{color:#dcfce7}
-body.theme-dirigente .sidebar .nav button.active,body.theme-dirigente .sidebar .nav button:hover{background:#16a34a;color:#fff}
-body.theme-dirigente .userbox{background:#166534;border-color:#16a34a;color:#fff}
-
-body.theme-employee{--bg:#f8fafc}
-
-/* ---------- Sfondi per pagina ---------- */
-body.page-calendar{--bg:#eef2f7}
-body.page-plan{--bg:#fff7ed}
-body.page-profile{--bg:#f8fafc}
-body.page-people{--bg:#eff6ff}
-body.page-registercolleague{--bg:#f0fdf4}
-body.page-reports{--bg:#f5f3ff}
-body.page-admin{--bg:#e0e7ff}
-body.page-notifications{--bg:#fff1f2}
-
-/* ---------- Print ---------- */
-.print-title{display:none;font-size:22px;font-weight:950;margin-bottom:16px;text-align:center}
-@media print{
-  @page{size:A4 landscape;margin:10mm}
-  body{background:white!important}
-  .sidebar,.no-print,.global-bell-wrap,.icon-bell,.notice,.warning,.userbox,.nav,.brand{display:none!important}
-  .app{display:block!important}
-  .main{padding:0!important;max-width:none!important}
-  .print-title{display:block!important;text-align:center;font-size:20px;margin:0 0 10px;font-weight:950}
-  .plan-shell{box-shadow:none!important;border-radius:0!important}
-  .print-area{display:block!important}
-  .plan-month-card{break-inside:avoid;padding:8px 0!important;border:0!important}
-  .plan-month-card h2{font-size:16px;margin-bottom:8px}
-  .plan-grid{grid-template-columns:repeat(5,1fr)!important;gap:6px!important}
-  .plan-card-white{min-height:80px!important;padding:8px 8px 18px!important;border:1px solid #bbb!important}
-  .plan-day-num{font-size:13px;margin-bottom:4px}
-  .plan-names{font-size:10px;line-height:1.25}
-  .plan-percent{font-size:9px;bottom:16px}
-  .plan-fill-wrap{left:6px;right:6px;bottom:6px;height:5px}
-  .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}
-}
-
-/* =========================================================
-   MOBILE — max-width: 760px
-   ========================================================= */
-@media(max-width:760px){
-  html,body,#app{width:100%;max-width:100%;overflow-x:hidden}
-  *{min-width:0}
-  body{font-size:15px;background:var(--page-bg,#f4f6fa);-webkit-text-size-adjust:100%}
-  .app{display:block!important;min-height:calc(100vh - 56px)}
-  .main{padding:10px 10px calc(96px + env(safe-area-inset-bottom))!important;max-width:none!important;width:100%}
-  .card{border-radius:16px;padding:14px;margin-bottom:12px;border:2px solid var(--line);box-shadow:none}
-  .grid.two,.grid.three,.grid.four,.form-grid{grid-template-columns:1fr!important}
-  input,select,textarea{border:2px solid var(--line);font-size:16px;padding:12px;border-radius:14px}
-  label{font-size:11px}
-  .desktop-only{display:none!important}
-  .top.desktop-only{display:none!important}
-
-  /* App bar mobile */
-  .mobile-appbar{
-    display:flex;align-items:center;justify-content:space-between;gap:8px;
-    position:sticky;top:0;z-index:80;height:58px;
-    padding:0 max(10px,env(safe-area-inset-left)) 0 max(10px,env(safe-area-inset-right));
-    background:rgba(255,255,255,.96);backdrop-filter:blur(18px);
-    border-bottom:2px solid var(--line);
+  /* Topbar */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    height: 54px; padding: 0 14px;
+    background: rgba(255,255,255,.95); backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--c-border);
   }
-  .mobile-appbar strong{flex:1;text-align:center;font-size:18px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .mobile-avatar-btn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;font-size:14px;flex:0 0 auto;border:2px solid var(--line)}
-  .icon-bell{border:2px solid var(--line);width:40px;height:40px;font-size:18px}
+  .topbar-title { font-size: 16px; font-weight: 800; }
+  .topbar-left, .topbar-right { display: flex; align-items: center; gap: 8px; min-width: 44px; }
+  .topbar-avatar { width: 34px; height: 34px; border-radius: 50%; border: none; color: #fff; font-weight: 800; font-size: 13px; display: grid; place-items: center; }
 
-  /* Sidebar come pannello laterale */
-  .sidebar{
-    position:fixed!important;top:0;left:0;bottom:0;z-index:90;
-    width:min(84vw,320px);height:100vh!important;overflow:auto;
-    transform:translateX(-105%);transition:transform .25s ease;
-    border-right:2px solid var(--line);box-shadow:0 24px 80px rgba(15,23,42,.35);
-    background:#fff;
+  /* Bell */
+  .bell-btn { position: relative; width: 34px; height: 34px; border-radius: 50%; background: var(--c-bg); display: grid; place-items: center; }
+  .bell-badge { position: absolute; top: -2px; right: -2px; background: var(--c-red); color: #fff; border-radius: var(--r-pill); min-width: 16px; height: 16px; font-size: 10px; font-weight: 800; display: grid; place-items: center; padding: 0 4px; }
+
+  /* Bottom nav */
+  .bottom-nav {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 100;
+    align-items: center;
+    background: rgba(255,255,255,.97); backdrop-filter: blur(20px) saturate(180%);
+    border-top: 1px solid var(--c-border);
+    padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
   }
-  .app.menu-open .sidebar{transform:translateX(0)}
-  .mobile-overlay{display:block;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:85}
-  .userbox{position:static;margin-top:16px;border:2px solid var(--line)}
-
-  /* Bottom tab bar */
-  .bottom-tabbar{
-    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:95;
-    align-items:center;justify-content:space-around;
-    background:rgba(255,255,255,.97);border-top:2px solid var(--line);
-    padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+  .bottom-nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; font-size: 10px; font-weight: 600; color: var(--c-muted); border-radius: 0; }
+  .bottom-nav-btn.active { color: var(--c-blue); }
+  .bottom-nav-btn .ico { width: 22px; height: 22px; }
+  .bottom-nav-center { flex: 0 0 auto; }
+  .bottom-nav-center-btn {
+    width: 52px; height: 52px; border-radius: 50%; background: var(--c-blue); color: #fff;
+    display: grid; place-items: center; margin-top: -18px;
+    box-shadow: 0 4px 14px rgba(37,99,235,.45);
+    border: 3px solid var(--c-bg);
   }
-  .bottom-tabbar button{flex:1;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:12px;font-size:11px;font-weight:800;color:#94a3b8}
-  .bottom-tabbar button.active{color:var(--blue);background:var(--blue-soft)}
-  .tab-icon{font-size:20px;line-height:1}
-  .bottom-tabbar .tab-center{flex:0 0 auto;width:64px;height:64px;border-radius:50%;margin-top:-26px;background:var(--blue);color:#fff!important;box-shadow:0 8px 20px rgba(0,0,0,.25);border:4px solid var(--page-bg,#f4f6fa);justify-content:center}
-  .bottom-tabbar .tab-center .tab-icon{font-size:26px}
-  .bottom-tabbar .tab-center.active{background:var(--blue);color:#fff}
-  .bottom-tabbar{padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
+  .bottom-nav-center-btn .ico { width: 24px; height: 24px; }
 
-  /* Calendario mobile */
-  .calendar-wrap{border:2px solid var(--line);border-radius:16px;padding:10px}
-  .cal-toolbar{flex-wrap:nowrap;gap:6px}
-  .cal-toolbar-nav{flex:1;justify-content:center;gap:4px}
-  .cal-toolbar-nav .month-nav{font-size:0!important;width:38px;height:38px;min-height:38px;padding:0!important;border-radius:12px;display:grid;place-items:center}
-  .cal-toolbar-nav .month-nav.prev::after{content:'←';font-size:22px;line-height:1}
-  .cal-toolbar-nav .month-nav.next::after{content:'→';font-size:22px;line-height:1}
-  .cal-toolbar-nav .month-nav span{display:none}
-  .month-title{font-size:20px;font-weight:950;text-align:center}
-  .today-btn-inline{width:32px!important;height:32px!important;min-height:32px!important;font-size:16px!important}
-  .calendar-head,.calendar{width:100%!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:4px!important;overflow:visible!important}
-  .calendar-head{margin-bottom:5px!important}
-  .calendar-head div{font-size:10px!important;text-align:center}
-  .day{width:100%!important;min-width:0!important;min-height:78px!important;aspect-ratio:auto!important;padding:5px 4px!important;border-radius:11px!important;overflow:hidden!important}
-  .day-num{font-size:16px!important;line-height:1;margin-bottom:4px!important}
-  .holiday-name{font-size:7.5px!important;line-height:1.05!important;word-break:break-word}
-  .person-dot{width:auto;min-width:17px;height:17px;font-size:7.5px;border-radius:6px;padding:0 2px}
-  .dot-row{gap:2px!important}
-  .empty-day{font-size:10px!important;line-height:1.15;display:block;white-space:normal}
-  .danger-mark{width:16px;height:16px;font-size:11px;top:3px;right:3px}
+  /* Page titles hide on mobile (topbar takes over) */
+  .page-header { display: none; }
+  .mobile-section-title { font-size: 13px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
 
-  /* Giorno selezionato mobile: verde chiaro, no bordo grosso */
-  .day.selected-mobile{background:#dcfce7!important;border-color:#86efac!important;outline:none!important}
-  .day.selected-mobile .day-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#16a34a;color:#fff}
-  /* Annulla .day.selected su mobile (non usato, ma per sicurezza) */
-  .day.selected{outline:none!important;background:#fff!important;border-color:var(--line)!important}
-
-  /* Filtri vista mobile */
-  .cal-view-filters{padding:4px 0 8px;gap:5px}
-  .cal-view-btn{font-size:12px;padding:6px 12px}
-
-  /* Riepilogo giorno mobile */
-  .day-summary-card{margin-top:10px}
-
-  /* Persona mobile */
-  .person{flex-wrap:wrap;align-items:flex-start;gap:8px 10px;border-bottom:2px solid var(--line);padding:12px 0}
-  .person .meta{flex:1 1 100%;order:1;min-width:0}
-  .person .avatar{order:0}
-  .person .tag{order:2}
-  .person .btn{order:3;margin-left:auto}
-  .person .meta b{word-break:break-word}
-
-  /* Modali mobile */
-  .modal-backdrop{padding:16px;backdrop-filter:blur(12px);background:rgba(0,0,0,.35)}
-  .modal{width:100%;max-width:440px;max-height:85vh;border-radius:24px;border:2px solid var(--line);padding:16px;margin:0 auto}
-  .modal.ios-sheet{border-radius:24px!important;padding:20px!important}
-  .modal-grabber{display:none}
-  .modal-head h2{font-size:20px}
-  .close{border:2px solid var(--line)}
-  .btn{min-height:46px;font-size:15px;border-radius:14px}
-  .btn.secondary{border:2px solid var(--line)}
-  .tag{border:2px solid rgba(0,0,0,.04);font-size:12.5px}
-  .btn.full.insert-btn,.insert-save-btn{height:54px;border-radius:18px;font-size:16px;font-weight:800}
-  .day-list-card{padding:6px 14px}
-
-  /* Insert codici mobile: 2 colonne */
-  .insert-codes{grid-template-columns:repeat(2,1fr)}
-  .insert-code-card{min-height:92px;border-radius:20px}
-
-  /* Top titolo mobile */
-  .top{border:2px solid var(--line);border-radius:16px;text-align:center;flex-direction:column;gap:10px;background:var(--panel)}
-  .top h1{width:100%;text-align:center;font-size:21px;letter-spacing:-.3px}
-  .top .sector-filter,.top .pill{margin:0 auto}
-
-  /* Piano ferie mobile */
-  .plan-shell,.plan-top,.plan-month-card,.plan-legend,.plan-card-white{border:2px solid var(--line)}
-  .plan-top{flex-direction:column;align-items:stretch;gap:10px;padding:12px!important}
-  .plan-controls{flex-direction:column;width:100%}
-  .plan-controls select,.plan-controls .btn{width:100%}
-  .plan-month-card{padding:14px 10px!important}
-  .plan-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:4px!important}
-  .plan-card-white{min-height:48px!important;padding:6px!important;display:flex!important;flex-direction:column;justify-content:flex-end}
-  .plan-card-split{display:none!important}
-  .plan-names{display:none!important}
-  .plan-day-num{font-size:14px!important;text-align:left!important;margin-bottom:4px!important}
-  .plan-fill-wrap{position:absolute;left:6px;right:6px;bottom:6px;height:10px}
-  .plan-percent{font-size:9px!important;right:6px!important;bottom:14px!important}
-  .print-btn{display:none!important}
-
-  /* Riepilogo mobile */
-  .summary-wrap{grid-template-columns:1fr!important;gap:12px!important}
-  .summary-card{border:2px solid var(--line);border-radius:16px}
-  .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
-  .summary-grid div{padding:10px!important;border:2px solid var(--line);border-radius:10px}
-  .summary-grid strong{font-size:25px!important}
-  .summary-bar{background:#e2e8f0;border-radius:99px;height:10px;overflow:hidden;margin:10px 0}
-  .summary-bar span{display:block;height:100%;min-width:6px;background:var(--accent,var(--blue))}
-  .form-grid{gap:6px!important}
-  .global-bell-wrap{top:12px;right:12px}
-
-  /* Sfondi tema per pagina su mobile */
-  body.page-calendar{--page-bg:#f4f6fa}
-  body.page-plan{--page-bg:#e6f4ff;--accent:#0284c7}
-  body.page-reports{--page-bg:#eafbe9;--accent:#16a34a}
-  body.page-profile,body.page-people,body.page-registercolleague,
-  body.page-admin,body.page-notifications{--page-bg:#fdf6e9}
+  /* Cards more compact */
+  .card { border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+  input, select, textarea { font-size: 16px; border-radius: 10px; padding: 10px 12px; }
+  .btn { min-height: 44px; border-radius: 10px; }
+  .btn-sm { min-height: 34px; }
 }
 
-/* Desktop: giorno selezionato stile classico */
-@media(min-width:761px){
-  .desktop-only{display:flex}
-  .day.selected{outline:2px solid var(--blue);background:#f8fbff}
-  .day.selected-mobile{outline:2px solid var(--blue);background:#f8fbff}
-  .insert-codes{grid-template-columns:repeat(3,1fr)}
+/* ====================================================
+   CALENDARIO
+   ==================================================== */
+.cal-wrap { background: var(--c-surface); border-radius: var(--r-card); padding: 14px; box-shadow: var(--c-shadow); }
+
+/* Toolbar */
+.cal-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.cal-month-nav { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center; }
+.cal-month-label { font-size: 17px; font-weight: 800; min-width: 160px; text-align: center; }
+.cal-nav-btn { width: 34px; height: 34px; border-radius: 8px; background: var(--c-bg); display: grid; place-items: center; flex-shrink: 0; }
+.cal-today-btn { width: 34px; height: 34px; border-radius: 8px; background: var(--c-blue-lt); color: var(--c-blue); display: grid; place-items: center; font-size: 16px; font-weight: 700; flex-shrink: 0; }
+
+/* View filter chips */
+.cal-chips { display: flex; gap: 6px; margin-bottom: 12px; overflow-x: auto; }
+.cal-chip { padding: 5px 14px; border-radius: var(--r-pill); font-size: 13px; font-weight: 600; color: var(--c-muted); background: var(--c-bg); border: 1.5px solid transparent; white-space: nowrap; flex-shrink: 0; }
+.cal-chip.active { background: var(--c-blue-lt); color: var(--c-blue); border-color: #BFDBFE; }
+
+/* Grid */
+.cal-head { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 4px; }
+.cal-head-cell { text-align: center; font-size: 11px; font-weight: 700; color: var(--c-muted); padding: 4px 0; letter-spacing: .03em; }
+.cal-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+
+/* Day cell */
+.day-cell { border-radius: 10px; background: var(--c-bg); padding: 6px 5px 5px; min-height: 72px; text-align: left; display: flex; flex-direction: column; border: 1.5px solid transparent; transition: border-color .12s, background .12s; }
+.day-cell:not(.day-blank):hover { border-color: var(--c-border); background: #fff; }
+.day-cell.day-blank { opacity: 0; pointer-events: none; }
+.day-cell.day-today .day-num { background: var(--c-blue); color: #fff; border-radius: 50%; }
+.day-cell.day-holiday { background: #FFF1F2; }
+.day-cell.day-rule-err { border-color: var(--c-red) !important; }
+.day-cell.day-selected-desk { border-color: var(--c-blue); background: var(--c-blue-lt); }
+.day-cell.day-selected-mob { background: var(--c-green-lt); border-color: #86EFAC; }
+.day-num { font-size: 14px; font-weight: 800; width: 26px; height: 26px; display: grid; place-items: center; margin-bottom: 4px; border-radius: 50%; }
+.day-hol-name { font-size: 7px; font-weight: 700; color: var(--c-red); text-transform: uppercase; line-height: 1.1; margin-bottom: 2px; word-break: break-word; }
+.day-err-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c-red); margin-left: auto; margin-bottom: 2px; flex-shrink: 0; }
+.dot-row { display: flex; flex-wrap: wrap; gap: 2px; margin-top: auto; }
+.dot { width: 16px; height: 16px; border-radius: 4px; display: grid; place-items: center; font-size: 7px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.dot-white { color: #374151 !important; border: 1px solid var(--c-border); }
+
+/* Day summary strip */
+.day-summary { background: var(--c-surface); border-radius: var(--r-card); padding: 14px; box-shadow: var(--c-shadow); margin-top: 12px; }
+.day-summary-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.day-summary-date { font-size: 14px; font-weight: 700; }
+.day-summary-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--c-border); }
+.day-summary-row:last-child { border-bottom: none; }
+.day-summary-info { flex: 1; min-width: 0; }
+.day-summary-info strong { font-size: 13px; display: block; }
+.day-summary-info span { font-size: 11px; color: var(--c-muted); }
+.all-present { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 20px; color: var(--c-green); font-weight: 700; font-size: 15px; background: var(--c-green-lt); border-radius: 10px; }
+
+@media (max-width: 760px) {
+  .cal-wrap { border-radius: 14px; padding: 10px; }
+  .cal-month-label { font-size: 15px; min-width: 120px; }
+  .day-cell { min-height: 62px; padding: 5px 4px 4px; border-radius: 8px; }
+  .day-num { font-size: 13px; width: 24px; height: 24px; }
+  .dot { width: 14px; height: 14px; font-size: 6.5px; }
 }
 
-@media(max-width:390px){
-  .main{padding-left:8px!important;padding-right:8px!important}
-  .calendar-wrap{padding:8px!important}
-  .day{min-height:72px!important;padding:4px 3px!important}
-  .day-num{font-size:15px!important}
+/* ====================================================
+   MODALE / FOGLIO
+   ==================================================== */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; }
+.modal-sheet { background: var(--c-surface); border-radius: 20px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
+.modal-handle { width: 36px; height: 4px; background: var(--c-border); border-radius: 2px; margin: 12px auto 0; }
+.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 12px; border-bottom: 1px solid var(--c-border); }
+.modal-head h2 { font-size: 17px; font-weight: 800; }
+.modal-body { padding: 14px 18px 20px; }
+.modal-close { width: 30px; height: 30px; border-radius: 50%; background: var(--c-bg); display: grid; place-items: center; color: var(--c-muted); }
+
+/* ====================================================
+   INSERIMENTO ASSENZA
+   ==================================================== */
+.insert-section { font-size: 11px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: .05em; margin: 14px 0 8px; }
+.insert-people { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.insert-person-btn { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 12px; border-radius: 12px; background: var(--c-bg); border: 1.5px solid transparent; font-size: 12px; font-weight: 600; min-width: 72px; }
+.insert-person-btn.sel { border-color: var(--c-blue); background: var(--c-blue-lt); color: var(--c-blue); }
+.insert-codes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.code-card { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; padding: 12px 10px; border-radius: 12px; background: var(--c-bg); border: 1.5px solid transparent; text-align: left; }
+.code-card.sel { border-color: var(--c-code, var(--c-blue)); background: color-mix(in srgb, var(--c-code, var(--c-blue)) 10%, white); }
+.code-badge { font-size: 13px; font-weight: 800; color: var(--c-code, var(--c-text)); background: color-mix(in srgb, var(--c-code, var(--c-text)) 14%, white); border-radius: 6px; padding: 2px 7px; }
+.code-label { font-size: 11px; font-weight: 600; color: var(--c-text); line-height: 1.2; }
+
+@media (max-width: 480px) { .insert-codes { grid-template-columns: repeat(2, 1fr); } }
+
+/* ====================================================
+   PIANO FERIE
+   ==================================================== */
+.plan-shell { background: var(--c-surface); border-radius: var(--r-card); box-shadow: var(--c-shadow); overflow: hidden; }
+.plan-topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--c-border); flex-wrap: wrap; }
+.plan-topbar h1 { font-size: 18px; font-weight: 800; color: var(--c-blue); }
+.plan-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.plan-controls select { width: auto; min-width: 160px; }
+.plan-stripe { height: 3px; background: var(--c-blue); }
+.plan-month-block { padding: 16px 18px; border-bottom: 1px solid var(--c-border); }
+.plan-month-block h2 { font-size: 15px; font-weight: 800; margin-bottom: 12px; }
+.plan-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.plan-card { position: relative; border-radius: 10px; border: 1.5px solid var(--c-border); background: #fff; padding: 8px 8px 20px; min-height: 100px; cursor: pointer; transition: border-color .12s; overflow: hidden; }
+.plan-card:hover { border-color: #94A3B8; }
+.plan-card.is-holiday .plan-day-n { color: var(--c-red); }
+.plan-card.is-holiday { border-color: #FECDD3; }
+.plan-bar-wrap { position: absolute; left: 6px; right: 6px; bottom: 6px; height: 7px; background: var(--c-border); border-radius: var(--r-pill); overflow: hidden; }
+.plan-bar-fill { height: 100%; border-radius: var(--r-pill); }
+.plan-day-n { font-size: 17px; font-weight: 800; text-align: center; margin-bottom: 6px; }
+.plan-split { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; font-size: 10px; font-weight: 700; line-height: 1.3; }
+.plan-split > div:first-child { border-right: 1px solid var(--c-border); padding-right: 3px; }
+.plan-split > div:last-child { padding-left: 3px; }
+.plan-person { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.plan-pct { position: absolute; right: 7px; bottom: 16px; font-size: 10px; font-weight: 700; color: var(--c-muted); }
+.plan-names { font-size: 10px; font-weight: 700; line-height: 1.3; }
+.plan-legend { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 12px 18px; background: var(--c-bg); }
+.plan-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--c-muted); }
+.plan-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+.print-title { display: none; }
+
+@media (max-width: 760px) {
+  .plan-topbar { padding: 12px 12px; gap: 8px; }
+  .plan-topbar h1 { font-size: 15px; }
+  .plan-controls { width: 100%; }
+  .plan-controls select, .plan-controls .btn { width: 100%; }
+  .plan-month-block { padding: 12px 10px; }
+  .plan-grid { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .plan-card { min-height: 52px; padding: 5px 4px 16px; border-radius: 8px; }
+  .plan-day-n { font-size: 13px; margin-bottom: 2px; }
+  .plan-split, .plan-names { display: none; }
+  .plan-bar-wrap { left: 4px; right: 4px; bottom: 4px; height: 8px; }
+  .plan-pct { display: none; }
+  .plan-legend { padding: 10px 12px; }
+  .print-btn { display: none !important; }
 }
+
+@media print {
+  @page { size: A4 landscape; margin: 8mm; }
+  body { background: #fff !important; }
+  .sidebar, .topbar, .bottom-nav, .plan-topbar, .plan-legend, .no-print { display: none !important; }
+  .app-shell { display: block !important; }
+  .main-content { padding: 0 !important; max-width: none !important; }
+  .print-title { display: block !important; text-align: center; font-size: 18px; font-weight: 800; margin-bottom: 12px; }
+  .plan-shell { box-shadow: none !important; }
+  .plan-grid { gap: 5px !important; }
+  .plan-card { min-height: 80px !important; }
+  .plan-split { display: grid !important; }
+  .plan-names { display: block !important; }
+}
+
+/* ====================================================
+   RIEPILOGO
+   ==================================================== */
+.report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.report-card { background: var(--c-surface); border-radius: var(--r-card); padding: 16px; box-shadow: var(--c-shadow); }
+.report-bar { height: 8px; background: var(--c-border); border-radius: var(--r-pill); overflow: hidden; margin: 12px 0; }
+.report-bar-fill { height: 100%; background: linear-gradient(90deg, var(--c-green), var(--c-orange)); border-radius: var(--r-pill); }
+.report-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.report-stat { background: var(--c-bg); border-radius: 10px; padding: 10px 12px; }
+.report-stat strong { display: block; font-size: 22px; font-weight: 800; }
+.report-stat span { font-size: 11px; color: var(--c-muted); font-weight: 600; }
+
+@media (max-width: 760px) {
+  .report-grid { grid-template-columns: 1fr; }
+}
+
+/* ====================================================
+   PROFILO / DIPENDENTI
+   ==================================================== */
+.profile-field { background: var(--c-bg); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+.profile-field label { margin-bottom: 2px; }
+.profile-value { font-size: 15px; font-weight: 600; }
+.check-list { border: 1.5px solid var(--c-border); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+.check-row { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; padding: 4px 0; }
+.check-row input[type=checkbox] { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ====================================================
+   ADMIN / SWITCH
+   ==================================================== */
+.switch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; margin-top: 8px; }
+.switch-btn { display: flex; flex-direction: column; gap: 2px; background: var(--c-bg); border: 1.5px solid var(--c-border); border-radius: 12px; padding: 10px 12px; text-align: left; }
+.switch-btn:hover { border-color: var(--c-blue); background: var(--c-blue-lt); }
+.switch-btn strong { font-size: 13px; font-weight: 700; }
+.switch-btn small { font-size: 11px; color: var(--c-muted); }
+
+/* ====================================================
+   NOTIFICHE / TOAST
+   ==================================================== */
+.notif-item { background: var(--c-bg); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+.notif-item strong { display: block; font-size: 14px; margin-bottom: 2px; }
+.notif-item time { font-size: 12px; color: var(--c-muted); }
+
+/* ====================================================
+   CAMPANELLA
+   ==================================================== */
+.global-bell { position: fixed; top: 16px; right: 18px; z-index: 90; }
+.global-bell-btn { position: relative; width: 42px; height: 42px; border-radius: 50%; background: var(--c-surface); box-shadow: 0 2px 10px rgba(0,0,0,.12); display: grid; place-items: center; }
+.global-bell-badge { position: absolute; top: -3px; right: -3px; background: var(--c-red); color: #fff; border-radius: var(--r-pill); min-width: 17px; height: 17px; font-size: 10px; font-weight: 800; display: grid; place-items: center; padding: 0 4px; }
+
+/* ====================================================
+   TEMI PER RUOLO
+   ==================================================== */
+body.theme-admin .sidebar { background: #0B1F3A; }
+body.theme-admin .sidebar-brand-name,
+body.theme-admin .nav-btn,
+body.theme-admin .sidebar-user-name { color: #E2E8F0; }
+body.theme-admin .sidebar-user-role { color: #94A3B8; }
+body.theme-admin .nav-btn:hover { background: #1E3A5F; color: #fff; }
+body.theme-admin .nav-btn.active { background: #1D4ED8; color: #fff; }
+body.theme-admin .sidebar-user { border-color: #1E3A5F; }
+
+body.theme-referente { --c-blue: #D97706; --c-blue-lt: #FEF3C7; }
+body.theme-referente .sidebar { background: #78350F; }
+body.theme-referente .nav-btn { color: #FDE68A; }
+body.theme-referente .nav-btn:hover, body.theme-referente .nav-btn.active { background: #D97706; color: #fff; }
+body.theme-referente .sidebar-brand-name, body.theme-referente .sidebar-user-name { color: #FEF3C7; }
+body.theme-referente .sidebar-user-role { color: #FDE68A; }
+body.theme-referente .sidebar-user { border-color: #92400E; }
+
+body.theme-dirigente { --c-blue: #16A34A; --c-blue-lt: #DCFCE7; }
+body.theme-dirigente .sidebar { background: #14532D; }
+body.theme-dirigente .nav-btn { color: #BBF7D0; }
+body.theme-dirigente .nav-btn:hover, body.theme-dirigente .nav-btn.active { background: #16A34A; color: #fff; }
+body.theme-dirigente .sidebar-brand-name, body.theme-dirigente .sidebar-user-name { color: #DCFCE7; }
+body.theme-dirigente .sidebar-user { border-color: #166534; }
+
+/* ====================================================
+   UTILITY
+   ==================================================== */
+.impersonation-bar { background: var(--c-amber-lt); border-bottom: 1px solid #FDE68A; color: #92400E; font-size: 13px; font-weight: 600; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; }
+.no-print {}
+@media print { .no-print { display: none !important; } }
