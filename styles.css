@@ -1,5 +1,201 @@
-:root{--bg:#eef2f7;--panel:#fff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;--blue:#0b5cff;--blue-soft:#eaf1ff;--red:#dc2626;--orange:#f97316;--purple:#7c3aed;--green:#16a34a;--shadow:0 16px 40px rgba(15,23,42,.08)}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}button,input,select,textarea{font-family:inherit;font-size:15px}button{cursor:pointer;border:0}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;margin:6px 0 12px}input:disabled,select:disabled{background:#f8fafc;color:#64748b}label{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase}.login-page{min-height:100vh;display:grid;place-items:center;padding:30px}.login-box{width:100%;max-width:520px}.logo{width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,#0b5cff,#7c3aed);display:grid;place-items:center;color:#fff;font-size:34px;margin:0 auto 18px}.card{background:var(--panel);border-radius:20px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}.btn{border-radius:12px;padding:12px 14px;font-weight:900}.btn.full{width:100%}.primary{background:var(--blue);color:white}.secondary{background:#eef2f7;color:#111827}.danger{background:#fee2e2;color:#991b1b}.success{background:#dcfce7;color:#166534}.small{font-size:13px;color:var(--muted);line-height:1.45}.error{color:#dc2626;font-size:13px;font-weight:800}.notice{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;border-radius:14px;padding:12px;font-size:13px;font-weight:700;margin-bottom:16px}.warning{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:14px;padding:12px;font-size:13px;font-weight:800;margin-bottom:16px}.app{display:grid;grid-template-columns:286px 1fr;min-height:100vh}.sidebar{background:#fff;border-right:1px solid var(--line);padding:24px 18px;position:sticky;top:0;height:100vh}.brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}.brand-icon{width:46px;height:46px;border-radius:14px;background:var(--blue);display:grid;place-items:center;color:white;font-size:24px}.brand strong{font-size:20px}.brand span{font-size:12px;color:var(--muted)}.nav button{width:100%;text-align:left;background:transparent;color:#334155;padding:13px 14px;border-radius:12px;font-weight:850;margin:4px 0}.nav button.active,.nav button:hover{background:var(--blue);color:white}.nav-badge{float:right;background:#dc2626;color:white;border-radius:999px;min-width:22px;height:22px;display:inline-grid;place-items:center;font-size:11px;font-weight:950;padding:0 6px}.userbox{position:absolute;left:18px;right:18px;bottom:18px;background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:14px}.main{padding:28px;max-width:1480px;width:100%}.top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:20px}.top h1{margin:0;font-size:34px;letter-spacing:-.8px}.pill{display:inline-flex;align-items:center;gap:6px;background:var(--blue-soft);color:var(--blue);font-size:13px;font-weight:900;border-radius:999px;padding:8px 12px}.grid{display:grid;gap:16px}.two{grid-template-columns:1.15fr .85fr}.three{grid-template-columns:repeat(3,1fr)}.four{grid-template-columns:repeat(4,1fr)}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.section-title{margin:0 0 12px;font-size:18px}.person{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.person:last-child{border-bottom:0}.person.clickable{cursor:pointer}.person.clickable:hover{background:#f8fafc}.avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;flex:0 0 auto}.avatar.viewer{background:#dc2626!important}.avatar.referente{background:#7c3aed!important}.name-viewer{color:#dc2626!important}.name-referente{color:#7c3aed!important}.meta{flex:1;min-width:0}.meta b{display:block}.meta small{color:var(--muted)}.tag{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap}.present{background:#dcfce7;color:#166534}.smart{background:#dbeafe;color:#1d4ed8}.ferie{background:#ffedd5;color:#c2410c}.malattia{background:#fee2e2;color:#b91c1c}.permesso{background:#ede9fe;color:#6d28d9}.altro{background:#e5e7eb;color:#374151}.pending{background:#fef3c7;color:#92400e}.approved{background:#dcfce7;color:#166534}.danger-tag{background:#fee2e2;color:#991b1b}.calendar-toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px}.month-title{font-size:28px;font-weight:950}.sector-filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.sector-filter select{width:220px;margin:0}.calendar-wrap{background:#fff;border-radius:20px;padding:16px;box-shadow:var(--shadow)}.calendar-head{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:10px}.calendar-head div{text-align:center;color:#1d4ed8;font-weight:950;font-size:13px}.calendar{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.day{min-height:132px;border:1px solid var(--line);background:#fff;border-radius:16px;padding:10px;text-align:left;position:relative}.day.blank{background:#fff;border:1px dashed #cbd5e1;opacity:.55;cursor:default}.day.blank:hover{outline:0}.day:hover{outline:2px solid #bfdbfe}.day.selected{outline:2px solid var(--blue);background:#f8fbff}.day.holiday{background:#fff1f2;border-color:#fecdd3}.day.rule-error{border-color:#fca5a5;background:#fff7ed}.day-num{font-size:22px;font-weight:950;margin-bottom:8px}.holiday-name{font-size:11px;color:#dc2626;font-weight:950;text-transform:uppercase;line-height:1.15;margin-bottom:5px}.danger-mark{position:absolute;top:9px;right:9px;background:#dc2626;color:white;border-radius:999px;width:24px;height:24px;display:grid;place-items:center;font-weight:950}.dot-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.person-dot{width:22px;height:22px;border-radius:999px;display:grid;place-items:center;color:white;font-size:9px;font-weight:950}.empty-day{font-size:12px;color:var(--muted);font-weight:700}.table-wrap{overflow:auto;background:#fff;border-radius:18px;box-shadow:var(--shadow)}table{width:100%;border-collapse:collapse;min-width:980px}th,td{text-align:left;padding:14px;border-bottom:1px solid var(--line);font-size:14px}th{font-size:12px;color:var(--muted);text-transform:uppercase;background:#f8fafc}.actions{display:flex;gap:8px;flex-wrap:wrap}.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.48);display:grid;place-items:center;z-index:50;padding:24px}.modal{width:min(980px,100%);max-height:90vh;overflow:auto;background:white;border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.25);padding:20px}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.modal-head h2{margin:0}.close{border-radius:12px;background:#eef2f7;padding:10px 14px;font-weight:900}.icon-bell{position:relative;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:#fff;display:inline-grid;place-items:center;font-size:20px;box-shadow:0 4px 14px rgba(15,23,42,.06)}.icon-bell .num{position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border-radius:999px;min-width:21px;height:21px;display:grid;place-items:center;font-size:11px;font-weight:950;padding:0 5px}.toast-note{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}.forgot-link{display:block;text-align:center;margin-top:10px;color:#0b5cff;font-weight:900;background:transparent}.check-list{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;margin:6px 0 12px}.check-row{display:block;text-transform:none;color:var(--text);font-size:14px;font-weight:700;margin:6px 0}.check-row input{width:auto;margin-right:8px}.plan-month{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.plan-day{border:1px solid var(--line);border-radius:12px;padding:8px;background:#fff;min-height:82px}.plan-name{font-size:12px;font-weight:900}.plan-count{font-size:11px;color:var(--muted)}.plan-day b{font-weight:950}.print-title{display:none;font-size:22px;font-weight:950;margin-bottom:16px;text-align:center}body.theme-admin .sidebar{background:#0b1f3a;color:#fff}body.theme-admin .sidebar .brand span,body.theme-admin .sidebar .userbox{color:#e5e7eb}body.theme-admin .sidebar .nav button{color:#e5e7eb}body.theme-admin .sidebar .nav button.active,body.theme-admin .sidebar .nav button:hover{background:#173b6d}body.theme-admin .userbox{background:#102b4d;border-color:#173b6d}body.theme-referente{--bg:#eaf6ff;--blue:#0284c7;--blue-soft:#dff3ff}body.theme-employee{--bg:#f8fafc}@media print{@page{size:A4 landscape;margin:10mm}body{background:white}.sidebar,.no-print,.icon-bell,.notice,.warning,.userbox{display:none!important}.app{display:block}.main{padding:0;max-width:none}.card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}.print-title{display:block}.plan-month{grid-template-columns:repeat(5,1fr)}}@media(max-width:1000px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.userbox{position:static;margin-top:18px}.main{padding:18px}.two,.three,.four{grid-template-columns:1fr}.calendar{grid-template-columns:repeat(5,minmax(130px,1fr));overflow:auto}.calendar-head{grid-template-columns:repeat(5,minmax(130px,1fr));overflow:auto}.top,.calendar-toolbar{align-items:flex-start;flex-direction:column}.form-grid{grid-template-columns:1fr}}
+/* =========================================================
+   Gestione Personale — v100
+   CSS unificato: desktop + mobile responsivo + PWA
+   ========================================================= */
 
+/* ---------- Variabili ---------- */
+:root{
+  --bg:#eef2f7;--panel:#fff;--text:#0f172a;--muted:#64748b;
+  --line:#e2e8f0;--blue:#0b5cff;--blue-soft:#eaf1ff;
+  --red:#dc2626;--orange:#f97316;--purple:#7c3aed;--green:#16a34a;
+  --shadow:0 16px 40px rgba(15,23,42,.08)
+}
+
+/* ---------- Reset ---------- */
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,select,textarea{font-family:inherit;font-size:15px}
+button{cursor:pointer;border:0}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;margin:6px 0 12px}
+input:disabled,select:disabled{background:#f8fafc;color:#64748b}
+label{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase}
+
+/* ---------- Login ---------- */
+.login-page{min-height:100vh;display:grid;place-items:center;padding:30px}
+.login-box{width:100%;max-width:520px}
+.logo{width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,#0b5cff,#7c3aed);display:grid;place-items:center;color:#fff;font-size:34px;margin:0 auto 18px}
+.logo.app-logo{background:transparent;overflow:hidden}
+.logo.app-logo img{width:100%;height:100%;display:block;border-radius:22px}
+.forgot-link{display:block;text-align:center;margin-top:10px;color:#0b5cff;font-weight:900;background:transparent}
+
+/* ---------- Carta / Layout base ---------- */
+.card{background:var(--panel);border-radius:20px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px}
+.btn{border-radius:12px;padding:12px 14px;font-weight:900}
+.btn.full{width:100%}
+.primary{background:var(--blue);color:white}
+.secondary{background:#eef2f7;color:#111827}
+.danger{background:#fee2e2;color:#991b1b}
+.success{background:#dcfce7;color:#166534}
+.small{font-size:13px;color:var(--muted);line-height:1.45}
+.error{color:#dc2626;font-size:13px;font-weight:800}
+.notice{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;border-radius:14px;padding:12px;font-size:13px;font-weight:700;margin-bottom:16px}
+.warning{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:14px;padding:12px;font-size:13px;font-weight:800;margin-bottom:16px}
+
+/* ---------- Layout app desktop ---------- */
+.app{display:grid;grid-template-columns:286px 1fr;min-height:100vh}
+.sidebar{background:#fff;border-right:1px solid var(--line);padding:24px 18px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.brand-icon{width:46px;height:46px;border-radius:14px;background:var(--blue);display:grid;place-items:center;color:white;font-size:24px}
+.brand strong{font-size:20px}
+.nav button{width:100%;text-align:left;background:transparent;color:#334155;padding:13px 14px;border-radius:12px;font-weight:850;margin:4px 0}
+.nav button.active,.nav button:hover{background:var(--blue);color:white}
+.nav-badge{float:right;background:#dc2626;color:white;border-radius:999px;min-width:22px;height:22px;display:inline-grid;place-items:center;font-size:11px;font-weight:950;padding:0 6px}
+.userbox{position:absolute;left:18px;right:18px;bottom:18px;background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:14px}
+.main{padding:28px;max-width:1480px;width:100%}
+
+/* ---------- Barre mobili (nascoste su desktop) ---------- */
+.mobile-appbar{display:none}
+.mobile-overlay{display:none}
+.bottom-tabbar{display:none}
+
+/* ---------- Elementi comuni ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:20px}
+.top h1{margin:0;font-size:34px;letter-spacing:-.8px;text-transform:uppercase}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--blue-soft);color:var(--blue);font-size:13px;font-weight:900;border-radius:999px;padding:8px 12px}
+.grid{display:grid;gap:16px}
+.two{grid-template-columns:1.15fr .85fr}
+.three{grid-template-columns:repeat(3,1fr)}
+.four{grid-template-columns:repeat(4,1fr)}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.section-title{margin:0 0 12px;font-size:18px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- Riga persona ---------- */
+.person{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.person:last-child{border-bottom:0}
+.person.clickable{cursor:pointer}
+.person.clickable:hover{background:#f8fafc}
+.avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;flex:0 0 auto}
+.avatar.viewer{background:#dc2626!important}
+.avatar.referente{background:#7c3aed!important}
+.name-viewer{color:#dc2626!important}
+.name-referente{color:#7c3aed!important}
+.meta{flex:1;min-width:0}
+.meta b{display:block}
+.meta small{color:var(--muted)}
+
+/* ---------- Tag ---------- */
+.tag{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap}
+.present{background:#dcfce7;color:#166534}
+.smart{background:#dbeafe;color:#1d4ed8}
+.ferie{background:#ffedd5;color:#c2410c}
+.malattia{background:#fee2e2;color:#b91c1c}
+.permesso{background:#ede9fe;color:#6d28d9}
+.altro{background:#e5e7eb;color:#374151}
+.pending{background:#fef3c7;color:#92400e}
+.approved{background:#dcfce7;color:#166534}
+.danger-tag{background:#fee2e2;color:#991b1b}
+
+/* ---------- Calendario ---------- */
+.calendar-wrap{background:#fff;border-radius:20px;padding:16px;box-shadow:var(--shadow)}
+.cal-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.cal-toolbar-nav{display:flex;align-items:center;gap:8px;flex:1;justify-content:center}
+.month-title{font-size:28px;font-weight:950}
+.sector-filter{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sector-filter select{width:220px;margin:0}
+.calendar-head{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:10px}
+.calendar-head div{text-align:center;color:#1d4ed8;font-weight:950;font-size:13px}
+.calendar{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.day{min-height:132px;border:1px solid var(--line);background:#fff;border-radius:16px;padding:10px;text-align:left;position:relative}
+.day.blank{background:#fff;border:1px dashed #cbd5e1;opacity:.55;cursor:default}
+.day.blank:hover{outline:0}
+.day:hover{outline:2px solid #bfdbfe}
+.day.selected{outline:2px solid var(--blue);background:#f8fbff}
+.day.holiday{background:#fff1f2;border-color:#fecdd3}
+.day.rule-error{border-color:#dc2626!important;background:#fff7ed!important}
+.day-num{font-size:22px;font-weight:950;margin-bottom:8px}
+.holiday-name{font-size:11px;color:#dc2626;font-weight:950;text-transform:uppercase;line-height:1.15;margin-bottom:5px}
+.danger-mark{position:absolute;top:9px;right:9px;background:#dc2626;color:white;border-radius:999px;width:24px;height:24px;display:grid;place-items:center;font-weight:950}
+.dot-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.person-dot{width:22px;height:22px;border-radius:999px;display:grid;place-items:center;color:white;font-size:9px;font-weight:950}
+.person-dot.dot-white{color:#334155!important;border:1px solid #cbd5e1}
+.empty-day{font-size:12px;color:var(--muted);font-weight:700}
+
+/* --- Pulsante "Torna a oggi" --- */
+.today-btn-inline{
+  flex:0 0 36px;width:36px;height:36px;min-height:36px;
+  padding:0;border-radius:50%;font-size:18px;font-weight:900;
+  border:2px solid var(--blue)!important;color:var(--blue)!important;
+  background:#eaf1ff!important;display:grid;place-items:center;line-height:1;
+}
+
+/* --- Filtri vista calendario --- */
+.cal-view-filters{display:flex;gap:6px;margin-bottom:10px}
+.cal-view-btn{flex:0 0 auto;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:800;background:#f1f5f9;color:#475569;border:2px solid var(--line)}
+.cal-view-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* --- Riepilogo giorno sotto calendario --- */
+.day-summary-card{margin-top:14px}
+.day-summary-title{font-size:14px;font-weight:900;color:var(--muted);padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.day-summary-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.day-summary-row:last-of-type{border-bottom:0}
+.day-summary-area{display:inline-block;margin-left:8px;font-size:12px;font-weight:700;color:var(--muted);background:#f1f5f9;border-radius:8px;padding:2px 7px}
+.empty-state{text-align:center;color:var(--muted);font-weight:700;padding:28px 12px;margin:0}
+
+/* --- Banner TUTTI IN SERVIZIO --- */
+.all-present-banner{display:flex;align-items:center;justify-content:center;gap:10px;background:#dcfce7;border:2px solid #86efac;border-radius:16px;padding:24px 16px;font-size:20px;font-weight:950;color:#166534;margin:12px 0}
+.all-present-icon{color:#166534;width:28px;height:28px;vertical-align:-6px}
+
+/* ---------- Modale ---------- */
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.48);display:grid;place-items:center;z-index:50;padding:24px}
+.modal{width:min(980px,100%);max-height:90vh;overflow:auto;background:white;border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.25);padding:20px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.modal-head h2{margin:0}
+.close{border-radius:12px;background:#eef2f7;padding:10px 14px;font-weight:900}
+.modal-grabber{width:40px;height:5px;background:var(--line);border-radius:99px;margin:0 auto 10px}
+.day-list-card{padding:6px 14px}
+.insert-btn{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px}
+
+/* --- Foglio inserimento assenza --- */
+.insert-sheet{display:flex;flex-direction:column;gap:4px}
+.insert-section-label{font-size:12px;font-weight:900;text-transform:uppercase;color:var(--muted);margin:14px 0 8px}
+.insert-people{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.insert-person{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;background:#f8fafc;border:2px solid var(--line);border-radius:16px;padding:10px 12px;min-width:84px;font-size:12px;font-weight:800;color:var(--text)}
+.insert-person .avatar{width:38px;height:38px;font-size:13px}
+.insert-person.selected{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+.insert-codes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.insert-code-card{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:#fff;border:2px solid var(--line);border-radius:18px;padding:14px;text-align:left;min-height:84px}
+.insert-code-short{font-size:18px;font-weight:950;color:var(--code-color,#334155);background:color-mix(in srgb, var(--code-color,#334155) 14%, white);border-radius:10px;padding:3px 10px}
+.insert-code-label{font-size:13px;font-weight:800;color:var(--text);line-height:1.25}
+.insert-code-card.selected{border-color:var(--code-color,var(--blue));background:color-mix(in srgb, var(--code-color,var(--blue)) 10%, white);box-shadow:0 0 0 2px color-mix(in srgb, var(--code-color,var(--blue)) 35%, transparent)}
+.insert-save-btn{margin-top:18px}
+
+/* ---------- Campanella ---------- */
+.icon-bell{position:relative;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:#fff;display:inline-grid;place-items:center;font-size:20px;box-shadow:0 4px 14px rgba(15,23,42,.06)}
+.icon-bell .num{position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border-radius:999px;min-width:21px;height:21px;display:grid;place-items:center;font-size:11px;font-weight:950;padding:0 5px}
+.global-bell-wrap{position:fixed;top:18px;right:22px;z-index:60}
+.global-bell-btn{box-shadow:0 8px 24px rgba(15,23,42,.18)}
+.userbox .icon-bell{display:none!important}
+.toast-note{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+
+/* ---------- Profilo ---------- */
+.profile-view{display:grid;gap:10px}
+.profile-field label{display:block;margin-bottom:2px}
+.profile-value{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-weight:800;color:var(--text)}
+
+/* ---------- Check list ---------- */
+.check-list{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;margin:6px 0 12px}
+.check-row{display:block;text-transform:none;color:var(--text);font-size:14px;font-weight:700;margin:6px 0}
+.check-row input{width:auto;margin-right:8px}
+
+/* ---------- Switch utente ---------- */
+.switch-card .switch-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:8px}
+.switch-user-row{display:flex;flex-direction:column;align-items:flex-start;gap:4px;background:#f8fafc;border:2px solid var(--line);border-radius:14px;padding:12px 14px;text-align:left;width:100%}
+.switch-user-row:hover{border-color:var(--blue);background:var(--blue-soft)}
+.switch-user-row span{font-weight:900;font-size:14px;color:var(--text)}
+.switch-user-row small{font-size:12px;color:var(--muted);font-weight:700}
+
+/* ---------- Riepilogo ---------- */
 .summary-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
 .summary-card{background:#fff;border-radius:20px;padding:18px;box-shadow:var(--shadow)}
 .summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
@@ -9,6 +205,67 @@
 .summary-bar{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:12px 0}
 .summary-bar span{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#f97316)}
 
+/* ---------- Piano ferie ---------- */
+.plan-shell{background:#fff;border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+.plan-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 26px;background:#fff}
+.plan-top h1{margin:0;color:#1d4ed8;font-size:34px;font-weight:950;letter-spacing:.5px}
+.plan-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.plan-controls select{width:auto;min-width:210px;margin:0}
+.plan-blue-line{height:5px;background:#2563eb}
+.plan-month-card{padding:24px 26px;border-bottom:1px solid #e5e7eb;background:#fff}
+.plan-month-card h2{margin:0 0 18px;font-size:22px}
+.area-title{text-align:center;margin:0 0 18px;font-size:18px;font-weight:950}
+.area-title.blue{color:#2563eb}
+.area-title.red{color:#ef4444}
+.plan-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:start}
+.plan-card-white{position:relative;min-height:120px;height:auto;background:#fff;border:2px solid #d1d5db;border-radius:12px;padding:14px 14px 26px;overflow:visible;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+.plan-card-white:hover{border-color:#94a3b8}
+.plan-card-white.plan-holiday .plan-day-num{color:#dc2626}
+.plan-card-white.plan-holiday{border-color:#fca5a5}
+.plan-fill-wrap{position:absolute;left:10px;right:10px;bottom:8px;height:8px;background:#f3f4f6;border-radius:999px;overflow:hidden}
+.plan-fill{height:100%;border-radius:999px}
+.plan-day-num{font-size:22px;font-weight:950;text-align:center;margin-bottom:10px;position:relative;z-index:1}
+.plan-names{font-size:13px;font-weight:900;line-height:1.45;position:relative;z-index:1;min-height:34px;overflow-wrap:anywhere}
+.plan-person{font-weight:950;margin-bottom:2px}
+.plan-card-split{display:grid;grid-template-columns:1fr 1fr;gap:4px;min-height:34px;font-size:12px;font-weight:900;line-height:1.4;position:relative;z-index:1}
+.plan-card-split>div:first-child{border-right:1px solid #e5e7eb;padding-right:4px}
+.plan-card-split>div:last-child{padding-left:4px}
+.plan-percent{position:absolute;right:12px;bottom:18px;font-size:12px;font-weight:950;color:#334155}
+.plan-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:20px 26px;background:#fff}
+.plan-legend span{font-size:13px;font-weight:800;color:#475569}
+.plan-legend i{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:middle;margin-right:7px}
+.legend-area{margin-left:18px}
+
+/* ---------- Icone SVG ---------- */
+.icon-svg{width:20px;height:20px;display:inline-block;vertical-align:-4px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav button .icon-svg{margin-right:8px;vertical-align:-5px;color:currentColor}
+.tab-icon .icon-svg{width:22px;height:22px;vertical-align:middle}
+.logo .icon-svg{width:34px;height:34px;color:#fff;stroke-width:1.6}
+.brand-icon .icon-svg{width:24px;height:24px;color:#fff}
+.warning .icon-svg{margin-right:4px;vertical-align:-3px;color:#9a3412}
+
+/* ---------- Temi per ruolo ---------- */
+body.theme-admin .sidebar{background:#0b1f3a;color:#fff}
+body.theme-admin .sidebar .brand span,body.theme-admin .sidebar .userbox{color:#e5e7eb}
+body.theme-admin .sidebar .nav button{color:#e5e7eb}
+body.theme-admin .sidebar .nav button.active,body.theme-admin .sidebar .nav button:hover{background:#173b6d}
+body.theme-admin .userbox{background:#102b4d;border-color:#173b6d}
+
+body.theme-referente{--bg:#fffbeb;--blue:#d97706;--blue-soft:#fef3c7}
+body.theme-referente .sidebar{background:#78350f;color:#fff}
+body.theme-referente .sidebar .nav button{color:#fef3c7}
+body.theme-referente .sidebar .nav button.active,body.theme-referente .sidebar .nav button:hover{background:#d97706;color:#fff}
+body.theme-referente .userbox{background:#92400e;border-color:#d97706;color:#fff}
+
+body.theme-dirigente{--bg:#ecfdf5;--blue:#16a34a;--blue-soft:#dcfce7}
+body.theme-dirigente .sidebar{background:#14532d;color:#fff}
+body.theme-dirigente .sidebar .nav button{color:#dcfce7}
+body.theme-dirigente .sidebar .nav button.active,body.theme-dirigente .sidebar .nav button:hover{background:#16a34a;color:#fff}
+body.theme-dirigente .userbox{background:#166534;border-color:#16a34a;color:#fff}
+
+body.theme-employee{--bg:#f8fafc}
+
+/* ---------- Sfondi per pagina ---------- */
 body.page-calendar{--bg:#eef2f7}
 body.page-plan{--bg:#fff7ed}
 body.page-profile{--bg:#f8fafc}
@@ -17,136 +274,9 @@ body.page-registercolleague{--bg:#f0fdf4}
 body.page-reports{--bg:#f5f3ff}
 body.page-admin{--bg:#e0e7ff}
 body.page-notifications{--bg:#fff1f2}
-.plan-day{background:#fff}
-.plan-split{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.plan-split>div:first-child{border-right:1px solid #e5e7eb;padding-right:4px}
-.plan-split>div:last-child{padding-left:4px;text-align:right}
-.top h1{text-transform:uppercase}
 
-.plan-day{background-color:#fff!important;background-repeat:no-repeat}
-
-.plan-shell{background:#fff;border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
-.plan-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 26px}
-.plan-top h1{margin:0;color:#1d4ed8;font-size:34px;font-weight:950;letter-spacing:.5px}
-.plan-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.plan-controls select{width:auto;min-width:210px;margin:0}
-.plan-blue-line{height:5px;background:#2563eb}
-.plan-month-card{padding:24px 26px;border-bottom:1px solid #e5e7eb;background:#fff}
-.plan-month-card h2{margin:0 0 18px;font-size:22px}
-.plan-two-cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-.plan-two-cols>div:first-child{border-right:1px solid #e5e7eb;padding-right:18px}
-.area-title{text-align:center;margin:0 0 18px;font-size:18px;font-weight:950}
-.area-title.blue{color:#2563eb}.area-title.red{color:#ef4444}
-.plan-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-.plan-card-white{position:relative;min-height:120px;background:#fff!important;border:2px solid #d1d5db;border-radius:12px;padding:14px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.05)}
-.plan-card-white:hover{border-color:#94a3b8}
-.plan-fill-wrap{position:absolute;left:10px;right:10px;bottom:10px;height:8px;background:#f3f4f6;border-radius:999px;overflow:hidden}
-.plan-fill{height:100%;border-radius:999px}
-.plan-day-num{font-size:18px;font-weight:950;margin-bottom:18px;position:relative;z-index:1}
-.plan-names{font-size:13px;font-weight:900;line-height:1.55;position:relative;z-index:1;min-height:34px}
-.plan-person{font-weight:950}
-.plan-percent{position:absolute;right:12px;bottom:22px;font-size:12px;font-weight:950;color:#334155}
-.plan-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:20px 26px;background:#fff}
-.plan-legend span{font-size:13px;font-weight:800;color:#475569}
-.plan-legend i{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:middle;margin-right:7px}
-.legend-area{margin-left:18px}
-@media(max-width:1000px){.plan-two-cols{grid-template-columns:1fr}.plan-two-cols>div:first-child{border-right:0;border-bottom:1px solid #e5e7eb;padding-right:0;padding-bottom:18px}.plan-grid{grid-template-columns:repeat(5,minmax(130px,1fr));overflow:auto}}
-@media print{
-  .plan-shell{box-shadow:none;border-radius:0}
-  .plan-top,.plan-legend{display:none!important}
-  .plan-blue-line{display:none}
-  .plan-month-card{break-inside:avoid;padding:10px 0}
-  .plan-card-white{min-height:90px}
-}
-
-.plan-shell{background:#fff;border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
-.plan-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 26px}
-.plan-top h1{margin:0;color:#1d4ed8;font-size:34px;font-weight:950;letter-spacing:.5px}
-.plan-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.plan-controls select{width:auto;min-width:210px;margin:0}
-.plan-blue-line{height:5px;background:#2563eb}
-.plan-month-card{padding:24px 26px;border-bottom:1px solid #e5e7eb;background:#fff}
-.plan-month-card h2{margin:0 0 18px;font-size:22px}
-.plan-two-cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-.plan-two-cols>div:first-child{border-right:1px solid #e5e7eb;padding-right:18px}
-.area-title{text-align:center;margin:0 0 18px;font-size:18px;font-weight:950}
-.area-title.blue{color:#2563eb}.area-title.red{color:#ef4444}
-.plan-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-.plan-card-white{position:relative;min-height:120px;background:#fff!important;border:2px solid #d1d5db;border-radius:12px;padding:14px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.05)}
-.plan-fill-wrap{position:absolute;left:10px;right:10px;bottom:10px;height:8px;background:#f3f4f6;border-radius:999px;overflow:hidden}
-.plan-fill{height:100%;border-radius:999px}
-.plan-day-num{font-size:18px;font-weight:950;margin-bottom:18px;position:relative;z-index:1}
-.plan-names{font-size:13px;font-weight:900;line-height:1.55;position:relative;z-index:1;min-height:34px}
-.plan-person{font-weight:950}
-.plan-percent{position:absolute;right:12px;bottom:22px;font-size:12px;font-weight:950;color:#334155}
-.plan-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:20px 26px;background:#fff}
-.plan-legend span{font-size:13px;font-weight:800;color:#475569}
-.plan-legend i{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:middle;margin-right:7px}
-.legend-area{margin-left:18px}
-@media(max-width:1000px){.plan-two-cols{grid-template-columns:1fr}.plan-two-cols>div:first-child{border-right:0;border-bottom:1px solid #e5e7eb;padding-right:0;padding-bottom:18px}.plan-grid{grid-template-columns:repeat(5,minmax(130px,1fr));overflow:auto}}
-
-/* V23 piano ferie fix */
-.plan-shell{background:#fff!important;border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
-.plan-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 26px;background:#fff}
-.plan-top h1{margin:0;color:#1d4ed8;font-size:34px;font-weight:950;letter-spacing:.5px}
-.plan-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.plan-controls select{width:auto;min-width:210px;margin:0}
-.plan-blue-line{height:5px;background:#2563eb}
-.plan-month-card{padding:24px 26px;border-bottom:1px solid #e5e7eb;background:#fff!important}
-.plan-month-card h2{margin:0 0 18px;font-size:22px}
-.plan-two-cols{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-.plan-two-cols>div:first-child{border-right:1px solid #e5e7eb;padding-right:18px}
-.area-title{text-align:center;margin:0 0 18px;font-size:18px;font-weight:950}
-.area-title.blue{color:#2563eb}.area-title.red{color:#ef4444}
-.plan-grid{display:grid!important;grid-template-columns:repeat(5,1fr);gap:12px}
-.plan-card-white{position:relative;min-height:120px;background:#fff!important;border:2px solid #d1d5db;border-radius:12px;padding:14px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.05)}
-.plan-fill-wrap{position:absolute;left:10px;right:10px;bottom:10px;height:8px;background:#f3f4f6;border-radius:999px;overflow:hidden}
-.plan-fill{height:100%;border-radius:999px}
-.plan-day-num{font-size:18px;font-weight:950;margin-bottom:18px;position:relative;z-index:1}
-.plan-names{font-size:13px;font-weight:900;line-height:1.55;position:relative;z-index:1;min-height:34px}
-.plan-person{font-weight:950}
-.plan-percent{position:absolute;right:12px;bottom:22px;font-size:12px;font-weight:950;color:#334155}
-.plan-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:20px 26px;background:#fff}
-.plan-legend span{font-size:13px;font-weight:800;color:#475569}
-.plan-legend i{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:middle;margin-right:7px}
-@media(max-width:1000px){.plan-two-cols{grid-template-columns:1fr}.plan-two-cols>div:first-child{border-right:0;border-bottom:1px solid #e5e7eb;padding-right:0;padding-bottom:18px}.plan-grid{grid-template-columns:repeat(5,minmax(130px,1fr));overflow:auto}}
-
-/* V24 clean overrides */
-.global-bell-wrap{position:fixed;top:18px;right:22px;z-index:40}
-.global-bell-btn{box-shadow:0 8px 24px rgba(15,23,42,.18)}
-.userbox .icon-bell{display:none!important}
-
-.plan-shell{background:#fff!important;border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
-.plan-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 26px;background:#fff}
-.plan-top h1{margin:0;color:#1d4ed8;font-size:34px;font-weight:950;letter-spacing:.5px}
-.plan-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.plan-controls select{width:auto;min-width:210px;margin:0}
-.plan-blue-line{height:5px;background:#2563eb}
-.plan-month-card{padding:24px 26px;border-bottom:1px solid #e5e7eb;background:#fff!important}
-.plan-month-card h2{margin:0 0 18px;font-size:22px}
-.area-title{text-align:center;margin:0 0 18px;font-size:18px;font-weight:950}
-.area-title.blue{color:#2563eb}.area-title.red{color:#ef4444}
-.plan-grid{display:grid!important;grid-template-columns:repeat(5,1fr);gap:12px;align-items:start}
-.plan-card-white{position:relative;min-height:120px;height:auto;background:#fff!important;border:2px solid #d1d5db;border-radius:12px;padding:14px 14px 26px;overflow:visible;box-shadow:0 1px 2px rgba(15,23,42,.05)}
-.plan-card-white:hover{border-color:#94a3b8}
-.plan-fill-wrap{position:absolute;left:10px;right:10px;bottom:10px;height:8px;background:#f3f4f6;border-radius:999px;overflow:hidden}
-.plan-fill{height:100%;border-radius:999px}
-.plan-day-num{font-size:18px;font-weight:950;margin-bottom:12px;position:relative;z-index:1}
-.plan-names{font-size:13px;font-weight:900;line-height:1.45;position:relative;z-index:1;min-height:34px;overflow-wrap:anywhere}
-.plan-person{font-weight:950;margin-bottom:2px}
-.plan-card-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;min-height:34px}
-.plan-card-split>div:first-child{border-right:1px solid #e5e7eb;padding-right:6px}
-.plan-card-split>div:last-child{text-align:right;padding-left:6px}
-.plan-percent{position:absolute;right:12px;bottom:22px;font-size:12px;font-weight:950;color:#334155}
-.plan-legend{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:20px 26px;background:#fff}
-.plan-legend span{font-size:13px;font-weight:800;color:#475569}
-.plan-legend i{display:inline-block;width:16px;height:16px;border-radius:50%;vertical-align:middle;margin-right:7px}
-
-@media(max-width:1000px){
-  .plan-grid{grid-template-columns:repeat(5,minmax(130px,1fr));overflow:auto}
-  .global-bell-wrap{top:12px;right:12px}
-}
-
+/* ---------- Print ---------- */
+.print-title{display:none;font-size:22px;font-weight:950;margin-bottom:16px;text-align:center}
 @media print{
   @page{size:A4 landscape;margin:10mm}
   body{background:white!important}
@@ -164,146 +294,38 @@ body.page-notifications{--bg:#fff1f2}
   .plan-names{font-size:10px;line-height:1.25}
   .plan-percent{font-size:9px;bottom:16px}
   .plan-fill-wrap{left:6px;right:6px;bottom:6px;height:5px}
+  .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}
 }
 
-/* V25 final SW and notification tweaks */
-.day.rule-error{border-color:#dc2626!important;background:#fff7ed!important}
-.day.rule-error .danger-mark{display:grid!important}
-.global-bell-wrap{position:fixed;top:18px;right:22px;z-index:60}
-.global-bell-btn{box-shadow:0 8px 24px rgba(15,23,42,.18)}
-.userbox .icon-bell{display:none!important}
-@media(max-width:1000px){.global-bell-wrap{top:12px;right:12px}}
-
-/* v26 display cleanup and role themes */
-body.theme-admin .sidebar{background:#0b1f3a!important;color:#fff}
-body.theme-admin .sidebar .brand span,body.theme-admin .sidebar .userbox{color:#e5e7eb}
-body.theme-admin .sidebar .nav button{color:#e5e7eb}
-body.theme-admin .sidebar .nav button.active,body.theme-admin .sidebar .nav button:hover{background:#173b6d}
-body.theme-admin .userbox{background:#102b4d!important;border-color:#173b6d!important}
-
-body.theme-referente{--bg:#fffbeb;--blue:#d97706;--blue-soft:#fef3c7}
-body.theme-referente .sidebar{background:#78350f!important;color:#fff}
-body.theme-referente .sidebar .nav button{color:#fef3c7}
-body.theme-referente .sidebar .nav button.active,
-body.theme-referente .sidebar .nav button:hover{background:#d97706;color:#fff}
-body.theme-referente .userbox{background:#92400e!important;border-color:#d97706!important;color:#fff}
-body.theme-referente .brand span{color:#fef3c7}
-
-body.theme-dirigente{--bg:#ecfdf5;--blue:#16a34a;--blue-soft:#dcfce7}
-body.theme-dirigente .sidebar{background:#14532d!important;color:#fff}
-body.theme-dirigente .sidebar .nav button{color:#dcfce7}
-body.theme-dirigente .sidebar .nav button.active,
-body.theme-dirigente .sidebar .nav button:hover{background:#16a34a;color:#fff}
-body.theme-dirigente .userbox{background:#166534!important;border-color:#16a34a!important;color:#fff}
-body.theme-dirigente .brand span{color:#dcfce7}
-
-body.theme-employee{--bg:#f8fafc}
-.login-box .card.small{display:none!important}
-
-
 /* =========================================================
-   V64 - MOBILE: layout pulito, temi per pagina, bug fix
-   Tutto qui sotto vale solo per schermi <=760px.
-   Variabili per tema rapido in fondo al blocco.
+   MOBILE — max-width: 760px
    ========================================================= */
-.mobile-appbar{display:none}
-.mobile-overlay{display:none}
-.bottom-tabbar{display:none}
-
 @media(max-width:760px){
-
-  /* ---- Reset base / niente overflow orizzontale ---- */
-  html,body{overflow-x:hidden}
+  html,body,#app{width:100%;max-width:100%;overflow-x:hidden}
   *{min-width:0}
-  body{font-size:15px;background:var(--page-bg,#f4f6fa)}
+  body{font-size:15px;background:var(--page-bg,#f4f6fa);-webkit-text-size-adjust:100%}
   .app{display:block!important;min-height:calc(100vh - 56px)}
-  .main{padding:12px 12px calc(86px + env(safe-area-inset-bottom))!important;max-width:none!important;width:100%}
+  .main{padding:10px 10px calc(96px + env(safe-area-inset-bottom))!important;max-width:none!important;width:100%}
   .card{border-radius:16px;padding:14px;margin-bottom:12px;border:2px solid var(--line);box-shadow:none}
   .grid.two,.grid.three,.grid.four,.form-grid{grid-template-columns:1fr!important}
-  input,select,textarea{border:2px solid var(--line)}
+  input,select,textarea{border:2px solid var(--line);font-size:16px;padding:12px;border-radius:14px}
+  label{font-size:11px}
+  .desktop-only{display:none!important}
+  .top.desktop-only{display:none!important}
 
-  /* ---- App bar: avatar a sinistra (profilo), titolo centrato, campanella a destra ---- */
+  /* App bar mobile */
   .mobile-appbar{
     display:flex;align-items:center;justify-content:space-between;gap:8px;
-    position:sticky;top:0;z-index:80;height:56px;padding:0 10px;
+    position:sticky;top:0;z-index:80;height:58px;
+    padding:0 max(10px,env(safe-area-inset-left)) 0 max(10px,env(safe-area-inset-right));
     background:rgba(255,255,255,.96);backdrop-filter:blur(18px);
     border-bottom:2px solid var(--line);
   }
-  .mobile-appbar strong{flex:1;text-align:center;font-size:17px;color:#0f172a;font-weight:900}
-  .mobile-avatar-btn{
-    width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
-    color:#fff;font-weight:900;font-size:14px;flex:0 0 auto;border:2px solid var(--line);
-  }
+  .mobile-appbar strong{flex:1;text-align:center;font-size:18px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mobile-avatar-btn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;font-size:14px;flex:0 0 auto;border:2px solid var(--line)}
   .icon-bell{border:2px solid var(--line);width:40px;height:40px;font-size:18px}
 
-  /* ---- Titoli pagina centrati ---- */
-  .top{
-    border:2px solid var(--line);border-radius:16px;text-align:center;
-    flex-direction:column;gap:10px;background:var(--panel);
-  }
-  .top h1{width:100%;text-align:center;font-size:21px;letter-spacing:-.3px}
-  .top .sector-filter,.top .pill{margin:0 auto}
-
-  /* ---- Persona (riga assenze): impila su mobile, niente overflow ---- */
-  .person{
-    flex-wrap:wrap;align-items:flex-start;gap:8px 10px;
-    border-bottom:2px solid var(--line);padding:12px 0;
-  }
-  .person .meta{flex:1 1 100%;order:1;min-width:0}
-  .person .avatar{order:0}
-  .person .tag{order:2}
-  .person .btn{order:3;margin-left:auto}
-  .person .meta b{word-break:break-word}
-
-  /* ---- Calendario: compatto, non tagliato ---- */
-  .calendar-wrap{border:2px solid var(--line);border-radius:16px;padding:10px}
-  .calendar-toolbar{flex-wrap:wrap;gap:8px}
-  .month-title{font-size:18px}
-  .calendar-toolbar .btn{font-size:13px;padding:8px 10px}
-  .calendar-head div{font-size:11px}
-  .calendar{gap:5px}
-  .day{
-    min-height:auto;aspect-ratio:1/1;border:2px solid var(--line);
-    border-radius:10px;padding:4px;display:flex;flex-direction:column;
-  }
-  .day-num{font-size:14px;margin-bottom:2px}
-  .holiday-name{font-size:7px;margin-bottom:2px}
-  .danger-mark{width:16px;height:16px;font-size:11px;top:3px;right:3px}
-  .dot-row{gap:2px;margin-top:2px}
-  .person-dot{min-width:18px;height:18px;font-size:8px;border-radius:5px;padding:0 2px}
-  .empty-day{font-size:9px}
-  .day.selected{outline:3px solid var(--blue);border-color:var(--blue);background:var(--blue-soft)}
-  .day.holiday{border-color:#fda4af}
-  .day.rule-error{border-color:#f59e0b}
-
-  /* ---- Modali a foglio ---- */
-  .modal-backdrop{padding:16px}
-  .modal{width:100%;max-width:440px;max-height:85vh;border-radius:24px;border:2px solid var(--line);padding:16px;margin:0 auto}
-  .modal-grabber{width:40px;height:5px;background:var(--line);border-radius:99px;margin:0 auto 10px}
-  .modal-head h2{font-size:20px}
-  .close{border:2px solid var(--line)}
-
-  /* ---- Bottoni ---- */
-  .btn{min-height:46px;font-size:15px;border-radius:14px}
-  .btn.secondary{border:2px solid var(--line)}
-  .quick-form select,.quick-form .btn{min-height:46px}
-
-  /* ---- Tag di stato ---- */
-  .tag{border:2px solid rgba(0,0,0,.04);font-size:12.5px}
-
-  /* ---- Riepilogo: barra percentuale sempre visibile ---- */
-  .summary-card{border:2px solid var(--line);border-radius:16px}
-  .summary-bar{background:#e2e8f0;border-radius:99px;height:10px;overflow:hidden;margin:10px 0}
-  .summary-bar span{display:block;height:100%;min-width:6px;background:var(--accent,var(--blue))}
-  .summary-grid div{border:2px solid var(--line);border-radius:10px}
-
-  /* ---- Piano ferie ---- */
-  .plan-shell,.plan-top,.plan-month-card,.plan-legend,.plan-card-white{border:2px solid var(--line)}
-  .plan-top{flex-direction:column;align-items:stretch;gap:10px}
-  .plan-controls{flex-direction:column;width:100%}
-  .plan-controls select,.plan-controls .btn{width:100%}
-
-  /* ---- Sidebar "Profilo/Altro" come pannello laterale ---- */
+  /* Sidebar come pannello laterale */
   .sidebar{
     position:fixed!important;top:0;left:0;bottom:0;z-index:90;
     width:min(84vw,320px);height:100vh!important;overflow:auto;
@@ -315,412 +337,130 @@ body.theme-employee{--bg:#f8fafc}
   .mobile-overlay{display:block;position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:85}
   .userbox{position:static;margin-top:16px;border:2px solid var(--line)}
 
-  /* ---- Bottom tab bar: Ferie | Calendario (centrale, grande) | Riepilogo ---- */
+  /* Bottom tab bar */
   .bottom-tabbar{
     display:flex;position:fixed;left:0;right:0;bottom:0;z-index:95;
     align-items:center;justify-content:space-around;
     background:rgba(255,255,255,.97);border-top:2px solid var(--line);
     padding:6px 8px calc(6px + env(safe-area-inset-bottom));
   }
-  .bottom-tabbar button{
-    flex:1;background:transparent;display:flex;flex-direction:column;
-    align-items:center;gap:2px;padding:6px 2px;border-radius:12px;
-    font-size:11px;font-weight:800;color:#94a3b8;
-  }
+  .bottom-tabbar button{flex:1;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:12px;font-size:11px;font-weight:800;color:#94a3b8}
   .bottom-tabbar button.active{color:var(--blue);background:var(--blue-soft)}
   .tab-icon{font-size:20px;line-height:1}
-  .bottom-tabbar .tab-center{
-    flex:0 0 auto;width:64px;height:64px;border-radius:50%;
-    margin-top:-26px;background:var(--blue);color:#fff!important;
-    box-shadow:0 8px 20px rgba(0,0,0,.25);border:4px solid var(--page-bg,#f4f6fa);
-    justify-content:center;
-  }
+  .bottom-tabbar .tab-center{flex:0 0 auto;width:64px;height:64px;border-radius:50%;margin-top:-26px;background:var(--blue);color:#fff!important;box-shadow:0 8px 20px rgba(0,0,0,.25);border:4px solid var(--page-bg,#f4f6fa);justify-content:center}
   .bottom-tabbar .tab-center .tab-icon{font-size:26px}
   .bottom-tabbar .tab-center.active{background:var(--blue);color:#fff}
+  .bottom-tabbar{padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
 
-  /* ---- Temi di sfondo per pagina (facili da cambiare qui) ---- */
+  /* Calendario mobile */
+  .calendar-wrap{border:2px solid var(--line);border-radius:16px;padding:10px}
+  .cal-toolbar{flex-wrap:nowrap;gap:6px}
+  .cal-toolbar-nav{flex:1;justify-content:center;gap:4px}
+  .cal-toolbar-nav .month-nav{font-size:0!important;width:38px;height:38px;min-height:38px;padding:0!important;border-radius:12px;display:grid;place-items:center}
+  .cal-toolbar-nav .month-nav.prev::after{content:'←';font-size:22px;line-height:1}
+  .cal-toolbar-nav .month-nav.next::after{content:'→';font-size:22px;line-height:1}
+  .cal-toolbar-nav .month-nav span{display:none}
+  .month-title{font-size:20px;font-weight:950;text-align:center}
+  .today-btn-inline{width:32px!important;height:32px!important;min-height:32px!important;font-size:16px!important}
+  .calendar-head,.calendar{width:100%!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:4px!important;overflow:visible!important}
+  .calendar-head{margin-bottom:5px!important}
+  .calendar-head div{font-size:10px!important;text-align:center}
+  .day{width:100%!important;min-width:0!important;min-height:78px!important;aspect-ratio:auto!important;padding:5px 4px!important;border-radius:11px!important;overflow:hidden!important}
+  .day-num{font-size:16px!important;line-height:1;margin-bottom:4px!important}
+  .holiday-name{font-size:7.5px!important;line-height:1.05!important;word-break:break-word}
+  .person-dot{width:auto;min-width:17px;height:17px;font-size:7.5px;border-radius:6px;padding:0 2px}
+  .dot-row{gap:2px!important}
+  .empty-day{font-size:10px!important;line-height:1.15;display:block;white-space:normal}
+  .danger-mark{width:16px;height:16px;font-size:11px;top:3px;right:3px}
+
+  /* Giorno selezionato mobile: verde chiaro, no bordo grosso */
+  .day.selected-mobile{background:#dcfce7!important;border-color:#86efac!important;outline:none!important}
+  .day.selected-mobile .day-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#16a34a;color:#fff}
+  /* Annulla .day.selected su mobile (non usato, ma per sicurezza) */
+  .day.selected{outline:none!important;background:#fff!important;border-color:var(--line)!important}
+
+  /* Filtri vista mobile */
+  .cal-view-filters{padding:4px 0 8px;gap:5px}
+  .cal-view-btn{font-size:12px;padding:6px 12px}
+
+  /* Riepilogo giorno mobile */
+  .day-summary-card{margin-top:10px}
+
+  /* Persona mobile */
+  .person{flex-wrap:wrap;align-items:flex-start;gap:8px 10px;border-bottom:2px solid var(--line);padding:12px 0}
+  .person .meta{flex:1 1 100%;order:1;min-width:0}
+  .person .avatar{order:0}
+  .person .tag{order:2}
+  .person .btn{order:3;margin-left:auto}
+  .person .meta b{word-break:break-word}
+
+  /* Modali mobile */
+  .modal-backdrop{padding:16px;backdrop-filter:blur(12px);background:rgba(0,0,0,.35)}
+  .modal{width:100%;max-width:440px;max-height:85vh;border-radius:24px;border:2px solid var(--line);padding:16px;margin:0 auto}
+  .modal.ios-sheet{border-radius:24px!important;padding:20px!important}
+  .modal-grabber{display:none}
+  .modal-head h2{font-size:20px}
+  .close{border:2px solid var(--line)}
+  .btn{min-height:46px;font-size:15px;border-radius:14px}
+  .btn.secondary{border:2px solid var(--line)}
+  .tag{border:2px solid rgba(0,0,0,.04);font-size:12.5px}
+  .btn.full.insert-btn,.insert-save-btn{height:54px;border-radius:18px;font-size:16px;font-weight:800}
+  .day-list-card{padding:6px 14px}
+
+  /* Insert codici mobile: 2 colonne */
+  .insert-codes{grid-template-columns:repeat(2,1fr)}
+  .insert-code-card{min-height:92px;border-radius:20px}
+
+  /* Top titolo mobile */
+  .top{border:2px solid var(--line);border-radius:16px;text-align:center;flex-direction:column;gap:10px;background:var(--panel)}
+  .top h1{width:100%;text-align:center;font-size:21px;letter-spacing:-.3px}
+  .top .sector-filter,.top .pill{margin:0 auto}
+
+  /* Piano ferie mobile */
+  .plan-shell,.plan-top,.plan-month-card,.plan-legend,.plan-card-white{border:2px solid var(--line)}
+  .plan-top{flex-direction:column;align-items:stretch;gap:10px;padding:12px!important}
+  .plan-controls{flex-direction:column;width:100%}
+  .plan-controls select,.plan-controls .btn{width:100%}
+  .plan-month-card{padding:14px 10px!important}
+  .plan-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:4px!important}
+  .plan-card-white{min-height:48px!important;padding:6px!important;display:flex!important;flex-direction:column;justify-content:flex-end}
+  .plan-card-split{display:none!important}
+  .plan-names{display:none!important}
+  .plan-day-num{font-size:14px!important;text-align:left!important;margin-bottom:4px!important}
+  .plan-fill-wrap{position:absolute;left:6px;right:6px;bottom:6px;height:10px}
+  .plan-percent{font-size:9px!important;right:6px!important;bottom:14px!important}
+  .print-btn{display:none!important}
+
+  /* Riepilogo mobile */
+  .summary-wrap{grid-template-columns:1fr!important;gap:12px!important}
+  .summary-card{border:2px solid var(--line);border-radius:16px}
+  .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .summary-grid div{padding:10px!important;border:2px solid var(--line);border-radius:10px}
+  .summary-grid strong{font-size:25px!important}
+  .summary-bar{background:#e2e8f0;border-radius:99px;height:10px;overflow:hidden;margin:10px 0}
+  .summary-bar span{display:block;height:100%;min-width:6px;background:var(--accent,var(--blue))}
+  .form-grid{gap:6px!important}
+  .global-bell-wrap{top:12px;right:12px}
+
+  /* Sfondi tema per pagina su mobile */
   body.page-calendar{--page-bg:#f4f6fa}
   body.page-plan{--page-bg:#e6f4ff;--accent:#0284c7}
   body.page-reports{--page-bg:#eafbe9;--accent:#16a34a}
-  body.page-profile,
-  body.page-people,
-  body.page-registercolleague,
-  body.page-admin,
-  body.page-notifications{--page-bg:#fdf6e9}
+  body.page-profile,body.page-people,body.page-registercolleague,
+  body.page-admin,body.page-notifications{--page-bg:#fdf6e9}
 }
 
-
-/* =========================================================
-   V64 RESPONSIVE FIX - mobile first senza rompere desktop
-   ========================================================= */
-@media(max-width:760px){
-  html,body,#app{width:100%;max-width:100%;overflow-x:hidden;}
-  body{background:var(--page-bg,#f4f6fa);-webkit-text-size-adjust:100%;}
-  .desktop-only{display:none!important;}
-
-  .mobile-appbar{height:58px;padding:0 max(10px,env(safe-area-inset-left)) 0 max(10px,env(safe-area-inset-right));}
-  .mobile-appbar strong{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .main{padding:10px 10px calc(96px + env(safe-area-inset-bottom))!important;}
-
-  /* Niente titolo duplicato: il titolo vive solo nella barra superiore mobile */
-  .top.desktop-only{display:none!important;}
-
-  /* Card più compatte su schermi piccoli */
-  .card,.calendar-wrap,.plan-shell,.summary-card{border-radius:18px;}
-  .section-title{font-size:18px;margin-bottom:10px;}
-
-  /* Toolbar mese in una sola riga */
-  .calendar-toolbar.compact-month{
-    display:grid!important;
-    grid-template-columns:44px 1fr 44px;
-    align-items:center!important;
-    gap:8px!important;
-    margin-bottom:10px!important;
-  }
-  .calendar-toolbar.compact-month .month-title{
-    text-align:center;font-size:20px;line-height:1.1;font-weight:950;white-space:nowrap;
-  }
-  .calendar-toolbar.compact-month .month-nav{
-    width:44px;height:44px;min-height:44px;padding:0!important;border-radius:14px;
-    display:grid;place-items:center;font-size:0!important;
-  }
-  .calendar-toolbar.compact-month .month-nav::first-letter{font-size:0;}
-  .calendar-toolbar.compact-month .month-nav.prev::after{content:'←';font-size:24px;line-height:1;}
-  .calendar-toolbar.compact-month .month-nav.next::after{content:'→';font-size:24px;line-height:1;}
-  .calendar-toolbar.compact-month .month-nav span{display:none;}
-
-  /* Calendario: 5 colonne sempre dentro lo schermo, zero scroll laterale */
-  .calendar-head,.calendar{
-    width:100%!important;
-    display:grid!important;
-    grid-template-columns:repeat(5,minmax(0,1fr))!important;
-    gap:4px!important;
-    overflow:visible!important;
-  }
-  .calendar-head{margin-bottom:5px!important;}
-  .calendar-head div{font-size:10px!important;text-align:center;letter-spacing:.02em;}
-  .day{
-    width:100%!important;min-width:0!important;min-height:78px!important;aspect-ratio:auto!important;
-    padding:5px 4px!important;border-radius:11px!important;overflow:hidden!important;
-  }
-  .day-num{font-size:16px!important;line-height:1;margin-bottom:4px!important;}
-  .empty-day{font-size:10px!important;line-height:1.15;display:block;white-space:normal;}
-  .holiday-name{font-size:7.5px!important;line-height:1.05!important;word-break:break-word;}
-  .person-dot{width:auto;min-width:17px;height:17px;font-size:7.5px;border-radius:6px;padding:0 2px;}
-  .dot-row{gap:2px!important;}
-
-  /* Dati personali: pulizia e leggibilità */
-  .form-grid{gap:6px!important;}
-  label{font-size:11px;}
-  input,select,textarea{font-size:16px;padding:12px;border-radius:14px;}
-
-  /* Riepilogo: sfrutta bene la larghezza */
-  .summary-wrap{grid-template-columns:1fr!important;gap:12px!important;}
-  .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;}
-  .summary-grid div{padding:10px!important;}
-  .summary-grid strong{font-size:25px!important;}
-
-  /* Piano ferie mobile */
-  .plan-top{padding:12px!important;}
-  .plan-month-card{padding:14px 10px!important;}
-  .plan-two-cols{grid-template-columns:1fr!important;gap:14px!important;}
-  .plan-two-cols>div:first-child{border-right:0!important;border-bottom:1px solid var(--line);padding-right:0!important;padding-bottom:12px;}
-  .plan-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:4px!important;}
-  .plan-card-white{min-height:74px!important;padding:6px!important;border-radius:10px!important;}
-  .plan-day-num{font-size:14px!important;margin-bottom:6px!important;}
-  .plan-names{font-size:9px!important;line-height:1.15!important;min-height:22px!important;}
-  .plan-percent{font-size:9px!important;right:6px!important;bottom:14px!important;}
-
-  /* La bottom bar non deve coprire il contenuto */
-  .bottom-tabbar{padding-bottom:calc(8px + env(safe-area-inset-bottom))!important;}
+/* Desktop: giorno selezionato stile classico */
+@media(min-width:761px){
+  .desktop-only{display:flex}
+  .day.selected{outline:2px solid var(--blue);background:#f8fbff}
+  .day.selected-mobile{outline:2px solid var(--blue);background:#f8fbff}
+  .insert-codes{grid-template-columns:repeat(3,1fr)}
 }
 
 @media(max-width:390px){
-  .main{padding-left:8px!important;padding-right:8px!important;}
-  .calendar-wrap{padding:8px!important;}
-  .day{min-height:72px!important;padding:4px 3px!important;}
-  .day-num{font-size:15px!important;}
-  .empty-day{font-size:9px!important;}
-  .calendar-head div{font-size:9px!important;}
-}
-
-@media(min-width:761px){
-  .desktop-only{display:flex;}
-}
-
-/* =========================================================
-   V65 - richieste utente: piano ferie solo barra %, niente
-   nomi su mobile; export PDF solo desktop; tema referente giallo
-   ========================================================= */
-@media(max-width:760px){
-  .plan-names{display:none!important}
-  .plan-card-white{min-height:48px!important;padding:6px!important;display:flex!important;flex-direction:column;justify-content:flex-end}
-  .plan-fill-wrap{position:absolute;left:6px;right:6px;bottom:6px;height:10px}
-  .print-btn{display:none!important}
-}
-@media(min-width:761px){
-  .plan-names{display:block}
-}
-
-/* =========================================================
-   V66 - Nuovo flusso inserimento assenze (bottom sheet a card),
-   card giorno solo eccezioni, profilo consultivo
-   ========================================================= */
-
-/* Profilo: vista solo lettura */
-.profile-view{display:grid;gap:10px}
-.profile-field label{display:block;margin-bottom:2px}
-.profile-value{
-  background:#f8fafc;border:1px solid var(--line);border-radius:12px;
-  padding:11px 12px;font-weight:800;color:var(--text);
-}
-
-/* Card giorno: stato vuoto elegante */
-.empty-state{
-  text-align:center;color:var(--muted);font-weight:700;
-  padding:28px 12px;margin:0;
-}
-
-/* Pulsante "+ Inserisci" */
-.insert-btn{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px}
-
-/* Bottom sheet inserimento */
-.insert-sheet{display:flex;flex-direction:column;gap:4px}
-.insert-section-label{font-size:12px;font-weight:900;text-transform:uppercase;color:var(--muted);margin:14px 0 8px}
-
-/* Selettore persona (chips) */
-.insert-people{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
-.insert-person{
-  flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:6px;
-  background:#f8fafc;border:2px solid var(--line);border-radius:16px;
-  padding:10px 12px;min-width:84px;font-size:12px;font-weight:800;color:var(--text);
-}
-.insert-person .avatar{width:38px;height:38px;font-size:13px}
-.insert-person.selected{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
-
-/* Griglia card codici */
-.insert-codes{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.insert-code-card{
-  display:flex;flex-direction:column;align-items:flex-start;gap:6px;
-  background:#fff;border:2px solid var(--line);border-radius:18px;
-  padding:14px;text-align:left;min-height:84px;
-}
-.insert-code-short{
-  font-size:18px;font-weight:950;color:var(--code-color,#334155);
-  background:color-mix(in srgb, var(--code-color,#334155) 14%, white);
-  border-radius:10px;padding:3px 10px;
-}
-.insert-code-label{font-size:13px;font-weight:800;color:var(--text);line-height:1.25}
-.insert-code-card.selected{
-  border-color:var(--code-color,var(--blue));
-  background:color-mix(in srgb, var(--code-color,var(--blue)) 10%, white);
-  box-shadow:0 0 0 2px color-mix(in srgb, var(--code-color,var(--blue)) 35%, transparent);
-}
-.insert-save-btn{margin-top:18px}
-
-/* =========================================================
-   V66 - mobile: stile iOS più marcato per il foglio inserimento
-   ========================================================= */
-@media(max-width:760px){
-  body.page-calendar{--page-bg:#F7F8FA}
-  .modal-backdrop{backdrop-filter:blur(12px);background:rgba(0,0,0,.35)}
-  .modal.ios-sheet{border-radius:24px!important;padding:20px!important}
-  .day.selected .day-num{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:30px;height:30px;border-radius:50%;
-    background:var(--blue);color:#fff;
-  }
-  .insert-codes{grid-template-columns:repeat(2,1fr)}
-  .insert-code-card{min-height:92px;border-radius:20px}
-  .btn.full.insert-btn,.insert-save-btn{height:54px;border-radius:18px;font-size:16px;font-weight:800}
-  .person{padding:14px 0}
-  .day-list-card{padding:6px 14px}
-}
-
-/* =========================================================
-   V67 - Fix: pannello "Cambio utente", popup centrati su mobile,
-   icone minimal
-   ========================================================= */
-.switch-card .switch-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:8px}
-.switch-user-row{
-  display:flex;flex-direction:column;align-items:flex-start;gap:4px;
-  background:#f8fafc;border:2px solid var(--line);border-radius:14px;
-  padding:12px 14px;text-align:left;width:100%;
-}
-.switch-user-row:hover{border-color:var(--blue);background:var(--blue-soft)}
-.switch-user-row span{font-weight:900;font-size:14px;color:var(--text)}
-.switch-user-row small{font-size:12px;color:var(--muted);font-weight:700}
-
-/* Popup centrati su mobile: niente "maniglia" da bottom sheet */
-@media(max-width:760px){
-  .modal-grabber{display:none}
-}
-
-/* Icone minimal */
-.icon-svg{width:20px;height:20px;display:inline-block;vertical-align:-4px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.nav button .icon-svg{margin-right:8px;vertical-align:-5px}
-.tab-icon .icon-svg{width:22px;height:22px;vertical-align:middle}
-.mobile-avatar-btn .icon-svg,.icon-bell .icon-svg{width:20px;height:20px}
-
-/* Dimensioni icone minimal in contesti specifici */
-.logo .icon-svg{width:34px;height:34px;color:#fff;stroke-width:1.6}
-.brand-icon .icon-svg{width:24px;height:24px;color:#fff}
-.icon-bell .icon-svg{color:inherit}
-.warning .icon-svg{margin-right:4px;vertical-align:-3px;color:#9a3412}
-.nav button .icon-svg{color:currentColor}
-
-/* =========================================================
-   V68 - spaziatura piano ferie, festivi rossi, riepilogo
-   inline calendario, pulsante "Torna a oggi"
-   ========================================================= */
-
-/* Più distanza tra numero del giorno e barra percentuale */
-.plan-day-num{margin-bottom:16px}
-.plan-fill-wrap{bottom:8px}
-
-/* Festivi diversi da sabato/domenica: in rosso nel piano ferie */
-.plan-card-white.plan-holiday .plan-day-num{color:#dc2626}
-.plan-card-white.plan-holiday{border-color:#fca5a5}
-
-/* Pulsante "Torna a oggi" */
-.today-btn{width:100%;margin-top:10px;font-weight:800}
-
-/* Riepilogo inline del giorno selezionato (sotto il calendario) */
-.day-summary-card{margin-top:14px}
-.day-summary-row{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:10px 0;border-bottom:1px solid var(--line);
-}
-.day-summary-row:last-of-type{border-bottom:0}
-.day-summary-row b{font-weight:800}
-.manage-btn{margin-top:12px}
-
-@media(max-width:760px){
-  .plan-day-num{margin-bottom:14px!important}
-  .plan-fill-wrap{bottom:7px!important;height:8px}
-  .plan-card-white{min-height:58px!important}
-}
-
-/* =========================================================
-   V69 - icone SW colorate per area, dot bianco (ALTRO) leggibile
-   ========================================================= */
-.person-dot.dot-white{color:#334155!important;border:1px solid #cbd5e1}
-
-/* =========================================================
-   V70 - icona app per login (coerente con icona PWA)
-   ========================================================= */
-.logo.app-logo{background:transparent;border-radius:22px;overflow:hidden;width:76px;height:76px}
-.logo.app-logo img{width:100%;height:100%;display:block;border-radius:22px}
-
-/* =========================================================
-   V71 - MODIFICHE UTENTE: popup giorno, piano ferie 2 col,
-   filtri vista calendario, "Torna a oggi" piccolo, mobile select
-   ========================================================= */
-
-/* --- "TUTTI IN SERVIZIO" banner nel popup giorno --- */
-.all-present-banner{
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  background:#dcfce7;border:2px solid #86efac;border-radius:16px;
-  padding:24px 16px;font-size:20px;font-weight:950;color:#166534;
-  margin:12px 0;
-}
-.all-present-icon{color:#166534;width:28px;height:28px;vertical-align:-6px}
-
-/* --- Riepilogo giorno: area label sotto il nome --- */
-.day-summary-title{
-  font-size:15px;font-weight:900;color:var(--muted);
-  padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:4px;
-}
-.day-summary-area{
-  display:inline-block;margin-left:8px;font-size:12px;font-weight:700;
-  color:var(--muted);background:#f1f5f9;border-radius:8px;padding:2px 7px;
-}
-.day-summary-row{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:9px 0;border-bottom:1px solid var(--line);
-}
-.day-summary-row:last-of-type{border-bottom:0}
-
-/* --- Filtri vista calendario (Settore / Area / Personale) --- */
-.cal-view-filters{
-  display:flex;gap:6px;padding:8px 0 10px;overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-}
-.cal-view-btn{
-  flex:0 0 auto;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:800;
-  background:#f1f5f9;color:#475569;border:2px solid var(--line);
-}
-.cal-view-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-
-/* --- "Torna a oggi" piccolo nella toolbar --- */
-.today-btn-inline{
-  flex:0 0 auto;width:36px!important;height:36px!important;min-height:36px!important;
-  padding:0!important;border-radius:50%!important;font-size:18px!important;
-  font-weight:900;border:2px solid var(--blue)!important;color:var(--blue)!important;
-  background:#eaf1ff!important;display:grid;place-items:center;
-  line-height:1;
-}
-.today-btn{display:none!important} /* nasconde il vecchio pulsante se rimasto */
-
-/* --- Toolbar centrale col mese --- */
-.calendar-toolbar-center{
-  display:flex;align-items:center;gap:8px;flex:1;justify-content:center;
-}
-/* Override compact-month per includere today-btn-inline */
-.calendar-toolbar.compact-month{
-  display:flex!important;align-items:center!important;gap:8px!important;
-}
-.calendar-toolbar.compact-month .today-btn-inline{
-  order:-1;
-}
-
-/* --- Piano ferie: numero giorno più grande, centrato --- */
-.plan-day-num{
-  font-size:22px!important;font-weight:950;
-  text-align:center;margin-bottom:10px;
-}
-/* Split due colonne nel piano ferie */
-.plan-card-split{
-  display:grid;grid-template-columns:1fr 1fr;gap:4px;
-  min-height:34px;font-size:12px;font-weight:900;line-height:1.4;
-  position:relative;z-index:1;
-}
-.plan-card-split>div:first-child{
-  border-right:1px solid #e5e7eb;padding-right:4px;
-}
-.plan-card-split>div:last-child{
-  padding-left:4px;
-}
-
-/* --- Mobile: giorno selezionato verde chiaro, NO bordo grosso --- */
-@media(max-width:760px){
-  .day.selected-mobile{
-    background:#dcfce7!important;
-    border-color:#86efac!important;
-    outline:none!important;
-  }
-  .day.selected-mobile .day-num{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:26px;height:26px;border-radius:50%;
-    background:#16a34a;color:#fff;
-  }
-  /* Annulla il vecchio .day.selected su mobile */
-  .day.selected{outline:none!important;background:#fff!important;border-color:var(--line)!important}
-
-  /* Piano ferie mobile: nascondi split, mostra solo % */
-  .plan-card-split{display:none!important}
-  .plan-day-num{font-size:14px!important;text-align:left!important}
-
-  /* Filtri view su mobile */
-  .cal-view-filters{padding:6px 0 8px}
-  .cal-view-btn{font-size:12px;padding:6px 12px}
-
-  /* Today btn su mobile */
-  .today-btn-inline{width:32px!important;height:32px!important;min-height:32px!important;font-size:16px!important}
-}
-
-/* --- Desktop: selected mantiene il vecchio stile --- */
-@media(min-width:761px){
-  .day.selected{outline:2px solid var(--blue);background:#f8fbff}
-  .day.selected-mobile{outline:2px solid var(--blue);background:#f8fbff}
+  .main{padding-left:8px!important;padding-right:8px!important}
+  .calendar-wrap{padding:8px!important}
+  .day{min-height:72px!important;padding:4px 3px!important}
+  .day-num{font-size:15px!important}
 }

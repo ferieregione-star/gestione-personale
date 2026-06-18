@@ -1,22 +1,11 @@
 /* =========================================================
-   LOGIN / REGISTRAZIONE / PASSWORD
+   Gestione Personale — v100
    ========================================================= */
+
+/* ---------- Stato calendario ---------- */
 let calendarView = "settore"; // "settore" | "area" | "personale"
 
-function visibleUsersForCalendar(){
-  if(calendarView==="personale" && currentUser && (currentUser.role==="employee"||currentUser.role==="sector_manager")){
-    return [currentUser].filter(function(u){return u.approved && isWorker(u);});
-  }
-  if(calendarView==="area" && currentUser){
-    var areaId = currentUser.role==="admin" ? selectedAreaFilter : currentUser.areaId;
-    if(areaId && areaId!=="all" && areaId!=="*"){
-      return visibleUsers().filter(function(u){return u.areaId===areaId;});
-    }
-  }
-  return visibleUsers();
-}
-
-
+function applyTheme(){
   document.body.classList.remove("theme-admin","theme-referente","theme-employee","theme-dirigente");
   if(!currentUser) return;
   if(currentUser.role==="admin") document.body.classList.add("theme-admin");
@@ -25,16 +14,16 @@ function visibleUsersForCalendar(){
   else document.body.classList.add("theme-employee");
 }
 
+/* =========================================================
+   LOGIN / REGISTRAZIONE / PASSWORD
+   ========================================================= */
 function login(){
   var email=document.getElementById("loginEmail").value.trim().toLowerCase();
   var password=document.getElementById("loginPassword").value;
   var u=db.users.find(function(x){return x.email.toLowerCase()===email && x.password===password;});
   var errEl=document.getElementById("loginError");
   if(!u){ errEl.textContent="Email o password non valide."; return; }
-  if(!u.approved){
-    errEl.textContent="Utenza in attesa di approvazione dal super admin.";
-    return;
-  }
+  if(!u.approved){ errEl.textContent="Utenza in attesa di approvazione dal super admin."; return; }
   currentUser=u;
   saveSession();
   selectedSectorId = u.role==="admin" ? "prevenzione" : u.sectorId;
@@ -107,40 +96,19 @@ async function registerUser(){
   var c02=Number(document.getElementById("regC02").value||0);
   var c01=Number(document.getElementById("regC01").value||0);
   var f14=Number(document.getElementById("regF14").value||0);
-
-  if(!name||!surname||!email||!password||!areaId){
-    document.getElementById("regError").textContent="Compila tutti i dati.";
-    return;
-  }
+  if(!name||!surname||!email||!password||!areaId){ document.getElementById("regError").textContent="Compila tutti i dati."; return; }
   var existing=db.users.find(function(u){return (u.email||"").toLowerCase()===email;});
   if(existing){
-    if(!existing.approved){
-      page=null;
-      renderLogin("Registrazione già inviata. Utenza in attesa di approvazione dal super admin.");
-      return;
-    }
-    document.getElementById("regError").textContent="Email già registrata.";
-    return;
+    if(!existing.approved){ page=null; renderLogin("Registrazione già inviata. Utenza in attesa di approvazione dal super admin."); return; }
+    document.getElementById("regError").textContent="Email già registrata."; return;
   }
-
-  var newUser={
-    id:uid("user"), email:email, password:password, name:name, surname:surname,
-    role:"employee", sectorId:sectorId, areaId:areaId,
-    visibleSectorIds:[sectorId], editableAreaIds:[],
-    c01:c01, c02:c02, f14:f14, approved:false,
-    initials:createInitialsForUser(name,surname), color:"#0ea5e9"
-  };
-
+  var newUser={id:uid("user"), email:email, password:password, name:name, surname:surname, role:"employee", sectorId:sectorId, areaId:areaId, visibleSectorIds:[sectorId], editableAreaIds:[], c01:c01, c02:c02, f14:f14, approved:false, initials:createInitialsForUser(name,surname), color:"#0ea5e9"};
   var btn=document.querySelector("button[onclick='registerUser()']");
   if(btn){ btn.disabled=true; btn.textContent="Invio in corso..."; }
-
   try{
     await writeUser(newUser);
     addIfAbsent(db.users, newUser);
-    pushNotification({
-      text:"Nuova utenza da abilitare: "+name+" "+surname+" - "+sectorName(sectorId)+" / "+areaName(areaId),
-      scope:"admin", type:"registration", actorId:"system", sectorId:sectorId, areaId:areaId
-    });
+    pushNotification({text:"Nuova utenza da abilitare: "+name+" "+surname+" - "+sectorName(sectorId)+" / "+areaName(areaId), scope:"admin", type:"registration", actorId:"system", sectorId:sectorId, areaId:areaId});
     addAudit("Nuova registrazione: "+name+" "+surname);
     page=null;
     renderLogin("Registrazione inviata. Utenza in attesa di approvazione dal super admin.");
@@ -173,9 +141,7 @@ async function sendForgotPassword(){
     addIfAbsent(db.requests, req, true);
     pushNotification({text:"Password dimenticata: "+fullName(u)+" chiede reset", scope:"admin", actorId:"system", type:"password", sectorId:u.sectorId, areaId:u.areaId});
     msgEl.textContent="Richiesta inviata.";
-  }catch(e){
-    msgEl.textContent="Errore di connessione, riprova.";
-  }
+  }catch(e){ msgEl.textContent="Errore di connessione, riprova."; }
 }
 
 /* =========================================================
@@ -192,10 +158,6 @@ function goBack(){
   page=prev||"calendar";
   render();
 }
-function backButton(){
-  if(page==="calendar" && !modalOpen && !planModalOpen) return "";
-  return '<button class="back-btn no-print" onclick="goBack()">← Indietro</button>';
-}
 function nav(id){
   if(page!==id) navStack.push(page);
   page=id; modalOpen=false; planModalOpen=false; mobileMenuOpen=false;
@@ -208,29 +170,19 @@ function loadEventsForPlanPeriod(){
   var months=periods[selectedPlanPeriod]||periods.estate;
   months.forEach(loadEventsForMonth);
 }
-
 function startImpersonation(userId){
   if(currentUser.role!=="admin" && !adminUser) return;
   if(!adminUser) adminUser=currentUser;
   var u=db.users.find(function(x){return x.id===userId;});
   if(!u||u.role==="admin") return;
-  currentUser=u;
-  selectedSectorId=u.sectorId;
-  selectedAreaFilter="all";
-  selectedPlanArea="all";
-  page="calendar";
-  mobileMenuOpen=false;
-  render();
+  currentUser=u; selectedSectorId=u.sectorId; selectedAreaFilter="all"; selectedPlanArea="all";
+  page="calendar"; mobileMenuOpen=false; render();
 }
 function stopImpersonation(){
   if(!adminUser) return;
-  currentUser=adminUser;
-  adminUser=null;
-  selectedSectorId="prevenzione";
-  selectedAreaFilter="all";
-  selectedPlanArea="all";
-  page="admin";
-  render();
+  currentUser=adminUser; adminUser=null;
+  selectedSectorId="prevenzione"; selectedAreaFilter="all"; selectedPlanArea="all";
+  page="admin"; render();
 }
 function renderSwitchUserPanel(){
   if(currentUser.role!=="admin" && !adminUser) return "";
@@ -266,7 +218,6 @@ function userContextLabel(u){
   if(u.role==="admin") return "Super admin";
   return roleLabel(u.role);
 }
-
 function navButton(id,label){
   var b="";
   if(id==="admin" && pendingAdminCount()>0) b='<span class="nav-badge">'+pendingAdminCount()+'</span>';
@@ -328,7 +279,7 @@ function nameClass(u){ return u.role==="viewer"?"name-viewer":u.role==="sector_m
 function personRow(u,date,editable){
   var st=eventFor(date,u.id);
   return '<div class="person"><div class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</div>'+
-    '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+personSectorAreaLabel(u)+'</small></div>'+
+    '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+areaName(u.areaId)+'</small></div>'+
     statusTag(st)+
     ((editable && isAbsent(st)) ? ('<button class="btn danger" onclick="removeEvent(\''+date+'\',\''+u.id+'\')">Rimuovi</button>') : "")+
     '</div>';
@@ -337,6 +288,19 @@ function personRow(u,date,editable){
 /* =========================================================
    CALENDARIO
    ========================================================= */
+function visibleUsersForCalendar(){
+  if(calendarView==="personale" && currentUser && (currentUser.role==="employee"||currentUser.role==="sector_manager")){
+    return [currentUser].filter(function(u){return u.approved && isWorker(u);});
+  }
+  if(calendarView==="area" && currentUser){
+    var areaId = currentUser.role==="admin" ? selectedAreaFilter : currentUser.areaId;
+    if(areaId && areaId!=="all" && areaId!=="*"){
+      return visibleUsers().filter(function(u){return u.areaId===areaId;});
+    }
+  }
+  return visibleUsers();
+}
+
 function changeMonth(delta){
   viewMonth+=delta;
   if(viewMonth<0){ viewMonth=11; viewYear--; }
@@ -350,10 +314,7 @@ function openDay(date){
   selectedDate=date;
   if(!isBlockedDay(date)){
     modalOpen=true;
-    insertOpen=false;
-    insertUserId=null;
-    insertCode=null;
-    insertError="";
+    insertOpen=false; insertUserId=null; insertCode=null; insertError="";
   }
   render();
 }
@@ -364,10 +325,8 @@ function goToToday(){
   loadEventsForMonth(monthKeyOf(selectedDate));
   render();
 }
-function openManageModal(){ modalOpen=true; render(); }
 function closeModal(){
   modalOpen=false; insertOpen=false; insertUserId=null; insertCode=null; insertError="";
-  // Su mobile deseleziona il giorno dopo aver chiuso il popup
   if(window.innerWidth<=760) selectedDate=null;
   render();
 }
@@ -392,9 +351,8 @@ function renderCalendar(){
       var whiteCls = (color==="#ffffff") ? " dot-white" : "";
       return '<span class="person-dot'+whiteCls+'" title="'+fullName(u)+' - '+s.label+'" style="background:'+color+'">'+s.short+'</span>';
     }).join("");
-    var isSelected = selectedDate===date;
-    var isMobile = typeof window!=="undefined" && window.innerWidth<=760;
-    var selectedCls = isSelected ? (isMobile ? 'selected-mobile' : 'selected') : '';
+    var isMobile = window.innerWidth<=760;
+    var selectedCls = (selectedDate===date) ? (isMobile ? 'selected-mobile' : 'selected') : '';
     days += '<button class="day '+selectedCls+' '+(hol?'holiday':'')+' '+(errs.length?'rule-error':'')+'" onclick="openDay(\''+date+'\')">'+
       '<div class="day-num">'+d+'</div>'+
       (errs.length?'<div class="danger-mark">!</div>':"")+
@@ -404,10 +362,9 @@ function renderCalendar(){
   }
   var modal = insertOpen ? renderInsertSheet() : (modalOpen ? renderDayModal() : "");
 
-  // Filtri vista calendario
-  var showViewFilter = currentUser.role==="employee"||currentUser.role==="sector_manager"||currentUser.role==="admin";
   var viewFilters="";
-  if(showViewFilter){
+  var showFilter = currentUser.role==="employee"||currentUser.role==="sector_manager"||currentUser.role==="admin";
+  if(showFilter){
     var isSm = currentUser.role==="sector_manager";
     var isEmp = currentUser.role==="employee";
     viewFilters='<div class="cal-view-filters">'+
@@ -420,17 +377,20 @@ function renderCalendar(){
   layout(
     '<div class="top desktop-only page-context"><h1>'+contextTitle()+'</h1><div class="sector-filter">'+selectorControls()+'</div></div>'+
     '<div class="calendar-wrap">'+
-    '<div class="calendar-toolbar compact-month">'+
-    '<button class="btn secondary today-btn-inline" onclick="goToToday()" title="Torna a oggi">↺</button>'+
-    '<div class="calendar-toolbar-center"><button class="btn secondary month-nav prev" aria-label="Mese precedente" onclick="changeMonth(-1)">← <span>Mese precedente</span></button>'+
+    '<div class="cal-toolbar">'+
+    '<button class="btn today-btn-inline" onclick="goToToday()" title="Torna a oggi">↺</button>'+
+    '<div class="cal-toolbar-nav">'+
+    '<button class="btn secondary month-nav prev" onclick="changeMonth(-1)">← <span>Mese precedente</span></button>'+
     '<div class="month-title">'+monthName()+'</div>'+
-    '<button class="btn secondary month-nav next" aria-label="Mese successivo" onclick="changeMonth(1)"><span>Mese successivo</span> →</button></div></div>'+
+    '<button class="btn secondary month-nav next" onclick="changeMonth(1)"><span>Mese successivo</span> →</button>'+
+    '</div></div>'+
     viewFilters+
     '<div class="calendar-head"><div>LUN</div><div>MAR</div><div>MER</div><div>GIO</div><div>VEN</div></div>'+
     '<div class="calendar">'+days+'</div></div>'+
     renderSelectedDaySummary()+modal
   );
 }
+
 function renderSelectedDaySummary(){
   if(!selectedDate) return "";
   var people = isBlockedDay(selectedDate) ? [] : visibleUsersForCalendar().filter(function(u){return isAbsent(eventFor(selectedDate,u.id));});
@@ -447,13 +407,14 @@ function renderSelectedDaySummary(){
   }
   return '<div class="card day-summary-card"><div class="day-summary-title">'+fmt(selectedDate)+'</div>'+rows+'</div>';
 }
+
 function renderDayModal(){
   var hol=isHoliday(selectedDate)||isWeekend(selectedDate);
   var errs=smartRuleErrorsForDay(selectedDate);
-  var allPeople=isBlockedDay(selectedDate)?[]:visibleUsersForCalendar();
-  var canAddPeople=isBlockedDay(selectedDate)?[]:visibleUsers();
-  var people=allPeople.filter(function(u){return isAbsent(eventFor(selectedDate,u.id));});
-  var canAdd=!isBlockedDay(selectedDate) && canAddPeople.some(function(u){return canModifyUserEvents(u.id);});
+  var displayPeople=isBlockedDay(selectedDate)?[]:visibleUsersForCalendar();
+  var allPeople=isBlockedDay(selectedDate)?[]:visibleUsers();
+  var people=displayPeople.filter(function(u){return isAbsent(eventFor(selectedDate,u.id));});
+  var canAdd=!isBlockedDay(selectedDate) && allPeople.some(function(u){return canModifyUserEvents(u.id);});
 
   var bodyHtml;
   if(hol){
@@ -464,14 +425,13 @@ function renderDayModal(){
     bodyHtml='<div class="card day-list-card">'+
       people.map(function(u){
         var st=eventFor(selectedDate,u.id);
-        var areaLabel=areaName(u.areaId);
         var canEdit=canModifyUserEvents(u.id);
         return '<div class="person">'+
           '<div class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</div>'+
-          '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+areaLabel+'</small></div>'+
+          '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+areaName(u.areaId)+'</small></div>'+
           statusTag(st)+
-          (canEdit&&isAbsent(st)?('<button class="btn danger" onclick="removeEvent(\''+selectedDate+'\',\''+u.id+'\')">Rimuovi</button>'):"")
-          +'</div>';
+          (canEdit&&isAbsent(st)?('<button class="btn danger" onclick="removeEvent(\''+selectedDate+'\',\''+u.id+'\')">Rimuovi</button>'):"")+
+        '</div>';
       }).join("")+
     '</div>';
   }
@@ -485,34 +445,21 @@ function renderDayModal(){
     (canAdd?('<button class="btn primary full insert-btn" onclick="openInsertSheet()">'+icon("plus")+'  Inserisci assenza</button>'):"")+
     '</div></div>';
 }
+
 function openInsertSheet(){
   var editable=visibleUsers().filter(function(u){return canModifyUserEvents(u.id);});
   insertUserId = currentUser.role==="employee" ? currentUser.id : (editable.length===1 ? editable[0].id : null);
-  insertCode=null;
-  insertError="";
-  insertOpen=true;
+  insertCode=null; insertError=""; insertOpen=true;
   render();
 }
 function closeInsertSheet(){
-  insertOpen=false;
-  insertUserId=null;
-  insertCode=null;
-  insertError="";
-  modalOpen=false;
-  // Su mobile deseleziona il giorno dopo la chiusura
+  insertOpen=false; insertUserId=null; insertCode=null; insertError=""; modalOpen=false;
   if(window.innerWidth<=760) selectedDate=null;
   render();
 }
-function selectInsertUser(userId){
-  insertUserId=userId;
-  insertError="";
-  render();
-}
-function selectInsertCode(code){
-  insertCode=code;
-  insertError="";
-  render();
-}
+function selectInsertUser(userId){ insertUserId=userId; insertError=""; render(); }
+function selectInsertCode(code){ insertCode=code; insertError=""; render(); }
+
 function renderInsertSheet(){
   var people=visibleUsers().filter(function(u){return canModifyUserEvents(u.id);});
   var showPeoplePicker=currentUser.role!=="employee" && people.length>1;
@@ -546,9 +493,7 @@ function renderInsertSheet(){
 async function saveInsertedEvent(){
   if(!insertUserId){ insertError="Seleziona la persona."; render(); return; }
   if(!insertCode){ insertError="Seleziona il tipo di assenza."; render(); return; }
-  var date=selectedDate;
-  var userId=insertUserId;
-  var st=insertCode;
+  var date=selectedDate, userId=insertUserId, st=insertCode;
   var u=db.users.find(function(x){return x.id===userId;});
   if(st==="smart"){
     var v=validateSmartRule(date,userId);
@@ -618,9 +563,7 @@ async function requestPasswordChange(){
     addIfAbsent(db.requests, req, true);
     pushNotification({text:fullName(currentUser)+" ha richiesto cambio password", scope:"admin", actorId:"system", type:"password", sectorId:currentUser.sectorId, areaId:currentUser.areaId});
     msgEl.textContent="Richiesta inviata.";
-  }catch(e){
-    msgEl.textContent="Errore di connessione, riprova.";
-  }
+  }catch(e){ msgEl.textContent="Errore di connessione, riprova."; }
 }
 
 /* =========================================================
@@ -676,14 +619,12 @@ async function saveColleague(){
     queueMetaWrite();
     addAudit("Registrato collega "+fullName(newUser));
     msgEl.textContent="Collega registrato.";
-  }catch(e){
-    msgEl.textContent="Errore di connessione, riprova.";
-  }
+  }catch(e){ msgEl.textContent="Errore di connessione, riprova."; }
   if(btn){ btn.disabled=false; btn.textContent="Registra collega"; }
 }
 
 /* =========================================================
-   DIPENDENTI (gestione utenti)
+   DIPENDENTI
    ========================================================= */
 function usersForAdminPeople(){
   if(currentUser.role!=="admin") return visibleUsers(true);
@@ -710,7 +651,7 @@ function renderEmployeeDetail(u){
   if(!u) return "";
   var protectedDisabled = !canEditProtectedData() ? "disabled" : "";
   var canEdit=canEditEmployeeData(u.id);
-  if(!canEdit) return '<div class="card"><p class="small">Puoi visualizzare questo utente, ma non modificarlo.</p>'+personRow(u,selectedDate,false)+'</div>';
+  if(!canEdit) return '<div class="card"><p class="small">Puoi visualizzare questo utente, ma non modificarlo.</p>'+personRow(u,selectedDate||todayStr(),false)+'</div>';
   var sectorOpts=db.sectors.map(function(s){return '<option value="'+s.id+'" '+(u.sectorId===s.id?'selected':'')+'>'+s.name+'</option>';}).join("");
   var areaOpts=areasOfSector(u.sectorId).map(function(a){return '<option value="'+a.id+'" '+(u.areaId===a.id?'selected':'')+'>'+a.name+'</option>';}).join("");
   var extra="";
@@ -795,7 +736,7 @@ async function deleteUser(id){
 }
 
 /* =========================================================
-   REPORT / NOTIFICHE
+   RIEPILOGO / NOTIFICHE
    ========================================================= */
 function userReport(u){
   var r={c01:0,c02:0,f14:0,smart:0,a01:0,altro:0};
@@ -804,14 +745,9 @@ function userReport(u){
     var st=normalizeEventCode(db.events[d][u.id]);
     if(r[st]!==undefined) r[st]++;
   });
-  r.c01Total=Number(u.c01||0);
-  r.c02Total=Number(u.c02||0);
-  r.f14Total=Number(u.f14||0);
-  r.c01Residue=r.c01Total-r.c01;
-  r.c02Residue=r.c02Total-r.c02;
-  r.f14Residue=r.f14Total-r.f14;
-  r.ferieUsate=r.c01+r.c02+r.f14;
-  r.ferieResidue=r.c01Residue+r.c02Residue+r.f14Residue;
+  r.c01Total=Number(u.c01||0); r.c02Total=Number(u.c02||0); r.f14Total=Number(u.f14||0);
+  r.c01Residue=r.c01Total-r.c01; r.c02Residue=r.c02Total-r.c02; r.f14Residue=r.f14Total-r.f14;
+  r.ferieUsate=r.c01+r.c02+r.f14; r.ferieResidue=r.c01Residue+r.c02Residue+r.f14Residue;
   r.totaleDisponibile=r.c01Total+r.c02Total+r.f14Total;
   return r;
 }
@@ -853,7 +789,6 @@ function renderAdmin(){
       '<button class="btn secondary" onclick="page=\'people\';selectedEmployeeId=\''+u.id+'\';selectedSectorId=\''+u.sectorId+'\';selectedAreaFilter=\''+u.areaId+'\';render()">Modifica</button>'+
       '<button class="btn danger" onclick="deleteUser(\''+u.id+'\')">Elimina</button></div></div>';
   }).join("");
-
   var pwdReqs=db.requests.filter(function(r){return r.status==="pending";}).map(function(r){
     var u=db.users.find(function(x){return x.id===r.userId;});
     if(!u) return "";
@@ -867,19 +802,16 @@ function renderAdmin(){
       '<button class="btn primary" onclick="approvePasswordRequest(\''+r.id+'\')">Approva</button>'+
       '<button class="btn danger" onclick="rejectPasswordRequest(\''+r.id+'\')">Rifiuta</button></div>';
   }).join("");
-
   var adminNotes=visibleNotifications().slice(0,10).map(function(n){return '<div class="toast-note"><b>'+n.text+'</b><br><span class="small">'+n.displayAt+'</span></div>';}).join("");
   var audit = db.audit.slice(0,12).map(function(a){return '<div class="person"><div class="meta"><b>'+a.text+'</b><small>'+a.at+' · '+a.by+'</small></div></div>';}).join("") || '<p class="small">Nessuna modifica.</p>';
-
   layout(
     '<div class="top"><h1>ADMIN</h1><span class="pill">'+pendingAdminCount()+' richieste</span></div>'+
     '<div class="grid two">'+
     '<div class="card"><h3 class="section-title">Registrazioni da approvare</h3>'+(newUsers||'<p class="small">Nessuna registrazione in attesa.</p>')+'</div>'+
     '<div class="card"><h3 class="section-title">Password e notifiche</h3>'+pwdReqs+(adminNotes||'<p class="small">Nessuna richiesta password o notifica.</p>')+'</div>'+
     '</div>'+
-    renderSwitchUserPanel()+
-    renderSectorAdminPanel()+
-    '<div class="card"><h3 class="section-title">Backup dati</h3><div class="actions"><button class="btn primary" onclick="exportData()">Esporta backup JSON</button></div><p class="small">Esegui un backup periodico per sicurezza.</p></div>'+
+    renderSwitchUserPanel()+renderSectorAdminPanel()+
+    '<div class="card"><h3 class="section-title">Backup dati</h3><div class="actions"><button class="btn primary" onclick="exportData()">Esporta backup JSON</button></div></div>'+
     '<div class="card"><h3 class="section-title">Storico</h3>'+audit+'</div>'
   );
 }
@@ -896,8 +828,7 @@ function renderSectorAdminPanel(){
   return '<div class="card"><h3 class="section-title">Settori e aree</h3>'+sectors+
     '<div class="form-grid"><div><label>Nuovo settore</label><input id="newSectorName" placeholder="Es. Settore 5"></div>'+
     '<div><label>Prima area opzionale</label><input id="newSectorArea" placeholder="Es. Area unica"></div></div>'+
-    '<button class="btn primary" onclick="addSector()">Crea settore</button>'+
-    '<p class="small">Dopo la creazione compare in registrazione, ruoli e piano ferie.</p></div>';
+    '<button class="btn primary" onclick="addSector()">Crea settore</button></div>';
 }
 async function addSector(){
   var name=document.getElementById("newSectorName").value.trim();
@@ -913,8 +844,7 @@ async function addSector(){
     db.areas.push(area);
     try{ await writeArea(area); }catch(e){}
   }
-  addAudit("Creato settore "+name);
-  render();
+  addAudit("Creato settore "+name); render();
 }
 async function addAreaToSector(sectorId){
   var input=document.getElementById("area_"+sectorId);
@@ -927,8 +857,7 @@ async function addAreaToSector(sectorId){
   var s=db.sectors.find(function(x){return x.id===sectorId;});
   if(s && !s.hasAreas){ s.hasAreas=true; try{ await writeSector(s); }catch(e){} }
   try{ await writeArea(area); }catch(e){}
-  addAudit("Creata area "+name+" in "+sectorName(sectorId));
-  render();
+  addAudit("Creata area "+name+" in "+sectorName(sectorId)); render();
 }
 async function approveRegistration(userId){
   var u=db.users.find(function(x){return x.id===userId;});
@@ -936,8 +865,7 @@ async function approveRegistration(userId){
   u.approved=true;
   if(!u.visibleSectorIds||!u.visibleSectorIds.length) u.visibleSectorIds=[u.sectorId];
   if(!u.editableAreaIds) u.editableAreaIds=[];
-  db.lastRead[u.id]=Date.now();
-  queueMetaWrite();
+  db.lastRead[u.id]=Date.now(); queueMetaWrite();
   addAudit("Approvata registrazione di "+fullName(u));
   try{ await writeUser(u); }catch(e){}
   render();
@@ -946,8 +874,7 @@ async function approvePasswordRequest(id){
   var r=db.requests.find(function(x){return x.id===id;});
   var u=r && db.users.find(function(x){return x.id===r.userId;});
   if(!r||!u) return;
-  u.password=r.newPassword;
-  r.status="approved";
+  u.password=r.newPassword; r.status="approved";
   addAudit("Approvato cambio password per "+fullName(u));
   try{ await writeUser(u); await writeRequest(r); }catch(e){}
   render();
@@ -958,8 +885,7 @@ async function approveForgotPassword(id){
   if(!r||!u) return;
   var input=document.getElementById("reset_"+id);
   var pwd=(input && input.value.trim()) || "1234";
-  u.password=pwd;
-  r.status="approved";
+  u.password=pwd; r.status="approved";
   addAudit("Reset password per "+fullName(u));
   try{ await writeUser(u); await writeRequest(r); }catch(e){}
   render();
@@ -984,22 +910,11 @@ function exportData(){
 /* =========================================================
    PIANO FERIE
    ========================================================= */
-function openPlanDayFromCard(el){
-  if(!el) return;
-  openPlanDay(el.getAttribute("data-date"), el.getAttribute("data-sector"), el.getAttribute("data-area"));
-}
 function openPlanDay(date,sectorId,areaId){
-  selectedPlanDate=date;
-  selectedPlanSectorId=sectorId;
-  selectedPlanAreaForModal=areaId;
-  planModalOpen=true;
-  render();
+  selectedPlanDate=date; selectedPlanSectorId=sectorId; selectedPlanAreaForModal=areaId;
+  planModalOpen=true; render();
 }
-function closePlanDay(){
-  planModalOpen=false;
-  selectedPlanDate=null;
-  render();
-}
+function closePlanDay(){ planModalOpen=false; selectedPlanDate=null; render(); }
 function renderPlanDayModal(){
   if(!planModalOpen || !selectedPlanDate) return "";
   var sectorId=selectedPlanSectorId || selectedSectorId || currentUser.sectorId;
@@ -1144,13 +1059,9 @@ document.addEventListener("touchend", function(e){
 }, {capture:true, passive:false});
 document.addEventListener("keydown", function(e){
   var card = e.target.closest ? e.target.closest(".plan-clickable") : null;
-  if(card && (e.key==="Enter" || e.key===" ")){
-    e.preventDefault();
-    openPlanDay(card.dataset.date, card.dataset.sector, card.dataset.area);
-  }
+  if(card && (e.key==="Enter" || e.key===" ")){ e.preventDefault(); openPlanDay(card.dataset.date, card.dataset.sector, card.dataset.area); }
 }, true);
 
-/* ---------- Avvio ---------- */
 loadLocalCache();
 initFirebaseSync();
 if(restoreSession()) render(); else renderLogin();
