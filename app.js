@@ -1,7 +1,22 @@
 /* =========================================================
    LOGIN / REGISTRAZIONE / PASSWORD
    ========================================================= */
-function applyTheme(){
+let calendarView = "settore"; // "settore" | "area" | "personale"
+
+function visibleUsersForCalendar(){
+  if(calendarView==="personale" && currentUser && (currentUser.role==="employee"||currentUser.role==="sector_manager")){
+    return [currentUser].filter(function(u){return u.approved && isWorker(u);});
+  }
+  if(calendarView==="area" && currentUser){
+    var areaId = currentUser.role==="admin" ? selectedAreaFilter : currentUser.areaId;
+    if(areaId && areaId!=="all" && areaId!=="*"){
+      return visibleUsers().filter(function(u){return u.areaId===areaId;});
+    }
+  }
+  return visibleUsers();
+}
+
+
   document.body.classList.remove("theme-admin","theme-referente","theme-employee","theme-dirigente");
   if(!currentUser) return;
   if(currentUser.role==="admin") document.body.classList.add("theme-admin");
@@ -331,7 +346,17 @@ function changeMonth(delta){
   loadEventsForMonth(monthKeyOf(selectedDate));
   render();
 }
-function openDay(date){ selectedDate=date; render(); }
+function openDay(date){
+  selectedDate=date;
+  if(!isBlockedDay(date)){
+    modalOpen=true;
+    insertOpen=false;
+    insertUserId=null;
+    insertCode=null;
+    insertError="";
+  }
+  render();
+}
 function goToToday(){
   selectedDate=todayStr();
   viewYear=Number(selectedDate.slice(0,4));
@@ -340,7 +365,12 @@ function goToToday(){
   render();
 }
 function openManageModal(){ modalOpen=true; render(); }
-function closeModal(){ modalOpen=false; insertOpen=false; insertUserId=null; insertCode=null; insertError=""; render(); }
+function closeModal(){
+  modalOpen=false; insertOpen=false; insertUserId=null; insertCode=null; insertError="";
+  // Su mobile deseleziona il giorno dopo aver chiuso il popup
+  if(window.innerWidth<=760) selectedDate=null;
+  render();
+}
 
 function renderCalendar(){
   loadEventsForMonth(monthKeyOf(dateKey(1)));
@@ -354,14 +384,18 @@ function renderCalendar(){
     if(dow===0||dow===6) continue;
     var hol=hmap[date];
     var errs=smartRuleErrorsForDay(date);
-    var abs = hol ? [] : visibleUsers().filter(function(u){return isAbsent(eventFor(date,u.id));});
+    var calPeople=visibleUsersForCalendar();
+    var abs = hol ? [] : calPeople.filter(function(u){return isAbsent(eventFor(date,u.id));});
     var dots=abs.map(function(u){
       var st=eventFor(date,u.id), s=STATUS[st];
       var color = st==="smart" ? smartColorForArea(u.areaId) : s.color;
       var whiteCls = (color==="#ffffff") ? " dot-white" : "";
       return '<span class="person-dot'+whiteCls+'" title="'+fullName(u)+' - '+s.label+'" style="background:'+color+'">'+s.short+'</span>';
     }).join("");
-    days += '<button class="day '+(selectedDate===date?'selected':'')+' '+(hol?'holiday':'')+' '+(errs.length?'rule-error':'')+'" onclick="openDay(\''+date+'\')">'+
+    var isSelected = selectedDate===date;
+    var isMobile = typeof window!=="undefined" && window.innerWidth<=760;
+    var selectedCls = isSelected ? (isMobile ? 'selected-mobile' : 'selected') : '';
+    days += '<button class="day '+selectedCls+' '+(hol?'holiday':'')+' '+(errs.length?'rule-error':'')+'" onclick="openDay(\''+date+'\')">'+
       '<div class="day-num">'+d+'</div>'+
       (errs.length?'<div class="danger-mark">!</div>':"")+
       (hol?('<div class="holiday-name">'+hol+'</div>'):"")+
@@ -369,48 +403,86 @@ function renderCalendar(){
       '</button>';
   }
   var modal = insertOpen ? renderInsertSheet() : (modalOpen ? renderDayModal() : "");
+
+  // Filtri vista calendario
+  var showViewFilter = currentUser.role==="employee"||currentUser.role==="sector_manager"||currentUser.role==="admin";
+  var viewFilters="";
+  if(showViewFilter){
+    var isSm = currentUser.role==="sector_manager";
+    var isEmp = currentUser.role==="employee";
+    viewFilters='<div class="cal-view-filters">'+
+      '<button class="cal-view-btn '+(calendarView==="settore"?"active":"")+'" onclick="calendarView=\'settore\';render()">Settore</button>'+
+      (isSm||currentUser.role==="admin"?'<button class="cal-view-btn '+(calendarView==="area"?"active":"")+'" onclick="calendarView=\'area\';render()">Area</button>':"")+
+      '<button class="cal-view-btn '+(calendarView==="personale"?"active":"")+'" onclick="calendarView=\'personale\';render()">'+(isEmp?'Solo io':'Personale')+'</button>'+
+    '</div>';
+  }
+
   layout(
     '<div class="top desktop-only page-context"><h1>'+contextTitle()+'</h1><div class="sector-filter">'+selectorControls()+'</div></div>'+
-    '<div class="calendar-wrap"><div class="calendar-toolbar compact-month"><button class="btn secondary month-nav prev" aria-label="Mese precedente" onclick="changeMonth(-1)">← <span>Mese precedente</span></button>'+
-    '<div class="month-title">'+monthName()+'</div><button class="btn secondary month-nav next" aria-label="Mese successivo" onclick="changeMonth(1)"><span>Mese successivo</span> →</button></div>'+
-    '<button class="btn secondary today-btn" onclick="goToToday()">Torna a oggi</button>'+
+    '<div class="calendar-wrap">'+
+    '<div class="calendar-toolbar compact-month">'+
+    '<button class="btn secondary today-btn-inline" onclick="goToToday()" title="Torna a oggi">↺</button>'+
+    '<div class="calendar-toolbar-center"><button class="btn secondary month-nav prev" aria-label="Mese precedente" onclick="changeMonth(-1)">← <span>Mese precedente</span></button>'+
+    '<div class="month-title">'+monthName()+'</div>'+
+    '<button class="btn secondary month-nav next" aria-label="Mese successivo" onclick="changeMonth(1)"><span>Mese successivo</span> →</button></div></div>'+
+    viewFilters+
     '<div class="calendar-head"><div>LUN</div><div>MAR</div><div>MER</div><div>GIO</div><div>VEN</div></div>'+
     '<div class="calendar">'+days+'</div></div>'+
     renderSelectedDaySummary()+modal
   );
 }
 function renderSelectedDaySummary(){
-  var people = isBlockedDay(selectedDate) ? [] : visibleUsers().filter(function(u){return isAbsent(eventFor(selectedDate,u.id));});
-  var canAdd = !isBlockedDay(selectedDate) && visibleUsers().some(function(u){return canModifyUserEvents(u.id);});
+  if(!selectedDate) return "";
+  var people = isBlockedDay(selectedDate) ? [] : visibleUsersForCalendar().filter(function(u){return isAbsent(eventFor(selectedDate,u.id));});
   var rows;
   if(people.length){
     rows=people.map(function(u){
       var st=eventFor(selectedDate,u.id);
-      return '<div class="day-summary-row"><b>'+fullName(u)+'</b>'+statusTag(st)+'</div>';
+      return '<div class="day-summary-row"><div><b>'+fullName(u)+'</b><span class="day-summary-area">'+areaName(u.areaId)+'</span></div>'+statusTag(st)+'</div>';
     }).join("");
+  }else if(isBlockedDay(selectedDate)){
+    rows='<p class="empty-state">Giorno non lavorativo</p>';
   }else{
-    rows='<p class="empty-state">Tutti presenti</p>';
+    rows='<p class="empty-state">Tutti in servizio</p>';
   }
-  return '<div class="card day-summary-card">'+rows+
-    (canAdd?('<button class="btn secondary full manage-btn" onclick="openManageModal()">Gestisci assenze</button>'):"")+
-    '</div>';
+  return '<div class="card day-summary-card"><div class="day-summary-title">'+fmt(selectedDate)+'</div>'+rows+'</div>';
 }
 function renderDayModal(){
   var hol=isHoliday(selectedDate)||isWeekend(selectedDate);
   var errs=smartRuleErrorsForDay(selectedDate);
-  var allPeople=isBlockedDay(selectedDate)?[]:visibleUsers();
+  var allPeople=isBlockedDay(selectedDate)?[]:visibleUsersForCalendar();
+  var canAddPeople=isBlockedDay(selectedDate)?[]:visibleUsers();
   var people=allPeople.filter(function(u){return isAbsent(eventFor(selectedDate,u.id));});
-  var canAdd=!isBlockedDay(selectedDate) && allPeople.some(function(u){return canModifyUserEvents(u.id);});
+  var canAdd=!isBlockedDay(selectedDate) && canAddPeople.some(function(u){return canModifyUserEvents(u.id);});
+
+  var bodyHtml;
+  if(hol){
+    bodyHtml='<div class="warning">Giorno non lavorativo. Non puoi inserire nulla.</div>';
+  } else if(people.length===0){
+    bodyHtml='<div class="all-present-banner">'+icon("users","all-present-icon")+' TUTTI IN SERVIZIO</div>';
+  } else {
+    bodyHtml='<div class="card day-list-card">'+
+      people.map(function(u){
+        var st=eventFor(selectedDate,u.id);
+        var areaLabel=areaName(u.areaId);
+        var canEdit=canModifyUserEvents(u.id);
+        return '<div class="person">'+
+          '<div class="avatar '+avatarClass(u)+'" style="background:'+u.color+'">'+u.initials+'</div>'+
+          '<div class="meta"><b class="'+nameClass(u)+'">'+fullName(u)+'</b><small>'+areaLabel+'</small></div>'+
+          statusTag(st)+
+          (canEdit&&isAbsent(st)?('<button class="btn danger" onclick="removeEvent(\''+selectedDate+'\',\''+u.id+'\')">Rimuovi</button>'):"")
+          +'</div>';
+      }).join("")+
+    '</div>';
+  }
+
   return '<div class="modal-backdrop" onclick="if(event.target.className===\'modal-backdrop\')closeModal()">'+
     '<div class="modal ios-sheet"><div class="modal-grabber"></div>'+
-    '<div class="modal-head"><div><h2>'+fmt(selectedDate)+'</h2><p class="small modal-subtitle">'+(hol?"Giorno non lavorativo":"Assenze e stati particolari")+'</p></div>'+
+    '<div class="modal-head"><div><h2>'+fmt(selectedDate)+'</h2><p class="small modal-subtitle">'+(hol?"Giorno non lavorativo":"Presenze e assenze")+'</p></div>'+
     '<button class="close" onclick="closeModal()">Chiudi</button></div>'+
-    (hol?'<div class="warning">Giorno non lavorativo. Non puoi inserire nulla.</div>':"")+
     (errs.length?('<div class="warning">'+icon('warning')+' '+(errs.length>1?errs.map(function(e,i){return (i+1)+". "+e;}).join("<br>"):errs[0])+'</div>'):"")+
-    '<div class="card day-list-card">'+
-    (people.length ? people.map(function(u){return personRow(u,selectedDate,canModifyUserEvents(u.id));}).join("") : '<p class="empty-state">Nessuna assenza inserita per questo giorno</p>')+
-    '</div>'+
-    (canAdd?('<button class="btn primary full insert-btn" onclick="openInsertSheet()">+ Inserisci</button>'):"")+
+    bodyHtml+
+    (canAdd?('<button class="btn primary full insert-btn" onclick="openInsertSheet()">'+icon("plus")+'  Inserisci assenza</button>'):"")+
     '</div></div>';
 }
 function openInsertSheet(){
@@ -426,6 +498,9 @@ function closeInsertSheet(){
   insertUserId=null;
   insertCode=null;
   insertError="";
+  modalOpen=false;
+  // Su mobile deseleziona il giorno dopo la chiusura
+  if(window.innerWidth<=760) selectedDate=null;
   render();
 }
 function selectInsertUser(userId){
@@ -497,6 +572,8 @@ async function removeEvent(date,userId){
   pushNotification({text:notificationText(currentUser,u,"present",date), scope:"sector", sectorId:u.sectorId, areaId:u.areaId, actorId:currentUser.id, type:"event"});
   addAudit("Rimossa assenza di "+fullName(u)+" il "+fmt(date));
   try{ await writeEventDay(date, db.events[date]||{}); }catch(e){}
+  modalOpen=false;
+  if(window.innerWidth<=760) selectedDate=null;
   render();
 }
 
@@ -753,7 +830,7 @@ function renderReports(){
       '<div><strong>'+r.f14Residue+'</strong><span>F14 residue</span></div>'+
       '<div><strong>'+r.a01+'</strong><span>A01 malattia</span></div>'+
       '<div><strong>'+r.altro+'</strong><span>ALTRO</span></div>'+
-      '</div><p class="small">Usate: C01 '+r.c01+' · C02 '+r.c02+' · F14 '+r.f14+'. Totale residuo ferie/festività: '+r.ferieResidue+' giorni.</p></div>';
+      '</div></div>';
   }).join("");
   layout('<div class="top desktop-only"><h1>RIEPILOGO</h1><div>'+selectorControls()+'</div></div><div class="summary-wrap">'+cards+'</div>');
 }
@@ -1005,29 +1082,35 @@ function workingDaysOfMonth(month){
 }
 function renderPlanMonthLayout(month,sectorId,areaId){
   var title=monthLabel(month);
-  var label = areaId==="all" ? (sectorName(sectorId)+" - Insieme") : areaName(areaId);
+  var label = areaId==="all" ? sectorName(sectorId) : areaName(areaId);
   return '<div class="plan-month-card"><h2>'+title+'</h2><h3 class="area-title blue">'+label+'</h3>'+renderPlanGrid(month,sectorId,areaId)+'</div>';
 }
 function renderPlanGrid(month,sectorId,areaId){
   var people=planPeople(sectorId,areaId);
   var total=people.length||1;
+  var areas=areasOfSector(sectorId);
+  var isAll = areaId==="all" && areas.length>=2;
   return '<div class="plan-grid">'+workingDaysOfMonth(month).map(function(item){
     var date=item.date, day=item.day;
     var onHoliday=people.filter(function(u){return isFerieCode(eventFor(date,u.id));}).sort(sortByName);
     var pct=Math.round((onHoliday.length/total)*100);
     var fill = pct ? ('<div class="plan-fill" style="width:'+pct+'%;background:'+pctColor(pct)+'"></div>') : "";
-    var names="";
-    if(areaId==="all"){
-      var areaOrder=areasOfSector(sectorId).map(function(a){return a.id;});
-      names=areaOrder.map(function(aid){
-        var group=onHoliday.filter(function(u){return u.areaId===aid;}).sort(sortByName);
-        return group.map(function(u){return '<div class="plan-person" style="color:'+areaColor(u.areaId)+'">'+shortPersonName(u)+'</div>';}).join("");
-      }).join("");
+    var namesHtml="";
+    if(isAll){
+      var leftArea=areas[0], rightArea=areas[1];
+      var leftPeople=onHoliday.filter(function(u){return u.areaId===leftArea.id;});
+      var rightPeople=onHoliday.filter(function(u){return u.areaId===rightArea.id;});
+      namesHtml='<div class="plan-card-split">'+
+        '<div>'+leftPeople.map(function(u){return '<div class="plan-person" style="color:'+areaColor(u.areaId)+'">'+shortPersonName(u)+'</div>';}).join("")+'</div>'+
+        '<div>'+rightPeople.map(function(u){return '<div class="plan-person" style="color:'+areaColor(u.areaId)+'">'+shortPersonName(u)+'</div>';}).join("")+'</div>'+
+      '</div>';
     }else{
-      names=onHoliday.map(function(u){return '<div class="plan-person" style="color:'+areaColor(u.areaId)+'">'+shortPersonName(u)+'</div>';}).join("");
+      namesHtml='<div class="plan-names">'+onHoliday.map(function(u){return '<div class="plan-person" style="color:'+areaColor(u.areaId)+'">'+shortPersonName(u)+'</div>';}).join("")+'</div>';
     }
     return '<div role="button" tabindex="0" class="plan-card-white plan-clickable '+(isHoliday(date)?'plan-holiday':'')+'" data-date="'+date+'" data-sector="'+sectorId+'" data-area="'+areaId+'">'+
-      '<div class="plan-fill-wrap">'+fill+'</div><div class="plan-day-num">'+day+'</div><div class="plan-names">'+names+'</div>'+
+      '<div class="plan-fill-wrap">'+fill+'</div>'+
+      '<div class="plan-day-num">'+day+'</div>'+
+      namesHtml+
       (pct?('<div class="plan-percent">'+pct+'%</div>'):"")+'</div>';
   }).join("")+'</div>';
 }

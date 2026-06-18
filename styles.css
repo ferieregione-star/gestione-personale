@@ -611,3 +611,116 @@ body.theme-employee{--bg:#f8fafc}
    ========================================================= */
 .logo.app-logo{background:transparent;border-radius:22px;overflow:hidden;width:76px;height:76px}
 .logo.app-logo img{width:100%;height:100%;display:block;border-radius:22px}
+
+/* =========================================================
+   V71 - MODIFICHE UTENTE: popup giorno, piano ferie 2 col,
+   filtri vista calendario, "Torna a oggi" piccolo, mobile select
+   ========================================================= */
+
+/* --- "TUTTI IN SERVIZIO" banner nel popup giorno --- */
+.all-present-banner{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:#dcfce7;border:2px solid #86efac;border-radius:16px;
+  padding:24px 16px;font-size:20px;font-weight:950;color:#166534;
+  margin:12px 0;
+}
+.all-present-icon{color:#166534;width:28px;height:28px;vertical-align:-6px}
+
+/* --- Riepilogo giorno: area label sotto il nome --- */
+.day-summary-title{
+  font-size:15px;font-weight:900;color:var(--muted);
+  padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:4px;
+}
+.day-summary-area{
+  display:inline-block;margin-left:8px;font-size:12px;font-weight:700;
+  color:var(--muted);background:#f1f5f9;border-radius:8px;padding:2px 7px;
+}
+.day-summary-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:9px 0;border-bottom:1px solid var(--line);
+}
+.day-summary-row:last-of-type{border-bottom:0}
+
+/* --- Filtri vista calendario (Settore / Area / Personale) --- */
+.cal-view-filters{
+  display:flex;gap:6px;padding:8px 0 10px;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.cal-view-btn{
+  flex:0 0 auto;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:800;
+  background:#f1f5f9;color:#475569;border:2px solid var(--line);
+}
+.cal-view-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* --- "Torna a oggi" piccolo nella toolbar --- */
+.today-btn-inline{
+  flex:0 0 auto;width:36px!important;height:36px!important;min-height:36px!important;
+  padding:0!important;border-radius:50%!important;font-size:18px!important;
+  font-weight:900;border:2px solid var(--blue)!important;color:var(--blue)!important;
+  background:#eaf1ff!important;display:grid;place-items:center;
+  line-height:1;
+}
+.today-btn{display:none!important} /* nasconde il vecchio pulsante se rimasto */
+
+/* --- Toolbar centrale col mese --- */
+.calendar-toolbar-center{
+  display:flex;align-items:center;gap:8px;flex:1;justify-content:center;
+}
+/* Override compact-month per includere today-btn-inline */
+.calendar-toolbar.compact-month{
+  display:flex!important;align-items:center!important;gap:8px!important;
+}
+.calendar-toolbar.compact-month .today-btn-inline{
+  order:-1;
+}
+
+/* --- Piano ferie: numero giorno più grande, centrato --- */
+.plan-day-num{
+  font-size:22px!important;font-weight:950;
+  text-align:center;margin-bottom:10px;
+}
+/* Split due colonne nel piano ferie */
+.plan-card-split{
+  display:grid;grid-template-columns:1fr 1fr;gap:4px;
+  min-height:34px;font-size:12px;font-weight:900;line-height:1.4;
+  position:relative;z-index:1;
+}
+.plan-card-split>div:first-child{
+  border-right:1px solid #e5e7eb;padding-right:4px;
+}
+.plan-card-split>div:last-child{
+  padding-left:4px;
+}
+
+/* --- Mobile: giorno selezionato verde chiaro, NO bordo grosso --- */
+@media(max-width:760px){
+  .day.selected-mobile{
+    background:#dcfce7!important;
+    border-color:#86efac!important;
+    outline:none!important;
+  }
+  .day.selected-mobile .day-num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:26px;height:26px;border-radius:50%;
+    background:#16a34a;color:#fff;
+  }
+  /* Annulla il vecchio .day.selected su mobile */
+  .day.selected{outline:none!important;background:#fff!important;border-color:var(--line)!important}
+
+  /* Piano ferie mobile: nascondi split, mostra solo % */
+  .plan-card-split{display:none!important}
+  .plan-day-num{font-size:14px!important;text-align:left!important}
+
+  /* Filtri view su mobile */
+  .cal-view-filters{padding:6px 0 8px}
+  .cal-view-btn{font-size:12px;padding:6px 12px}
+
+  /* Today btn su mobile */
+  .today-btn-inline{width:32px!important;height:32px!important;min-height:32px!important;font-size:16px!important}
+}
+
+/* --- Desktop: selected mantiene il vecchio stile --- */
+@media(min-width:761px){
+  .day.selected{outline:2px solid var(--blue);background:#f8fbff}
+  .day.selected-mobile{outline:2px solid var(--blue);background:#f8fbff}
+}
