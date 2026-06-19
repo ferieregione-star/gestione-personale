@@ -30,21 +30,6 @@ function userColorByArea(areaId){
   // blu: prevenzione, convenzionata e default
   return "#2563eb";
 }
-function correctColorForUser(u){
-  if(u.role==="viewer") return "#DC2626";
-  if(u.role==="sector_manager") return "#F59E0B";
-  if(u.role==="admin") return "#0b1f3a";
-  return userColorByArea(u.areaId);
-}
-function migrateUserColors(){
-  db.users.forEach(function(u){
-    var correct=correctColorForUser(u);
-    if(u.color!==correct){
-      u.color=correct;
-      writeUser(u).catch(function(){});
-    }
-  });
-}
 function avatarEl(u,sm){
   var cls='avatar'+(sm?' avatar-sm':'')+' '+(u.role==='viewer'?'':u.role==='sector_manager'?'':'');
   return '<div class="'+cls+'" style="background:'+u.color+'">'+u.initials+'</div>';
@@ -101,47 +86,82 @@ function renderLogin(msg){
 
 function renderRegister(){
   page="register";
-  var sOpts=db.sectors.map(s=>'<option value="'+s.id+'">'+s.name+'</option>').join("");
   app.innerHTML=
     '<div class="login-wrap"><div class="login-box"><div class="login-card">'+
     '<div class="login-title">Registrazione</div>'+
     '<div class="form-grid-2"><div class="form-row"><label>Nome</label><input id="rName"></div><div class="form-row"><label>Cognome</label><input id="rSurname"></div></div>'+
     '<div class="form-row"><label>Email</label><input id="rEmail" type="email"></div>'+
     '<div class="form-row"><label>Password</label><input id="rPw" type="password" autocomplete="new-password"></div>'+
-    '<div class="form-grid-2"><div class="form-row"><label>Settore</label><select id="rSector" onchange="refreshRegAreas()">'+sOpts+'</select></div>'+
-    '<div class="form-row" id="rAreaWrap"><label>Area</label><select id="rArea"></select></div></div>'+
-    '<div class="form-grid-3">'+
-    '<div class="form-row"><label>C01</label><input id="rC01" type="number" value="0"></div>'+
-    '<div class="form-row"><label>C02</label><input id="rC02" type="number" value="0"></div>'+
-    '<div class="form-row"><label>F14</label><input id="rF14" type="number" value="0"></div></div>'+
+    '<div class="form-row"><label>Ruolo richiesto</label><select id="rRole" onchange="refreshRegRole()">'+
+      '<option value="employee">Dipendente</option>'+
+      '<option value="sector_manager">Referente</option>'+
+      '<option value="viewer">Dirigente</option>'+
+    '</select></div>'+
+    '<div id="rRoleFields"></div>'+
     '<button class="btn btn-primary btn-full" onclick="registerUser()">Invia registrazione</button>'+
     '<button class="btn btn-secondary btn-full" style="margin-top:8px" onclick="page=null;renderLogin()">Torna al login</button>'+
     '<p id="rErr" class="error-msg"></p>'+
     '</div></div></div>';
-  refreshRegAreas();
+  refreshRegRole();
+}
+function refreshRegRole(){
+  var role=document.getElementById("rRole").value;
+  var sOpts=db.sectors.map(s=>'<option value="'+s.id+'">'+s.name+'</option>').join("");
+  var html="";
+  if(role==="employee"){
+    html='<div class="form-row"><label>Settore</label><select id="rSector" onchange="refreshRegAreas()">'+sOpts+'</select></div>'+
+         '<div class="form-row"><label>Area</label><select id="rArea"></select></div>';
+  } else if(role==="sector_manager"){
+    html='<div class="form-row"><label>Settore</label><select id="rSector" onchange="refreshRegAreas()">'+sOpts+'</select></div>'+
+         '<div class="form-row"><label>Aree gestite</label><div class="check-list" id="rAreaChecks"></div></div>';
+  } else if(role==="viewer"){
+    html='<div class="form-row"><label>Settori da visualizzare</label><div class="check-list">'+
+      db.sectors.map(s=>'<label class="check-row"><input type="checkbox" class="r_vs" value="'+s.id+'">'+s.name+'</label>').join("")+'</div></div>';
+  }
+  document.getElementById("rRoleFields").innerHTML=html;
+  if(role==="employee"||role==="sector_manager") refreshRegAreas();
 }
 function refreshRegAreas(){
-  var sec=document.getElementById("rSector").value;
-  var wrap=document.getElementById("rAreaWrap");
-  var sel=document.getElementById("rArea");
-  var s=sectorById(sec);
-  if(s&&s.hasAreas){wrap.style.display="";sel.innerHTML=areasOfSector(sec).map(a=>'<option value="'+a.id+'">'+a.name+'</option>').join("");}
-  else{wrap.style.display="none";var a=areasOfSector(sec)[0];sel.innerHTML=a?'<option value="'+a.id+'">'+a.name+'</option>':"";}
+  var role=document.getElementById("rRole")?document.getElementById("rRole").value:"employee";
+  var secEl=document.getElementById("rSector");
+  if(!secEl) return;
+  var areas=areasOfSector(secEl.value);
+  if(role==="employee"){
+    var sel=document.getElementById("rArea");
+    if(sel) sel.innerHTML=areas.map(a=>'<option value="'+a.id+'">'+a.name+'</option>').join("");
+  } else if(role==="sector_manager"){
+    var checks=document.getElementById("rAreaChecks");
+    if(checks) checks.innerHTML=areas.map(a=>'<label class="check-row"><input type="checkbox" class="r_ea" value="'+a.id+'">'+a.name+'</label>').join("");
+  }
 }
 async function registerUser(){
   var name=document.getElementById("rName").value.trim();
   var surname=document.getElementById("rSurname").value.trim();
   var email=document.getElementById("rEmail").value.trim().toLowerCase();
   var pw=document.getElementById("rPw").value;
-  var sectorId=document.getElementById("rSector").value;
-  var areaId=document.getElementById("rArea").value;
-  var c01=Number(document.getElementById("rC01").value||0);
-  var c02=Number(document.getElementById("rC02").value||0);
-  var f14=Number(document.getElementById("rF14").value||0);
-  if(!name||!surname||!email||!pw||!areaId){document.getElementById("rErr").textContent="Compila tutti i campi.";return;}
+  var role=document.getElementById("rRole").value;
+  var sectorId="",areaId="",visibleSectorIds=[],editableAreaIds=[];
+  if(role==="employee"){
+    sectorId=document.getElementById("rSector").value;
+    areaId=document.getElementById("rArea").value;
+    visibleSectorIds=[sectorId];
+  } else if(role==="sector_manager"){
+    sectorId=document.getElementById("rSector").value;
+    editableAreaIds=[...document.querySelectorAll(".r_ea:checked")].map(x=>x.value);
+    areaId=editableAreaIds[0]||areasOfSector(sectorId)[0]?.id||"";
+    visibleSectorIds=[sectorId];
+    if(!editableAreaIds.length){document.getElementById("rErr").textContent="Seleziona almeno un'area da gestire.";return;}
+  } else if(role==="viewer"){
+    visibleSectorIds=[...document.querySelectorAll(".r_vs:checked")].map(x=>x.value);
+    sectorId=visibleSectorIds[0]||db.sectors[0]?.id||"";
+    areaId=areasOfSector(sectorId)[0]?.id||"";
+    if(!visibleSectorIds.length){document.getElementById("rErr").textContent="Seleziona almeno un settore da visualizzare.";return;}
+  }
+  if(!name||!surname||!email||!pw){document.getElementById("rErr").textContent="Compila tutti i campi.";return;}
   var ex=db.users.find(u=>(u.email||"").toLowerCase()===email);
   if(ex){if(!ex.approved){page=null;renderLogin("Registrazione già inviata, in attesa di approvazione.");return;}document.getElementById("rErr").textContent="Email già registrata.";return;}
-  var nu={id:uid("user"),email,password:pw,name,surname,role:"employee",sectorId,areaId,visibleSectorIds:[sectorId],editableAreaIds:[],c01,c02,f14,approved:false,initials:createInitialsForUser(name,surname),color:userColorByArea(areaId)};
+  var color=role==="viewer"?"#DC2626":role==="sector_manager"?"#F59E0B":userColorByArea(areaId);
+  var nu={id:uid("user"),email,password:pw,name,surname,role,sectorId,areaId,visibleSectorIds,editableAreaIds,c01:0,c02:0,f14:0,approved:false,initials:createInitialsForUser(name,surname),color};
   var btn=document.querySelector("[onclick='registerUser()']");
   if(btn){btn.disabled=true;btn.textContent="Invio...";}
   try{
@@ -189,7 +209,11 @@ function goBack(){if(modalOpen){modalOpen=false;render();return;}if(planModalOpe
 function startImpersonation(userId){
   if(!adminUser)adminUser=currentUser;
   var u=db.users.find(x=>x.id===userId);if(!u||u.role==="admin")return;
-  currentUser=u;selectedSectorId=u.sectorId;selectedAreaFilter="all";selectedPlanArea="all";page="calendar";render();
+  currentUser=u;
+  if(u.role==="viewer"){selectedSectorId=(u.visibleSectorIds||[])[0]||u.sectorId;}
+  else if(u.role==="sector_manager"){var smAreas=u.editableAreaIds||[];var smSecs=Array.from(new Set(smAreas.map(aid=>{var a=db.areas.find(x=>x.id===aid);return a?a.sectorId:null;}).filter(Boolean)));selectedSectorId=smSecs[0]||u.sectorId;}
+  else{selectedSectorId=u.sectorId;}
+  selectedAreaFilter="all";selectedPlanArea="all";page="calendar";render();
 }
 function stopImpersonation(){if(!adminUser)return;currentUser=adminUser;adminUser=null;selectedSectorId="prevenzione";selectedAreaFilter="all";selectedPlanArea="all";page="admin";render();}
 function toggleMobileMenu(){mobileMenuOpen=!mobileMenuOpen;render();}
@@ -208,7 +232,6 @@ function selectorControls(){
     return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';selectedPlanArea=\'all\';render()">'+sOpts+'</select><label style="margin:0">Area</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedAreaFilter=this.value;selectedPlanArea=this.value;render()">'+aOpts+'</select></div>';
   }
   if(currentUser.role==="viewer"){var ss=db.sectors.filter(s=>(currentUser.visibleSectorIds||[]).includes(s.id));var o=ss.map(s=>'<option value="'+s.id+'"'+(selectedSectorId===s.id?" selected":"")+'>'+s.name+'</option>').join("");return '<div style="display:flex;gap:8px;align-items:center"><label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';selectedPlanArea=\'all\';render()">'+o+'</select></div>';}
-  if(currentUser.role==="sector_manager"){var eas=currentUser.editableAreaIds||[];var smSectors=Array.from(new Set(eas.map(aid=>{var a=db.areas.find(x=>x.id===aid);return a?a.sectorId:null;}).filter(Boolean)));if(smSectors.length>1){var sOpts=smSectors.map(sid=>'<option value="'+sid+'"'+(selectedSectorId===sid?" selected":"")+'>'+sectorName(sid)+'</option>').join("");var smAreas=areasOfSector(selectedSectorId).filter(a=>eas.includes(a.id));var aOpts='<option value="all"'+(selectedAreaFilter==="all"?" selected":"")+'>Tutte</option>'+smAreas.map(a=>'<option value="'+a.id+'"'+(selectedAreaFilter===a.id?" selected":"")+'>'+a.name+'</option>').join("");return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';render()">'+sOpts+'</select><label style="margin:0">Area</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedAreaFilter=this.value;render()">'+aOpts+'</select></div>';}}
   return "";
 }
 
@@ -583,19 +606,89 @@ async function saveColleague(){
    ========================================================= */
 function usersForPeople(){
   if(currentUser.role!=="admin")return visibleUsers(true);
-  return db.users.filter(u=>u.role!=="admin"&&(selectedSectorId==="all"||u.sectorId===selectedSectorId)&&(selectedAreaFilter==="all"||u.areaId===selectedAreaFilter));
+  return db.users.filter(u=>u.role!=="admin"&&(selectedSectorId==="all"||u.sectorId===selectedSectorId||(u.visibleSectorIds||[]).includes(selectedSectorId)||(u.editableAreaIds||[]).some(aid=>{var a=db.areas.find(x=>x.id===aid);return a&&a.sectorId===selectedSectorId;})));
+}
+function personRowClickable(u){
+  var sel=selectedEmployeeId===u.id;
+  return '<div class="person-row clickable'+(sel?' selected-row':'')+'" onclick="selectedEmployeeId=\''+u.id+'\';render()">'+
+    avatarEl(u)+'<div class="person-meta"><strong>'+fullName(u)+'</strong><small>'+u.email+'</small></div>'+
+    '<span class="tag '+(u.approved?"tag-approved":"tag-pending")+'">'+(u.approved?"Attivo":"In attesa")+'</span></div>';
+}
+function renderPeopleList(){
+  if(currentUser.role!=="admin")return usersForPeople().sort(sortByName).map(personRowClickable).join("");
+  var sId=selectedSectorId;
+  var areas=areasOfSector(sId);
+  var sectorUsers=db.users.filter(u=>u.role!=="admin"&&u.approved);
+  // Dirigenti: hanno sId nei visibleSectorIds
+  var viewers=sectorUsers.filter(u=>u.role==="viewer"&&(u.visibleSectorIds||[]).includes(sId)).sort(sortByName);
+  // Referenti: hanno almeno un'area del settore sId in editableAreaIds
+  var managers=sectorUsers.filter(u=>u.role==="sector_manager"&&(u.editableAreaIds||[]).some(aid=>{var a=db.areas.find(x=>x.id===aid);return a&&a.sectorId===sId;})).sort(sortByName);
+  // Dipendenti per area
+  var html="";
+  // -- Dirigenti
+  if(viewers.length){
+    html+='<div class="people-section-title">Dirigenti</div>';
+    html+=viewers.map(u=>{
+      var ss=(u.visibleSectorIds||[]).map(sectorName).join(" e ")||sectorName(u.sectorId);
+      return '<div class="person-row clickable'+(selectedEmployeeId===u.id?' selected-row':'')+'" onclick="selectedEmployeeId=\''+u.id+'\';render()">'+
+        avatarEl(u)+'<div class="person-meta"><strong>'+fullName(u)+'</strong><small>'+ss+'</small></div>'+
+        '<span class="tag tag-approved">Attivo</span></div>';
+    }).join("");
+  }
+  // -- Referenti
+  if(managers.length){
+    html+='<div class="people-section-title">Referenti</div>';
+    html+=managers.map(u=>{
+      var eas=u.editableAreaIds||[];
+      var sectorAreas=areas.map(a=>a.id);
+      var managedHere=eas.filter(aid=>sectorAreas.includes(aid));
+      var label=managedHere.length===sectorAreas.length&&sectorAreas.length>0?"Referente "+sectorName(sId):"Referente "+managedHere.map(areaName).join(" e ");
+      return '<div class="person-row clickable'+(selectedEmployeeId===u.id?' selected-row':'')+'" onclick="selectedEmployeeId=\''+u.id+'\';render()">'+
+        avatarEl(u)+'<div class="person-meta"><strong>'+fullName(u)+'</strong><small>'+label+'</small></div>'+
+        '<span class="tag tag-approved">Attivo</span></div>';
+    }).join("");
+  }
+  // -- Dipendenti per area
+  areas.forEach(function(a){
+    var emps=sectorUsers.filter(u=>u.role==="employee"&&u.areaId===a.id).sort(sortByName);
+    if(!emps.length)return;
+    html+='<div class="people-section-title">'+a.name+'</div>';
+    html+=emps.map(personRowClickable).join("");
+  });
+  // Dipendenti senza area del settore
+  var withoutArea=sectorUsers.filter(u=>u.role==="employee"&&u.sectorId===sId&&!areas.some(a=>a.id===u.areaId)).sort(sortByName);
+  if(withoutArea.length){html+='<div class="people-section-title">Senza area</div>';html+=withoutArea.map(personRowClickable).join("");}
+  return html||'<p style="color:var(--c-muted);font-size:13px">Nessun utente in questo settore.</p>';
 }
 function renderPeople(){
-  var rows=usersForPeople().map(u=>'<div class="person-row clickable" onclick="selectedEmployeeId=\''+u.id+'\';render()">'+
-    avatarEl(u)+'<div class="person-meta"><strong>'+fullName(u)+'</strong><small>'+u.email+' · '+personSectorAreaLabel(u)+' · '+roleLabel(u.role)+'</small></div>'+
-    '<span class="tag '+(u.approved?"tag-approved":"tag-pending")+'">'+(u.approved?"Attivo":"In attesa")+'</span></div>').join("");
+  var listHtml=renderPeopleList();
   var detail=selectedEmployeeId?renderEmployeeDetail(db.users.find(u=>u.id===selectedEmployeeId)):'<div class="card"><p style="color:var(--c-muted);font-size:13px">Seleziona un dipendente per modificarlo.</p></div>';
   layout(
     '<div class="page-header"><h1>Dipendenti</h1>'+selectorControls()+'</div>'+
-    '<div class="notice">'+(currentUser.role==="admin"?"Super admin: modifica completa.":"Referente: vedi il settore, modifichi solo le tue aree.")+'</div>'+
-    '<div class="grid-2"><div class="card"><div class="sec-title">Elenco</div>'+(rows||"<p style='color:var(--c-muted);font-size:13px'>Nessun dipendente.</p>")+'</div>'+detail+'</div>'
+    '<div class="grid-2"><div class="card"><div class="sec-title">Elenco</div>'+listHtml+'</div>'+detail+'</div>'
   );
 }
+
+function buildDetailPerms(u){
+  // u=null means read current form values
+  var role=document.getElementById("dr")?document.getElementById("dr").value:(u?u.role:"employee");
+  var eas=u?u.editableAreaIds||[]:[];
+  var vss=u?u.visibleSectorIds||[]:[];
+  if(role==="employee"){
+    return '<p style="color:var(--c-muted);font-size:13px;margin:4px 0">Dipendente: nessuna autorizzazione aggiuntiva.</p>';
+  }
+  if(role==="sector_manager"){
+    return '<div class="form-row"><label>Aree gestibili (Referente)</label><div class="check-list">'+
+      db.areas.map(a=>'<label class="check-row"><input type="checkbox" class="d_ea" value="'+a.id+'"'+(eas.includes(a.id)?" checked":"")+'>'+
+      '<span style="font-size:11px;color:var(--c-muted)">'+sectorName(a.sectorId)+'</span> '+a.name+'</label>').join("")+'</div></div>';
+  }
+  if(role==="viewer"){
+    return '<div class="form-row"><label>Settori visibili (Dirigente)</label><div class="check-list">'+
+      db.sectors.map(s=>'<label class="check-row"><input type="checkbox" class="d_vs" value="'+s.id+'"'+(vss.includes(s.id)?" checked":"")+'>'+s.name+'</label>').join("")+'</div></div>';
+  }
+  return "";
+}
+
 function renderEmployeeDetail(u){
   if(!u)return"";
   var prot=!canEditProtectedData()?"disabled":"";
@@ -604,8 +697,8 @@ function renderEmployeeDetail(u){
   var aOpts=areasOfSector(u.sectorId).map(a=>'<option value="'+a.id+'"'+(u.areaId===a.id?" selected":"")+'>'+a.name+'</option>').join("");
   var extra="";
   if(canEditProtectedData()){
-    extra='<div class="form-row"><label>Aree modificabili (referente)</label><div class="check-list">'+db.areas.map(a=>'<label class="check-row"><input type="checkbox" class="d_ea" value="'+a.id+'"'+((u.editableAreaIds||[]).includes(a.id)?" checked":"")+'>'+sectorName(a.sectorId)+' / '+a.name+'</label>').join("")+'</div></div>'+
-      '<div class="form-row"><label>Settori visibili (dirigente)</label><div class="check-list">'+db.sectors.map(s=>'<label class="check-row"><input type="checkbox" class="d_vs" value="'+s.id+'"'+((u.visibleSectorIds||[]).includes(s.id)?" checked":"")+'>'+s.name+'</label>').join("")+'</div></div>';
+    extra='<div id="detail-perms">'+buildDetailPerms(u)+'</div>'+
+      '<script>document.getElementById("dr").addEventListener("change",function(){document.getElementById("detail-perms").innerHTML=buildDetailPerms(null);});<\/script>';
   }
   return '<div class="card"><div class="sec-title">Scheda utente</div>'+
     '<div class="form-grid-2">'+
@@ -654,7 +747,7 @@ async function saveEmployeeDetail(id){
     if(u.role==="viewer"&&!u.visibleSectorIds.length)u.visibleSectorIds=[u.sectorId];
     if(u.role==="viewer")u.color="#DC2626";else if(u.role==="sector_manager")u.color="#F59E0B";else u.color=userColorByArea(u.areaId);
   }
-  addAudit("Aggiornata scheda di "+fullName(u));try{await writeUser(u);}catch(e){}render();
+  addAudit("Aggiornata scheda di "+fullName(u));try{await writeUser(u);}catch(e){alert("Errore salvataggio.");return;}alert("Modifiche salvate.");render();
 }
 async function deleteUser(id){
   if(!confirm("Eliminare utente?"))return;

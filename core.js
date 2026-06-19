@@ -211,7 +211,7 @@ function visibleUsers(includeViewers){
     if(!includeViewers && !isWorker(u)) return false;
     if(currentUser.role==="admin") return (selectedSectorId==="all"||u.sectorId===selectedSectorId) && (selectedAreaFilter==="all"||u.areaId===selectedAreaFilter||u.areaId==="*");
     if(currentUser.role==="viewer") return (currentUser.visibleSectorIds||[]).indexOf(u.sectorId)>=0;
-    if(currentUser.role==="sector_manager"){var eas=currentUser.editableAreaIds||[];if(eas.length)return eas.indexOf(u.areaId)>=0;return u.sectorId===currentUser.sectorId;}return u.sectorId===currentUser.sectorId;
+    return u.sectorId===currentUser.sectorId;
   });
 }
 
