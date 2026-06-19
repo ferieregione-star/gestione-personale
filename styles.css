@@ -261,7 +261,7 @@ h1, h2, h3 { font-weight: 800; }
 .modal-head h2 { font-size: 17px; font-weight: 800; }
 .modal-body { padding: 14px 18px 20px; flex: 1; overflow-y: auto; }
 .modal-footer { padding: 12px 18px 16px; border-top: 1px solid var(--c-border); flex-shrink: 0; }
-.modal-close { width: 30px; height: 30px; border-radius: 50%; background: var(--c-bg); display: grid; place-items: center; color: var(--c-muted); }
+.modal-close { width: 34px; height: 34px; border-radius: 50%; background: var(--c-bg); display: grid; place-items: center; color: var(--c-muted); font-size: 22px; font-weight: 700; line-height: 1; }
 
 /* ====================================================
    INSERIMENTO ASSENZA
@@ -319,7 +319,7 @@ h1, h2, h3 { font-weight: 800; }
   .plan-day-n { font-size: 13px; margin-bottom: 2px; }
   .plan-split, .plan-names { display: none; }
   .plan-bar-wrap { left: 4px; right: 4px; bottom: 4px; height: 8px; }
-  .plan-pct { display: none; }
+  .plan-pct { display: block; right: 4px; bottom: 18px; font-size: 9px; }
   .plan-legend { padding: 10px 12px; }
   .print-btn { display: none !important; }
 }

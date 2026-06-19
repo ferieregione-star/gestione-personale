@@ -21,6 +21,15 @@ function statusTag(st){
   var s=STATUS[st]||STATUS.present;
   return '<span class="tag '+(map[st]||'tag-altro')+'">'+s.label+'</span>';
 }
+function userColorByArea(areaId){
+  var a=db.areas.find(function(x){return x.id===areaId;});
+  if(!a) return "#2563eb";
+  var name=(a.name||"").toLowerCase();
+  // verde: territorio, veterinaria
+  if(name.indexOf("territ")!==-1||name.indexOf("veterin")!==-1) return "#16a34a";
+  // blu: prevenzione, convenzionata e default
+  return "#2563eb";
+}
 function avatarEl(u,sm){
   var cls='avatar'+(sm?' avatar-sm':'')+' '+(u.role==='viewer'?'':u.role==='sector_manager'?'':'');
   return '<div class="'+cls+'" style="background:'+u.color+'">'+u.initials+'</div>';
@@ -117,7 +126,7 @@ async function registerUser(){
   if(!name||!surname||!email||!pw||!areaId){document.getElementById("rErr").textContent="Compila tutti i campi.";return;}
   var ex=db.users.find(u=>(u.email||"").toLowerCase()===email);
   if(ex){if(!ex.approved){page=null;renderLogin("Registrazione già inviata, in attesa di approvazione.");return;}document.getElementById("rErr").textContent="Email già registrata.";return;}
-  var nu={id:uid("user"),email,password:pw,name,surname,role:"employee",sectorId,areaId,visibleSectorIds:[sectorId],editableAreaIds:[],c01,c02,f14,approved:false,initials:createInitialsForUser(name,surname),color:"#0EA5E9"};
+  var nu={id:uid("user"),email,password:pw,name,surname,role:"employee",sectorId,areaId,visibleSectorIds:[sectorId],editableAreaIds:[],c01,c02,f14,approved:false,initials:createInitialsForUser(name,surname),color:userColorByArea(areaId)};
   var btn=document.querySelector("[onclick='registerUser()']");
   if(btn){btn.disabled=true;btn.textContent="Invio...";}
   try{
@@ -279,7 +288,6 @@ function openDay(date){
 function goToToday(){selectedDate=todayStr();viewYear=+selectedDate.slice(0,4);viewMonth=+selectedDate.slice(5,7)-1;loadEventsForMonth(monthKeyOf(selectedDate));render();}
 function closeModal(){
   modalOpen=false;insertOpen=false;insertUserId=null;insertCode=null;insertError="";
-  if(window.innerWidth<=760)selectedDate=null;
   render();
 }
 
@@ -331,9 +339,8 @@ function renderCalendar(){
     '<div class="page-header no-print"><h1>'+contextTitle()+'</h1>'+selectorHtml+'</div>'+
     '<div class="cal-wrap">'+
     '<div class="cal-toolbar">'+
-    '<button class="cal-today-btn" onclick="goToToday()" title="Oggi">↺</button>'+
     '<div class="cal-month-nav">'+
-    '<button class="cal-nav-btn month-nav prev" onclick="changeMonth(-1)">'+ico("plus",'ico-sm',)+'←</button>'+
+    '<button class="cal-nav-btn month-nav prev" onclick="changeMonth(-1)">←</button>'+
     '<div class="cal-month-label">'+monthName()+'</div>'+
     '<button class="cal-nav-btn month-nav next" onclick="changeMonth(1)">→</button>'+
     '</div></div>'+
@@ -381,7 +388,7 @@ function renderDayModal(){
     '<div class="modal-handle no-print"></div>'+
     '<div class="modal-head">'+
     '<div><div style="font-size:17px;font-weight:800">'+fmt(selectedDate)+'</div><div style="font-size:12px;color:var(--c-muted)">'+(hol?"Non lavorativo":"Presenze")+'</div></div>'+
-    '<button class="modal-close" onclick="closeModal()">'+ico("plus")+'</button>'+
+    '<button class="modal-close" onclick="closeModal()">−</button>'+
     '</div>'+
     '<div class="modal-body">'+
     (errs.length?'<div class="warning">'+ico("warning")+'  '+errs[0]+'</div>':"")+
@@ -398,7 +405,6 @@ function openInsertSheet(){
 }
 function closeInsertSheet(){
   insertOpen=false;insertUserId=null;insertCode=null;insertError="";modalOpen=false;
-  if(window.innerWidth<=760)selectedDate=null;
   render();
 }
 function selectInsertUser(uid){insertUserId=uid;insertError="";render();}
@@ -428,7 +434,7 @@ function renderInsertSheet(){
     '<div class="modal-handle no-print"></div>'+
     '<div class="modal-head">'+
     '<div><div style="font-size:17px;font-weight:800">Inserisci assenza</div><div style="font-size:12px;color:var(--c-muted)">'+fmt(selectedDate)+'</div></div>'+
-    '<button class="modal-close" onclick="closeInsertSheet()">'+ico("plus")+'</button>'+
+    '<button class="modal-close" onclick="closeInsertSheet()">−</button>'+
     '</div>'+
     '<div class="modal-body">'+pickerHtml+codeHtml+
     (insertError?'<p class="error-msg">'+insertError+'</p>':"")+
@@ -459,7 +465,7 @@ async function removeEvent(date,userId){
   pushNotification({text:notificationText(currentUser,u,"present",date),scope:"sector",sectorId:u.sectorId,areaId:u.areaId,actorId:currentUser.id,type:"event"});
   addAudit("Rimossa assenza di "+fullName(u)+" il "+fmt(date));
   try{await writeEventDay(date,db.events[date]||{});}catch(e){}
-  modalOpen=false;if(window.innerWidth<=760)selectedDate=null;render();
+  modalOpen=false;render();
 }
 
 /* =========================================================
@@ -550,7 +556,7 @@ async function saveColleague(){
   if(db.users.some(u=>u.email.toLowerCase()===email)){msg.textContent="Email già presente.";return;}
   var btn=document.querySelector("[onclick='saveColleague()']");
   if(btn){if(btn.disabled)return;btn.disabled=true;btn.textContent="Registrazione...";}
-  var nu={id:uid("user"),email,password:pw,name,surname,role:"employee",sectorId,areaId,visibleSectorIds:[sectorId],editableAreaIds:[],c01,c02,f14,approved:true,initials:createInitialsForUser(name,surname),color:"#0EA5E9"};
+  var nu={id:uid("user"),email,password:pw,name,surname,role:"employee",sectorId,areaId,visibleSectorIds:[sectorId],editableAreaIds:[],c01,c02,f14,approved:true,initials:createInitialsForUser(name,surname),color:userColorByArea(areaId)};
   try{await writeUser(nu);addIfAbsent(db.users,nu);db.lastRead[nu.id]=Date.now();queueMetaWrite();addAudit("Registrato collega "+fullName(nu));msg.textContent="Collega registrato.";}
   catch(e){msg.textContent="Errore di connessione, riprova.";}
   if(btn){btn.disabled=false;btn.textContent="Registra";}
@@ -630,7 +636,7 @@ async function saveEmployeeDetail(id){
     if(u.role==="employee"){u.visibleSectorIds=[u.sectorId];u.editableAreaIds=[];}
     if(u.role==="sector_manager"&&!u.editableAreaIds.length)u.editableAreaIds=[u.areaId];
     if(u.role==="viewer"&&!u.visibleSectorIds.length)u.visibleSectorIds=[u.sectorId];
-    if(u.role==="viewer")u.color="#DC2626";if(u.role==="sector_manager")u.color="#7C3AED";
+    if(u.role==="viewer")u.color="#DC2626";else if(u.role==="sector_manager")u.color="#F59E0B";else u.color=userColorByArea(u.areaId);
   }
   addAudit("Aggiornata scheda di "+fullName(u));try{await writeUser(u);}catch(e){}render();
 }
@@ -745,10 +751,9 @@ function renderPlanDayModal(){
   var rowFn=u=>'<div class="person-row">'+avatarEl(u)+'<div class="person-meta"><strong>'+fullName(u)+'</strong><small>'+areaName(u.areaId)+'</small></div></div>';
   return'<div class="modal-backdrop plan-day-backdrop" onclick="if(event.target.classList.contains(\'plan-day-backdrop\'))closePlanDay()">'+
     '<div class="modal-sheet"><div class="modal-handle"></div>'+
-    '<div class="modal-head"><div><div style="font-size:17px;font-weight:800">'+fmt(selectedPlanDate)+'</div><div style="font-size:12px;color:var(--c-muted)">'+(aId==="all"?sectorName(sId):areaName(aId))+'</div></div><button class="modal-close" onclick="closePlanDay()">'+ico("plus")+'</button></div>'+
+    '<div class="modal-head"><div><div style="font-size:17px;font-weight:800">'+fmt(selectedPlanDate)+'</div><div style="font-size:12px;color:var(--c-muted)">'+(aId==="all"?sectorName(sId):areaName(aId))+'</div></div><button class="modal-close" onclick="closePlanDay()">−</button></div>'+
     '<div class="modal-body">'+
-    '<div class="sec-title">In ferie ('+hols.length+')</div>'+(hols.length?hols.map(rowFn).join(""):'<p style="color:var(--c-muted);font-size:13px">Nessuno in ferie.</p>')+
-    '<div class="sec-title" style="margin-top:14px">In servizio ('+pres.length+')</div>'+(pres.length?pres.map(rowFn).join(""):'<p style="color:var(--c-muted);font-size:13px">Nessuno in servizio.</p>')+
+    (hols.length?hols.map(rowFn).join(""):'<div class="all-present">'+ico("users","ico-lg")+' Tutti in servizio</div>')+
     '</div></div></div>';
 }
 function planSectorSelect(){if(currentUser.role!=="admin")return"";return'<select style="width:auto;min-width:140px;margin:0" onchange="selectedSectorId=this.value;selectedPlanArea=\'all\';render()">'+db.sectors.map(s=>'<option value="'+s.id+'"'+(selectedSectorId===s.id?" selected":"")+'>'+s.name+'</option>').join("")+'</select>';}
