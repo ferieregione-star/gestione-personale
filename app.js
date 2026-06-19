@@ -30,6 +30,21 @@ function userColorByArea(areaId){
   // blu: prevenzione, convenzionata e default
   return "#2563eb";
 }
+function correctColorForUser(u){
+  if(u.role==="viewer") return "#DC2626";
+  if(u.role==="sector_manager") return "#F59E0B";
+  if(u.role==="admin") return "#0b1f3a";
+  return userColorByArea(u.areaId);
+}
+function migrateUserColors(){
+  db.users.forEach(function(u){
+    var correct=correctColorForUser(u);
+    if(u.color!==correct){
+      u.color=correct;
+      writeUser(u).catch(function(){});
+    }
+  });
+}
 function avatarEl(u,sm){
   var cls='avatar'+(sm?' avatar-sm':'')+' '+(u.role==='viewer'?'':u.role==='sector_manager'?'':'');
   return '<div class="'+cls+'" style="background:'+u.color+'">'+u.initials+'</div>';

@@ -72,6 +72,7 @@ function attachListeners(){
       if(!admin) db.users.unshift(SEED_ADMIN);
     }
     cloudReady=true;
+    migrateUserColors();
     afterRemoteChange();
   }, handleSnapError("users")));
 
