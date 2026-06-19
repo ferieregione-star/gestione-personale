@@ -80,13 +80,15 @@ h1, h2, h3 { font-weight: 800; }
 .avatar-sm { width: 30px; height: 30px; font-size: 11px; }
 
 /* ---- Person row ---- */
-.person-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--c-border); }
+.person-row { display: flex; align-items: flex-start; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--c-border); }
 .person-row:last-child { border-bottom: none; }
 .person-row.clickable { cursor: pointer; border-radius: 8px; padding: 10px 6px; margin: 0 -6px; }
 .person-row.clickable:hover { background: var(--c-bg); }
-.person-meta { flex: 1; min-width: 0; }
-.person-meta strong { display: block; font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.person-meta small { font-size: 12px; color: var(--c-muted); }
+.person-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.person-meta strong { display: block; font-size: 14px; font-weight: 700; word-break: break-word; overflow-wrap: break-word; white-space: normal; }
+.person-meta small { font-size: 12px; color: var(--c-muted); display: block; }
+.person-meta .person-badge-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.person-meta .person-action-row { display: flex; justify-content: flex-end; margin-top: 4px; }
 
 /* ---- Section title ---- */
 .sec-title { font-size: 13px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
@@ -253,11 +255,12 @@ h1, h2, h3 { font-weight: 800; }
    MODALE / FOGLIO
    ==================================================== */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; }
-.modal-sheet { background: var(--c-surface); border-radius: 20px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
+.modal-sheet { background: var(--c-surface); border-radius: 20px; width: 100%; max-width: 480px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
 .modal-handle { width: 36px; height: 4px; background: var(--c-border); border-radius: 2px; margin: 12px auto 0; }
 .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 12px; border-bottom: 1px solid var(--c-border); }
 .modal-head h2 { font-size: 17px; font-weight: 800; }
-.modal-body { padding: 14px 18px 20px; }
+.modal-footer { padding: 12px 18px 18px; border-top: 1px solid var(--c-border); flex-shrink: 0; }
+.modal-body { padding: 14px 18px 20px; flex: 1; overflow-y: auto; }
 .modal-close { width: 30px; height: 30px; border-radius: 50%; background: var(--c-bg); display: grid; place-items: center; color: var(--c-muted); }
 
 /* ====================================================

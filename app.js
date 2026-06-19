@@ -27,11 +27,13 @@ function avatarEl(u,sm){
 }
 function personRowEl(u,date,canEdit){
   var st=eventFor(date,u.id);
+  var removeBtn=canEdit&&isAbsent(st)?'<div class="person-action-row"><button class="btn btn-danger btn-sm" onclick="removeEvent(\''+date+'\',\''+u.id+'\')">Rimuovi</button></div>':'';
   return '<div class="person-row">'+
     avatarEl(u)+
-    '<div class="person-meta"><strong>'+fullName(u)+'</strong><small>'+areaName(u.areaId)+'</small></div>'+
-    statusTag(st)+
-    (canEdit&&isAbsent(st)?'<button class="btn btn-danger btn-sm" onclick="removeEvent(\''+date+'\',\''+u.id+'\')">Rimuovi</button>':'')+
+    '<div class="person-meta"><strong>'+fullName(u)+'</strong><small>'+areaName(u.areaId)+'</small>'+
+    '<div class="person-badge-row">'+statusTag(st)+'</div>'+
+    removeBtn+
+    '</div>'+
   '</div>';
 }
 
@@ -369,7 +371,8 @@ function renderDayModal(){
   if(hol){body='<div class="warning">Giorno non lavorativo. Non puoi inserire nulla.</div>';}
   else if(!absent.length){body='<div class="all-present">'+ico("users","ico-lg")+' Tutti in servizio</div>';}
   else{body=absent.map(u=>{var st=eventFor(selectedDate,u.id);var ce=canModifyUserEvents(u.id);
-    return '<div class="person-row">'+avatarEl(u)+'<div class="person-meta"><strong>'+fullName(u)+'</strong><small>'+areaName(u.areaId)+'</small></div>'+statusTag(st)+(ce&&isAbsent(st)?'<button class="btn btn-danger btn-sm" onclick="removeEvent(\''+selectedDate+'\',\''+u.id+'\')">Rimuovi</button>':'')+' </div>';
+    var rb=ce&&isAbsent(st)?'<div class="person-action-row"><button class="btn btn-danger btn-sm" onclick="removeEvent(\\''+selectedDate+'\\',\\''+u.id+'\\')">' + 'Rimuovi</button></div>':'';
+    return '<div class="person-row">'+avatarEl(u)+'<div class="person-meta"><strong>'+fullName(u)+'</strong><small>'+areaName(u.areaId)+'</small><div class="person-badge-row">'+statusTag(st)+'</div>'+rb+'</div></div>';
   }).join("");}
   return '<div class="modal-backdrop" onclick="if(event.target.className===\'modal-backdrop\')closeModal()">'+
     '<div class="modal-sheet">'+
@@ -381,8 +384,9 @@ function renderDayModal(){
     '<div class="modal-body">'+
     (errs.length?'<div class="warning">'+ico("warning")+'  '+errs[0]+'</div>':"")+
     body+
-    (canAdd?'<button class="btn btn-primary btn-full" style="margin-top:12px" onclick="openInsertSheet()">'+ico("plus")+'  Inserisci assenza</button>':"")+
-    '</div></div></div>';
+    '</div>'+
+    (canAdd?'<div class="modal-footer"><button class="btn btn-primary btn-full" onclick="openInsertSheet()">'+ico("plus")+'  Inserisci assenza</button></div>':"")+
+    '</div></div>';
 }
 
 function openInsertSheet(){
