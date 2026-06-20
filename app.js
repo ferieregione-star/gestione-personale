@@ -241,14 +241,16 @@ function selectorControls(){
     return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';selectedPlanArea=\'all\';render()">'+sOpts+'</select><label style="margin:0">Area</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedAreaFilter=this.value;selectedPlanArea=this.value;render()">'+aOpts+'</select></div>';
   }
   if(currentUser.role==="viewer"){
+    // Dirigente: solo selettore settore se ne ha più di uno. Niente menu area (usa chips)
     var mySecIds=currentUser.visibleSectorIds||[];
-    var sOpts=db.sectors.filter(s=>mySecIds.includes(s.id)).map(s=>'<option value="'+s.id+'"'+(selectedSectorId===s.id?" selected":"")+'>'+s.name+'</option>').join("");
-    var aOpts='<option value="all"'+(selectedAreaFilter==="all"?" selected":"")+'>Tutto il settore</option>'+areasOfSector(selectedSectorId).map(a=>'<option value="'+a.id+'"'+(selectedAreaFilter===a.id?" selected":"")+'>'+a.name+'</option>').join("");
-    var secSel=mySecIds.length>1?'<label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';render()">'+sOpts+'</select>':'';
-    return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+secSel+'<label style="margin:0">Area</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedAreaFilter=this.value;render()">'+aOpts+'</select></div>';
+    if(mySecIds.length>1){
+      var sOpts=db.sectors.filter(function(s){return mySecIds.includes(s.id);}).map(function(s){return'<option value="'+s.id+'"'+(selectedSectorId===s.id?" selected":"")+'>'+s.name+'</option>';}).join("");
+      return '<div style="display:flex;gap:8px;align-items:center"><label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';calendarView=\'settore\';render()">'+sOpts+'</select></div>';
+    }
+    return "";
   }
   if(currentUser.role==="sector_manager"){
-    // Se multi-settore, mostra solo il selettore settore (le aree sono chips)
+    // Referente: solo selettore settore se gestisce aree in più settori. Niente menu area (usa chips)
     var eas=currentUser.editableAreaIds||[];
     var mySmSecs=Array.from(new Set(eas.map(function(aid){var a=db.areas.find(function(x){return x.id===aid;});return a?a.sectorId:null;}).filter(Boolean)));
     if(mySmSecs.length>1){
@@ -399,15 +401,17 @@ function renderCalendar(){
   }
   var modal=insertOpen?renderInsertSheet():(modalOpen?renderDayModal():"");
   var chips="";
-  if(currentUser.role==="admin"||currentUser.role==="sector_manager"||currentUser.role==="employee"){
+  if(currentUser.role!=="admin"){
     var isEmp=currentUser.role==="employee";
     var isSm=currentUser.role==="sector_manager";
-    // Aree visibili per chip: per sm solo le sue, per employee quelle del settore
+    var isViewer=currentUser.role==="viewer";
+    // Aree visibili per chip
     var chipAreas=[];
     if(isSm){
       var eas=currentUser.editableAreaIds||[];
       chipAreas=areasOfSector(selectedSectorId).filter(function(a){return eas.includes(a.id);});
     } else {
+      // viewer, employee: tutte le aree del settore selezionato
       chipAreas=areasOfSector(selectedSectorId);
     }
     var areaChips=chipAreas.map(function(a){
@@ -416,7 +420,7 @@ function renderCalendar(){
     chips='<div class="cal-chips">'+
       '<button class="cal-chip'+(calendarView==="settore"?" active":"")+'" onclick="calendarView=\'settore\';render()">Settore</button>'+
       areaChips+
-      '<button class="cal-chip'+(calendarView==="personale"?" active":"")+'" onclick="calendarView=\'personale\';render()">'+(isEmp?"Solo io":"Personale")+'</button>'+
+      (!isViewer?'<button class="cal-chip'+(calendarView==="personale"?" active":"")+'" onclick="calendarView=\'personale\';render()">'+(isEmp?"Solo io":"Personale")+'</button>':"")+
     '</div>';
   }
   var selectorHtml=selectorControls();
