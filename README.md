@@ -1,10 +1,19 @@
-# Gestione Personale — v101
+# Gestione Personale — v102 dirigente fix reale
 
-Web app PWA per gestione personale, ferie, smart working, malattia, notifiche e piano ferie.
+Questa versione contiene una modifica effettiva al calendario del ruolo **Dirigente**.
 
-## File da pubblicare su GitHub Pages
+## Fix applicato
 
-Carica nella root del repository:
+- In `core.js`, `visibleUsers()` ora filtra il dirigente anche per `selectedSectorId`.
+- In `app.js`, `visibleUsersForCalendar()` ora usa le chip area per filtrare davvero una sola area.
+- Se il dirigente seleziona **Settore 4**, non vede più i dati del **Settore 7**.
+- Se il dirigente seleziona **Convenzionata**, vede solo Convenzionata.
+- Cache service worker aggiornata a `gestione-personale-v102`.
+- `index.html` carica `core.js`, `firestore-sync.js`, `app.js`, `styles.css` con `?v=102` per evitare vecchia cache GitHub/browser.
+
+## File da caricare nella root GitHub Pages
+
+Carica direttamente questi file nella root del repository, non dentro una sottocartella:
 
 - `index.html`
 - `styles.css`
@@ -13,36 +22,9 @@ Carica nella root del repository:
 - `app.js`
 - `manifest.json`
 - `sw.js`
-- cartella `icons/` con `icon-192.png` e `icon-512.png`
-- `firestore.rules` se usi Firebase CLI
+- `firestore.rules`
+- cartella `icons/`
 
-Non caricare una cartella contenitore tipo `gp-work/`: `index.html` deve stare direttamente nella root.
+## Dopo il caricamento
 
-## Login iniziale
-
-Super admin iniziale:
-
-- email: `jackfrosties@hotmail.it`
-- password: `admin`
-
-Cambia subito la password dopo il primo accesso.
-
-## Correzioni applicate
-
-- Versione aggiornata a `v101` in core, cache e localStorage.
-- Service worker reso più robusto: se un asset manca, l'installazione non blocca tutta l'app.
-- Rimosso il fallback password `1234` per reset e creazione collega.
-- Aggiunti controlli minimi password da 6 caratteri.
-- Input password mascherati dove modificabili.
-- File rinominati in modo pulito per GitHub Pages.
-
-
-## Correzione v101
-
-- Corretto il calendario del ruolo `Dirigente`: ora il filtro `Settore` viene rispettato.
-- Corretto il filtro per area del dirigente: i chip area (`Prevenzione`, `Veterinaria`, `Territorio`, `Convenzionata`) mostrano solo l’area selezionata.
-- Aggiornata la cache del service worker a `gestione-personale-v101` per forzare l’aggiornamento sui dispositivi.
-
-## Nota sicurezza
-
-Questa versione mantiene il login legacy interno all'app e non usa Firebase Authentication. Per questo motivo le regole Firestore incluse sono ancora compatibili con l'app ma non sono adatte a dati sensibili in produzione. La prossima modifica importante dovrebbe essere la migrazione a Firebase Authentication con password non salvate nella collezione `users`.
+Sul telefono/computer fai un refresh forzato. Se usi PWA installata, chiudila e riaprila. Se continua a mostrare la vecchia versione, rimuovi la PWA e reinstallala.

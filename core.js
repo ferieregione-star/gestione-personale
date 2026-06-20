@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v101 - core dati
+   Gestione Personale v102 - core dati
    Architettura: Firestore con collezioni separate
      sectors/{id}, areas/{id}, users/{id}, events/{YYYY-MM-DD},
      notifications/{id}, requests/{id}, audit/{id}, meta/config
@@ -7,10 +7,10 @@
    Local cache in localStorage per avvio offline/veloce.
    ========================================================= */
 
-const VERSION = "v101";
-const STORE = "gestione_personale_v101";
-const SESSION_STORE = "gestione_personale_session_v101";
-const DATA_SCHEMA_VERSION = 101;
+const VERSION = "v102";
+const STORE = "gestione_personale_v102";
+const SESSION_STORE = "gestione_personale_session_v102";
+const DATA_SCHEMA_VERSION = 102;
 
 const STATUS = {
   present:{label:"In servizio", short:"S", cls:"present", color:"#16a34a"},
@@ -212,8 +212,8 @@ function visibleUsers(includeViewers){
     if(currentUser.role==="admin") return (selectedSectorId==="all"||u.sectorId===selectedSectorId) && (selectedAreaFilter==="all"||u.areaId===selectedAreaFilter||u.areaId==="*");
     if(currentUser.role==="viewer"){
       var allowed=(currentUser.visibleSectorIds||[]).indexOf(u.sectorId)>=0;
-      var sectorOk=!selectedSectorId || selectedSectorId==="all" || u.sectorId===selectedSectorId;
-      var areaOk=!selectedAreaFilter || selectedAreaFilter==="all" || u.areaId===selectedAreaFilter || u.areaId==="*";
+      var sectorOk=!selectedSectorId || selectedSectorId==="all" || selectedSectorId==="*" || u.sectorId===selectedSectorId;
+      var areaOk=!selectedAreaFilter || selectedAreaFilter==="all" || selectedAreaFilter==="*" || u.areaId===selectedAreaFilter || u.areaId==="*";
       return allowed && sectorOk && areaOk;
     }
     return u.sectorId===currentUser.sectorId;

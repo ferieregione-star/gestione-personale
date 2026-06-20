@@ -1,7 +1,7 @@
 {
   "name": "Gestione Personale",
   "short_name": "Personale",
-  "description": "Gestionale ferie, smart working e piano ferie.",
+  "description": "Gestionale ferie, smart working e piano ferie. v102",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
