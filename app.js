@@ -16,11 +16,6 @@ function applyTheme(){
 
 /* ---- Helpers UI ---- */
 function ico(name,cls){ return '<svg class="ico'+(cls?' '+cls:'')+'" viewBox="0 0 24 24">'+(ICONS[name]||'')+'</svg>'; }
-function statusTag(st){
-  var map={present:'tag-present',smart:'tag-smart',c01:'tag-ferie',c02:'tag-ferie',f14:'tag-permesso',a01:'tag-malattia',altro:'tag-altro',blocked:'tag-blocked'};
-  var s=STATUS[st]||STATUS.present;
-  return '<span class="tag '+(map[st]||'tag-altro')+'">'+s.label+'</span>';
-}
 function userColorByArea(areaId){
   var a=db.areas.find(function(x){return x.id===areaId;});
   if(!a) return "#2563eb";
