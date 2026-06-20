@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v100
+   Gestione Personale v101
    ========================================================= */
 
 let calendarView = "settore";
@@ -334,12 +334,24 @@ function visibleUsersForCalendar(){
   // Personale (solo io)
   if(calendarView==="personale"&&currentUser&&(currentUser.role==="employee"||currentUser.role==="sector_manager"))
     return [currentUser].filter(function(u){return u.approved&&isWorker(u);});
-  // Viewer: filtra per area se selezionata
+
+  // Dirigente: prima rispetta il settore selezionato, poi eventuale chip area.
+  // Questo evita che un dirigente veda sempre i dati di tutti i suoi settori
+  // oppure che il chip area mostri comunque tutto il settore.
   if(currentUser.role==="viewer"){
     var base=visibleUsers(true).filter(function(u){return isWorker(u);});
-    if(selectedAreaFilter&&selectedAreaFilter!=="all") return base.filter(function(u){return u.areaId===selectedAreaFilter;});
+
+    if(calendarView&&calendarView!=="settore"&&calendarView!=="area"&&calendarView!=="personale"){
+      return base.filter(function(u){return u.areaId===calendarView;});
+    }
+
+    if(selectedAreaFilter&&selectedAreaFilter!=="all"){
+      return base.filter(function(u){return u.areaId===selectedAreaFilter;});
+    }
+
     return base;
   }
+
   // calendarView è un areaId (chip area specifica)
   if(calendarView!=="settore"&&calendarView!=="area"&&calendarView!=="personale"){
     return visibleUsers().filter(function(u){return u.areaId===calendarView;});
