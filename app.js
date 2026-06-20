@@ -929,19 +929,41 @@ function renderPlanDayModal(){
     (hols.length?hols.map(rowFn).join(""):'<div class="all-present">'+ico("users","ico-lg")+' Tutti in servizio</div>')+
     '</div></div></div>';
 }
-function planSectorSelect(){if(currentUser.role!=="admin")return"";return'<select style="width:auto;min-width:140px;margin:0" onchange="selectedSectorId=this.value;selectedPlanArea=\'all\';render()">'+db.sectors.map(s=>'<option value="'+s.id+'"'+(selectedSectorId===s.id?" selected":"")+'>'+s.name+'</option>').join("")+'</select>';}
+function planSectorSelect(){
+  var mySecIds=[];
+  if(currentUser.role==="admin") mySecIds=db.sectors.map(function(s){return s.id;});
+  else if(currentUser.role==="viewer") mySecIds=currentUser.visibleSectorIds||[];
+  else if(currentUser.role==="sector_manager"){
+    var eas=currentUser.editableAreaIds||[];
+    mySecIds=Array.from(new Set(eas.map(function(aid){var a=db.areas.find(function(x){return x.id===aid;});return a?a.sectorId:null;}).filter(Boolean)));
+  }
+  if(mySecIds.length<=1) return "";
+  return'<select style="width:auto;min-width:140px;margin:0" onchange="selectedSectorId=this.value;selectedPlanArea=\'all\';render()">'+
+    db.sectors.filter(function(s){return mySecIds.includes(s.id);}).map(function(s){return'<option value="'+s.id+'"'+(selectedSectorId===s.id?" selected":"")+'>'+s.name+'</option>';}).join("")+
+  '</select>';
+}
 function pctColor(p){if(p<=0)return"transparent";if(p<=20)return"#86EFAC";if(p<=50)return"#FDE047";if(p<=80)return"#FB923C";return"#F87171";}
 function monthLabel(m){var p=m.split("-").map(Number);return new Date(p[0],p[1]-1,1).toLocaleDateString("it-IT",{month:"long",year:"numeric"}).replace(/^./,c=>c.toUpperCase());}
 function workingDaysOfMonth(m){var p=m.split("-").map(Number),y=p[0],mo=p[1],days=new Date(y,mo,0).getDate(),out=[];for(var d=1;d<=days;d++){var date=y+"-"+String(mo).padStart(2,"0")+"-"+String(d).padStart(2,"0");if(!isWeekend(date))out.push({date,day:d});}return out;}
-function planPeople(sId,aId){return db.users.filter(u=>u.approved&&isWorker(u)&&u.sectorId===sId&&(aId==="all"||u.areaId===aId));}
+function planPeople(sId,aId){
+  var eas=currentUser.role==="sector_manager"?(currentUser.editableAreaIds||[]):null;
+  return db.users.filter(function(u){
+    if(!u.approved||!isWorker(u)) return false;
+    if(u.sectorId!==sId) return false;
+    if(aId!=="all") return u.areaId===aId;
+    if(eas) return eas.includes(u.areaId);
+    return true;
+  });
+}
 
 function renderPlan(){
   var periods=planPeriods();var months=periods[selectedPlanPeriod]||periods.estate;
-  var sId=(currentUser.role==="admin"||currentUser.role==="viewer")?selectedSectorId:currentUser.sectorId;
+  var sId=(currentUser.role==="admin"||currentUser.role==="viewer"||currentUser.role==="sector_manager")?selectedSectorId:currentUser.sectorId;
   if(!sId||sId==="all"||sId==="*")sId=db.sectors[0]?db.sectors[0].id:"prevenzione";
   var areas=areasOfSector(sId);if(!areas.length)areas=[{id:sId,sectorId:sId,name:sectorName(sId),color:"#64748B"}];
   if(!selectedPlanArea)selectedPlanArea="all";
-  var aOpts='<option value="all"'+(selectedPlanArea==="all"?" selected":"")+'>'+sectorName(sId)+'</option>'+areas.map(a=>'<option value="'+a.id+'"'+(selectedPlanArea===a.id?" selected":"")+'>Solo '+a.name+'</option>').join("");
+  var visibleAreas=(currentUser.role==="sector_manager")?areas.filter(function(a){return(currentUser.editableAreaIds||[]).includes(a.id);}):areas;
+  var aOpts='<option value="all"'+(selectedPlanArea==="all"?" selected":"")+'>'+sectorName(sId)+'</option>'+visibleAreas.map(function(a){return'<option value="'+a.id+'"'+(selectedPlanArea===a.id?" selected":"")+'>Solo '+a.name+'</option>';}).join("");
   var pTitle="PIANO FERIE — "+(sId==="prevenzione"&&selectedPlanArea==="all"?"SETTORE PREVENZIONE (PREV+VET)":"SETTORE "+sectorName(sId).toUpperCase());
   var content=months.map(m=>renderPlanMonth(m,sId,selectedPlanArea)).join("");
   var modal=planModalOpen?renderPlanDayModal():"";
