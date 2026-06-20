@@ -343,10 +343,18 @@ function refreshRuleViolations(date){
 }
 
 function planPeriods(){
-  var y=Number(todayStr().slice(0,4));
+  var today=todayStr();
+  var y=Number(today.slice(0,4));
+  var m=Number(today.slice(5,7));
+  // Estate: se siamo dopo settembre, mostra l'estate dell'anno prossimo
+  var yEstate=(m>=10)?y+1:y;
+  // Natale: se siamo dopo dicembre (gennaio), mostra natale dell'anno in corso
+  var yNatale=(m<=1)?y-1:y;
+  // Pasqua: se siamo dopo aprile, mostra pasqua dell'anno prossimo
+  var yPasqua=(m>=5)?y+1:y;
   return {
-    estate:[y+"-06",y+"-07",y+"-08",y+"-09"],
-    natale:[y+"-12",(y+1)+"-01"],
-    pasqua:[y+"-04"]
+    estate:[yEstate+"-06",yEstate+"-07",yEstate+"-08",yEstate+"-09"],
+    natale:[yNatale+"-12",(yNatale+1)+"-01"],
+    pasqua:[yPasqua+"-04"]
   };
 }

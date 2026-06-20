@@ -248,19 +248,14 @@ function selectorControls(){
     return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+secSel+'<label style="margin:0">Area</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedAreaFilter=this.value;render()">'+aOpts+'</select></div>';
   }
   if(currentUser.role==="sector_manager"){
+    // Se multi-settore, mostra solo il selettore settore (le aree sono chips)
     var eas=currentUser.editableAreaIds||[];
-    var mySmSecs=Array.from(new Set(eas.map(aid=>{var a=db.areas.find(x=>x.id===aid);return a?a.sectorId:null;}).filter(Boolean)));
-    var parts='';
+    var mySmSecs=Array.from(new Set(eas.map(function(aid){var a=db.areas.find(function(x){return x.id===aid;});return a?a.sectorId:null;}).filter(Boolean)));
     if(mySmSecs.length>1){
-      var sOpts=mySmSecs.map(sid=>'<option value="'+sid+'"'+(selectedSectorId===sid?" selected":"")+'>'+sectorName(sid)+'</option>').join("");
-      parts+='<label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';render()">'+sOpts+'</select>';
+      var sOpts=mySmSecs.map(function(sid){return'<option value="'+sid+'"'+(selectedSectorId===sid?" selected":"")+'>'+sectorName(sid)+'</option>';}).join("");
+      return '<div style="display:flex;gap:8px;align-items:center"><label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;calendarView=\'settore\';render()">'+sOpts+'</select></div>';
     }
-    var myAreas=areasOfSector(selectedSectorId).filter(a=>eas.includes(a.id));
-    if(myAreas.length>1){
-      var aOpts='<option value="all"'+(selectedAreaFilter==="all"?" selected":"")+'>Tutte le mie aree</option>'+myAreas.map(a=>'<option value="'+a.id+'"'+(selectedAreaFilter===a.id?" selected":"")+'>'+a.name+'</option>').join("");
-      parts+='<label style="margin:0">Area</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedAreaFilter=this.value;render()">'+aOpts+'</select>';
-    }
-    return parts?'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+parts+'</div>':'';
+    return "";
   }
   return "";
 }
@@ -333,23 +328,24 @@ function layout(content){
    CALENDARIO
    ========================================================= */
 function visibleUsersForCalendar(){
-  // Personale (solo io) — solo employee e sector_manager
+  // Personale (solo io)
   if(calendarView==="personale"&&currentUser&&(currentUser.role==="employee"||currentUser.role==="sector_manager"))
-    return [currentUser].filter(u=>u.approved&&isWorker(u));
+    return [currentUser].filter(function(u){return u.approved&&isWorker(u);});
   // Viewer: filtra per area se selezionata
   if(currentUser.role==="viewer"){
-    var base=visibleUsers(true).filter(u=>isWorker(u));
-    if(selectedAreaFilter&&selectedAreaFilter!=="all") return base.filter(u=>u.areaId===selectedAreaFilter);
+    var base=visibleUsers(true).filter(function(u){return isWorker(u);});
+    if(selectedAreaFilter&&selectedAreaFilter!=="all") return base.filter(function(u){return u.areaId===selectedAreaFilter;});
     return base;
   }
-  // Area chip (admin/sector_manager)
+  // calendarView è un areaId (chip area specifica)
+  if(calendarView!=="settore"&&calendarView!=="area"&&calendarView!=="personale"){
+    return visibleUsers().filter(function(u){return u.areaId===calendarView;});
+  }
+  // Area chip legacy (admin)
   if(calendarView==="area"&&currentUser){
     var aid=currentUser.role==="admin"?selectedAreaFilter:currentUser.areaId;
-    if(aid&&aid!=="all"&&aid!=="*")return visibleUsers().filter(u=>u.areaId===aid);
+    if(aid&&aid!=="all"&&aid!=="*")return visibleUsers().filter(function(u){return u.areaId===aid;});
   }
-  // Sector_manager: se ha filtro area attivo, mostralo
-  if(currentUser.role==="sector_manager"&&selectedAreaFilter&&selectedAreaFilter!=="all")
-    return visibleUsers().filter(u=>u.areaId===selectedAreaFilter);
   return visibleUsers();
 }
 function changeMonth(delta){
@@ -404,11 +400,22 @@ function renderCalendar(){
   var modal=insertOpen?renderInsertSheet():(modalOpen?renderDayModal():"");
   var chips="";
   if(currentUser.role==="admin"||currentUser.role==="sector_manager"||currentUser.role==="employee"){
-    var isSm=currentUser.role==="sector_manager";
     var isEmp=currentUser.role==="employee";
+    var isSm=currentUser.role==="sector_manager";
+    // Aree visibili per chip: per sm solo le sue, per employee quelle del settore
+    var chipAreas=[];
+    if(isSm){
+      var eas=currentUser.editableAreaIds||[];
+      chipAreas=areasOfSector(selectedSectorId).filter(function(a){return eas.includes(a.id);});
+    } else {
+      chipAreas=areasOfSector(selectedSectorId);
+    }
+    var areaChips=chipAreas.map(function(a){
+      return '<button class="cal-chip'+(calendarView===a.id?" active":"")+'" onclick="calendarView=\''+a.id+'\';render()">'+a.name+'</button>';
+    }).join("");
     chips='<div class="cal-chips">'+
       '<button class="cal-chip'+(calendarView==="settore"?" active":"")+'" onclick="calendarView=\'settore\';render()">Settore</button>'+
-      (!isEmp?'<button class="cal-chip'+(calendarView==="area"?" active":"")+'" onclick="calendarView=\'area\';render()">Area</button>':"")+
+      areaChips+
       '<button class="cal-chip'+(calendarView==="personale"?" active":"")+'" onclick="calendarView=\'personale\';render()">'+(isEmp?"Solo io":"Personale")+'</button>'+
     '</div>';
   }
@@ -957,7 +964,7 @@ function renderPlan(){
   var areas=areasOfSector(sId);if(!areas.length)areas=[{id:sId,sectorId:sId,name:sectorName(sId),color:"#64748B"}];
   if(!selectedPlanArea)selectedPlanArea="all";
   var visibleAreas=(currentUser.role==="sector_manager")?areas.filter(function(a){return(currentUser.editableAreaIds||[]).includes(a.id);}):areas;
-  var aOpts='<option value="all"'+(selectedPlanArea==="all"?" selected":"")+'>'+sectorName(sId)+'</option>'+visibleAreas.map(function(a){return'<option value="'+a.id+'"'+(selectedPlanArea===a.id?" selected":"")+'>Solo '+a.name+'</option>';}).join("");
+  var aOpts='<option value="all"'+(selectedPlanArea==="all"?" selected":"")+'>Tutto il settore</option>'+visibleAreas.map(function(a){return'<option value="'+a.id+'"'+(selectedPlanArea===a.id?" selected":"")+'>'+a.name+'</option>';}).join("");
   var pTitle="PIANO FERIE — "+(sId==="prevenzione"&&selectedPlanArea==="all"?"SETTORE PREVENZIONE (PREV+VET)":"SETTORE "+sectorName(sId).toUpperCase());
   var content=months.map(m=>renderPlanMonth(m,sId,selectedPlanArea)).join("");
   var modal=planModalOpen?renderPlanDayModal():"";
@@ -969,9 +976,9 @@ function renderPlan(){
     planSectorSelect()+
     '<select style="width:auto;min-width:150px;margin:0" onchange="selectedPlanArea=this.value;render()">'+aOpts+'</select>'+
     '<select style="width:auto;min-width:180px;margin:0" onchange="selectedPlanPeriod=this.value;loadEventsForPlanPeriod();render()">'+
-    '<option value="estate"'+(selectedPlanPeriod==="estate"?" selected":"")+'>Estate (giu–set)</option>'+
-    '<option value="natale"'+(selectedPlanPeriod==="natale"?" selected":"")+'>Natale (dic–gen)</option>'+
-    '<option value="pasqua"'+(selectedPlanPeriod==="pasqua"?" selected":"")+'>Pasqua (apr)</option>'+
+    (function(){var p=planPeriods();var yE=p.estate[0].slice(0,4);var yN=p.natale[0].slice(0,4);var yP=p.pasqua[0].slice(0,4);return'<option value="estate"'+(selectedPlanPeriod==="estate"?" selected":"")+'>Estate '+yE+' (giu–set)</option>'+
+    '<option value="natale"'+(selectedPlanPeriod==="natale"?" selected":"")+'>Natale '+yN+' (dic–gen)</option>'+
+    '<option value="pasqua"'+(selectedPlanPeriod==="pasqua"?" selected":"")+'>Pasqua '+yP+' (apr)</option>';})()+ 
     '</select>'+
     '<button class="btn btn-secondary print-btn" onclick="window.print()">'+ico("chart")+'  PDF</button>'+
     '</div></div>'+
