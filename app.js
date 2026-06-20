@@ -49,7 +49,7 @@ function personRowEl(u,date,canEdit){
 function login(){
   var email=document.getElementById("lEmail").value.trim().toLowerCase();
   var pw=document.getElementById("lPw").value;
-  var u=db.users.find(x=>x.email.toLowerCase()===email&&x.password===pw);
+  var u=db.users.find(x=>(x.email||"").toLowerCase()===email&&x.password===pw);
   var err=document.getElementById("lErr");
   if(!u){err.textContent="Email o password non valide.";return;}
   if(!u.approved){err.textContent="Utenza in attesa di approvazione.";return;}
@@ -165,6 +165,7 @@ async function registerUser(){
     if(!visibleSectorIds.length){document.getElementById("rErr").textContent="Seleziona almeno un settore da visualizzare.";return;}
   }
   if(!name||!surname||!email||!pw){document.getElementById("rErr").textContent="Compila tutti i campi.";return;}
+  if(pw.length<6){document.getElementById("rErr").textContent="La password deve avere almeno 6 caratteri.";return;}
   var ex=db.users.find(u=>(u.email||"").toLowerCase()===email);
   if(ex){if(!ex.approved){page=null;renderLogin("Registrazione già inviata, in attesa di approvazione.");return;}document.getElementById("rErr").textContent="Email già registrata.";return;}
   var color=role==="viewer"?"#DC2626":role==="sector_manager"?"#F59E0B":userColorByArea(areaId);
@@ -610,7 +611,7 @@ function renderRegisterColleague(){
     '<div class="form-row"><label>Nome</label><input id="cName"></div>'+
     '<div class="form-row"><label>Cognome</label><input id="cSurname"></div>'+
     '<div class="form-row"><label>Email</label><input id="cEmail" type="email"></div>'+
-    '<div class="form-row"><label>Password provvisoria</label><input id="cPw" placeholder="1234"></div>'+
+    '<div class="form-row"><label>Password provvisoria</label><input id="cPw" type="password" autocomplete="new-password" placeholder="Minimo 6 caratteri"></div>'+
     '<div class="form-row"><label>Settore</label><select id="cSector" onchange="refreshColAreas()">'+sOpts+'</select></div>'+
     '<div class="form-row"><label>Area</label><select id="cArea"></select></div>'+
     '<div class="form-row"><label>C01</label><input id="cC01" type="number" value="0"></div>'+
@@ -633,7 +634,7 @@ async function saveColleague(){
   var name=document.getElementById("cName").value.trim();
   var surname=document.getElementById("cSurname").value.trim();
   var email=document.getElementById("cEmail").value.trim().toLowerCase();
-  var pw=document.getElementById("cPw").value||"1234";
+  var pw=document.getElementById("cPw").value.trim();
   var sectorId=document.getElementById("cSector").value;
   var areaId=document.getElementById("cArea").value;
   var c01=+document.getElementById("cC01").value||0;
@@ -755,7 +756,7 @@ function renderEmployeeDetail(u){
     '<div class="form-row"><label>Nome</label><input id="dn" value="'+u.name+'"></div>'+
     '<div class="form-row"><label>Cognome</label><input id="ds" value="'+(u.surname||"")+'"></div>'+
     '<div class="form-row"><label>Email</label><input id="de" value="'+u.email+'" '+prot+'></div>'+
-    '<div class="form-row"><label>Password</label><input id="dp" value="'+u.password+'" '+prot+'></div>'+
+    '<div class="form-row"><label>Password</label><input id="dp" type="password" autocomplete="new-password" value="'+u.password+'" '+prot+'></div>'+
     '<div class="form-row"><label>Settore</label><select id="dd" onchange="refreshDetailAreas()" '+prot+'>'+sOpts+'</select></div>'+
     '<div class="form-row"><label>Area</label><select id="da" '+prot+'>'+aOpts+'</select></div>'+
     '<div class="form-row"><label>Ruolo</label><select id="dr" '+prot+'>'+
@@ -910,7 +911,7 @@ async function addSector(){var nm=document.getElementById("nSec").value.trim(),a
 async function addAreaToSector(sId){var inp=document.getElementById("ar_"+sId),nm=inp.value.trim();if(!nm){alert("Inserisci il nome.");return;}var id=slugifyId(sId+"-"+nm),b=id,n=2;while(db.areas.some(a=>a.id===id))id=b+"-"+(n++);var a={id,sectorId:sId,name:nm,color:"#64748B"};db.areas.push(a);var s=db.sectors.find(x=>x.id===sId);if(s&&!s.hasAreas){s.hasAreas=true;try{await writeSector(s);}catch(e){}}try{await writeArea(a);}catch(e){}addAudit("Creata area "+nm);render();}
 async function approveRegistration(uId){var u=db.users.find(x=>x.id===uId);if(!u)return;u.approved=true;if(!u.visibleSectorIds?.length)u.visibleSectorIds=[u.sectorId];if(!u.editableAreaIds)u.editableAreaIds=[];var now=Date.now();db.lastRead[u.id]=now;db.lastRead[u.id+'_joined']=now;queueMetaWrite();addAudit("Approvata registrazione di "+fullName(u));try{await writeUser(u);}catch(e){}render();}
 async function approvePasswordRequest(id){var r=db.requests.find(x=>x.id===id);var u=r&&db.users.find(x=>x.id===r.userId);if(!r||!u)return;u.password=r.newPassword;r.status="approved";addAudit("Cambio password per "+fullName(u));try{await writeUser(u);await writeRequest(r);}catch(e){}render();}
-async function approveForgotPassword(id){var r=db.requests.find(x=>x.id===id);var u=r&&db.users.find(x=>x.id===r.userId);if(!r||!u)return;var inp=document.getElementById("rs_"+id);var pw=(inp&&inp.value.trim())||"1234";u.password=pw;r.status="approved";addAudit("Reset password per "+fullName(u));try{await writeUser(u);await writeRequest(r);}catch(e){}render();}
+async function approveForgotPassword(id){var r=db.requests.find(x=>x.id===id);var u=r&&db.users.find(x=>x.id===r.userId);if(!r||!u)return;var inp=document.getElementById("rs_"+id);var pw=inp?inp.value.trim():"";if(!pw){alert("Inserisci una nuova password prima di approvare il reset.");return;}if(pw.length<6){alert("La nuova password deve avere almeno 6 caratteri.");return;}u.password=pw;r.status="approved";addAudit("Reset password per "+fullName(u));try{await writeUser(u);await writeRequest(r);}catch(e){}render();}
 async function rejectPwdRequest(id){var r=db.requests.find(x=>x.id===id);if(!r)return;r.status="rejected";addAudit("Rifiutata richiesta password");try{await writeRequest(r);}catch(e){}render();}
 function exportData(){var b=new Blob([JSON.stringify(db,null,2)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="backup-"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(a.href);}
 

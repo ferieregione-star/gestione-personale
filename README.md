@@ -1,17 +1,41 @@
-# Gestione Personale — v100
+# Gestione Personale — v100 clean
 
-## Deploy su GitHub Pages
+Web app PWA per gestione personale, ferie, smart working, malattia, notifiche e piano ferie.
 
-Sostituisci tutti i file nel repo con questi. Mantieni la cartella `icons/` esistente (icon-192.png e icon-512.png).
+## File da pubblicare su GitHub Pages
 
-Il service worker usa la cache `gestione-personale-v100`: tutti i dispositivi si aggiorneranno automaticamente.
+Carica nella root del repository:
 
-Login super admin: `jackfrosties@hotmail.it` / `admin`
+- `index.html`
+- `styles.css`
+- `core.js`
+- `firestore-sync.js`
+- `app.js`
+- `manifest.json`
+- `sw.js`
+- cartella `icons/` con `icon-192.png` e `icon-512.png`
+- `firestore.rules` se usi Firebase CLI
 
-## Novità v100
-- Design system completamente riscritto, ottimizzato per iPhone 13 mini
-- Icone SVG minimaliste ridisegnate
-- Calendario: popup centrato al click, banner "Tutti in servizio", filtri Settore/Area/Personale
-- Piano ferie: due colonne nomi (sinistra/destra per area), numero grande centrato
-- Riepilogo: card moderne senza legenda
-- Mobile: topbar iOS-style, bottom nav con bottone centrale, nessun testo fuori dai contenitori
+Non caricare una cartella contenitore tipo `gp-work/`: `index.html` deve stare direttamente nella root.
+
+## Login iniziale
+
+Super admin iniziale:
+
+- email: `jackfrosties@hotmail.it`
+- password: `admin`
+
+Cambia subito la password dopo il primo accesso.
+
+## Correzioni applicate
+
+- Versione resa coerente a `v100` in core, cache e localStorage.
+- Service worker reso più robusto: se un asset manca, l'installazione non blocca tutta l'app.
+- Rimosso il fallback password `1234` per reset e creazione collega.
+- Aggiunti controlli minimi password da 6 caratteri.
+- Input password mascherati dove modificabili.
+- File rinominati in modo pulito per GitHub Pages.
+
+## Nota sicurezza
+
+Questa versione mantiene il login legacy interno all'app e non usa Firebase Authentication. Per questo motivo le regole Firestore incluse sono ancora compatibili con l'app ma non sono adatte a dati sensibili in produzione. La prossima modifica importante dovrebbe essere la migrazione a Firebase Authentication con password non salvate nella collezione `users`.

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="it"><head><meta charset="UTF-8"><title>Migrazione dati v62 -> v63</title>
+<html lang="it"><head><meta charset="UTF-8"><title>Migrazione dati v62 -> collezioni</title>
 <style>body{font-family:sans-serif;max-width:700px;margin:40px auto;padding:0 16px;line-height:1.5}
 button{padding:12px 18px;font-size:16px;cursor:pointer;margin:6px 0}
 pre{background:#f1f5f9;padding:12px;border-radius:8px;overflow:auto;font-size:13px}
@@ -8,8 +8,8 @@ pre{background:#f1f5f9;padding:12px;border-radius:8px;overflow:auto;font-size:13
 <h1>Migrazione dati: documento unico -> collezioni separate</h1>
 <p>Questa pagina legge il vecchio documento <code>gestionePersonale/main</code> e crea i documenti
 nelle nuove collezioni (<code>sectors</code>, <code>areas</code>, <code>users</code>, <code>events</code>,
-<code>notifications</code>, <code>requests</code>, <code>audit</code>, <code>meta</code>) usate dalla v63.</p>
-<p><b>Eseguila UNA SOLA VOLTA</b>, prima di pubblicare la v63. Non cancella il vecchio documento
+<code>notifications</code>, <code>requests</code>, <code>audit</code>, <code>meta</code>) usate dalla struttura a collezioni.</p>
+<p><b>Eseguila UNA SOLA VOLTA</b>, prima di pubblicare la versione aggiornata. Non cancella il vecchio documento
 (puoi farlo a mano dopo aver verificato che tutto funziona).</p>
 <button onclick="migrate()">Avvia migrazione</button>
 <pre id="log"></pre>
@@ -81,7 +81,7 @@ async function migrate(){
   log("Audit migrati: " + audit.length);
 
   // Meta
-  add(dbf.collection("meta").doc("config"), {lastRead: data.lastRead||{}, schema: 63});
+  add(dbf.collection("meta").doc("config"), {lastRead: data.lastRead||{}, schema: 100});
   log("Meta (lastRead) migrato.");
 
   log("Scrittura di " + writes.length + " documenti in batch...");
@@ -93,7 +93,7 @@ async function migrate(){
   }
 
   log("MIGRAZIONE COMPLETATA.", "ok");
-  log("Ora puoi pubblicare la cartella v63 (sostituisce index.html, app.js, core.js, firestore-sync.js, styles.css, sw.js, manifest.json).");
+  log("Ora puoi pubblicare la cartella v100 (sostituisce index.html, app.js, core.js, firestore-sync.js, styles.css, sw.js, manifest.json).");
 }
 </script>
 </body></html>

@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v63 - riscrittura
+   Gestione Personale v100 - core dati
    Architettura: Firestore con collezioni separate
      sectors/{id}, areas/{id}, users/{id}, events/{YYYY-MM-DD},
      notifications/{id}, requests/{id}, audit/{id}, meta/config
@@ -7,10 +7,10 @@
    Local cache in localStorage per avvio offline/veloce.
    ========================================================= */
 
-const VERSION = "v63";
-const STORE = "gestione_personale_v63";
-const SESSION_STORE = "gestione_personale_session_v63";
-const DATA_SCHEMA_VERSION = 63;
+const VERSION = "v100";
+const STORE = "gestione_personale_v100";
+const SESSION_STORE = "gestione_personale_session_v100";
+const DATA_SCHEMA_VERSION = 100;
 
 const STATUS = {
   present:{label:"In servizio", short:"S", cls:"present", color:"#16a34a"},

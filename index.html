@@ -4,26 +4,43 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Gestione Personale</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="Gestionale ferie, smart working e piano ferie.">
   <meta name="theme-color" content="#F2F4F7">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Gestione Personale">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="icon" href="./icons/icon-192.png">
 </head>
 <body>
-<div id="app"></div>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-<script>
-window.GESTIONE_FIREBASE_CONFIG={apiKey:"AIzaSyCkMCGwXiUkoQIKlKWwrzpRvT03LaeE248",authDomain:"gestione-personale-e2fd0.firebaseapp.com",projectId:"gestione-personale-e2fd0",storageBucket:"gestione-personale-e2fd0.firebasestorage.app",messagingSenderId:"942817368916",appId:"1:942817368916:web:9777683063d6aa3959c6c1",measurementId:"G-PLJ9DZNC40"};
-</script>
-<script src="core.js"></script>
-<script src="firestore-sync.js"></script>
-<script src="app.js"></script>
-<script>if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.error));</script>
+  <noscript>Per usare Gestione Personale devi abilitare JavaScript.</noscript>
+  <div id="app"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script>
+    window.GESTIONE_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCkMCGwXiUkoQIKlKWwrzpRvT03LaeE248",
+      authDomain: "gestione-personale-e2fd0.firebaseapp.com",
+      projectId: "gestione-personale-e2fd0",
+      storageBucket: "gestione-personale-e2fd0.firebasestorage.app",
+      messagingSenderId: "942817368916",
+      appId: "1:942817368916:web:9777683063d6aa3959c6c1",
+      measurementId: "G-PLJ9DZNC40"
+    };
+  </script>
+  <script src="./core.js"></script>
+  <script src="./firestore-sync.js"></script>
+  <script src="./app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js").catch(console.error);
+      });
+    }
+  </script>
 </body>
 </html>
