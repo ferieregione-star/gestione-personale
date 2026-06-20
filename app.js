@@ -3,7 +3,6 @@
    ========================================================= */
 
 let calendarView = "settore";
-var selectedDate = todayStr ? todayStr() : new Date().toISOString().slice(0,10);
 
 /* ---- Tema ---- */
 function applyTheme(){
