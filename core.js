@@ -241,19 +241,37 @@ function personSectorAreaLabel(u){
   }
   return sectorName(u.sectorId)+' / '+areaName(u.areaId);
 }
+function myVisibleSectorIds(){
+  if(!currentUser) return [];
+  if(currentUser.role==="admin") return db.sectors.map(function(s){return s.id;});
+  if(currentUser.role==="viewer") return currentUser.visibleSectorIds||[];
+  if(currentUser.role==="sector_manager"){
+    var eas=currentUser.editableAreaIds||[];
+    return Array.from(new Set(eas.map(function(aid){var a=db.areas.find(function(x){return x.id===aid;});return a?a.sectorId:null;}).filter(Boolean)));
+  }
+  return [currentUser.sectorId];
+}
 function visibleNotifications(){
   if(!currentUser) return [];
+  // Calcola la data di approvazione/creazione dell'utente corrente
+  // per non mostrare notifiche precedenti al suo ingresso nel sistema
+  var userJoinedAt=db.lastRead[currentUser.id+'_joined']||0;
   return db.notifications.filter(function(n){
+    // Notifiche troppo vecchie rispetto all'ingresso dell'utente: nascondi
+    if(userJoinedAt && n.at < userJoinedAt) return false;
     if(currentUser.role==="admin") return n.scope==="admin";
     if(currentUser.role==="viewer") return false;
     if(currentUser.role!=="sector_manager" && currentUser.role!=="employee") return false;
     if(n.scope!=="sector") return false;
+    // Non mostrare le proprie azioni
     if(n.actorId===currentUser.id) return false;
-    if(n.sectorId!==currentUser.sectorId) return false;
+    // Filtro settore: referente multi-settore vede tutti i suoi settori
+    var mySecs=myVisibleSectorIds();
+    if(mySecs.length && n.sectorId && mySecs.indexOf(n.sectorId)<0) return false;
     if(!n.areaId) return true;
     if(currentUser.role==="employee") return n.areaId===currentUser.areaId;
-    if(managesWholeSector(currentUser,currentUser.sectorId)) return true;
-    return n.areaId===currentUser.areaId || (currentUser.editableAreaIds||[]).indexOf(n.areaId)>=0;
+    if(managesWholeSector(currentUser,n.sectorId)) return true;
+    return (currentUser.editableAreaIds||[]).indexOf(n.areaId)>=0;
   });
 }
 function unreadCount(){

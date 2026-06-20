@@ -275,9 +275,12 @@ function restoreSession(){
     var u=db.users.find(function(x){return x.id===session.userId && x.approved;});
     if(!u) return false;
     currentUser=u;
-    selectedSectorId = u.role==="admin" ? "prevenzione" : u.sectorId;
+    if(u.role==="viewer"){selectedSectorId=(u.visibleSectorIds||[])[0]||u.sectorId;}
+    else if(u.role==="sector_manager"){var smAreas2=u.editableAreaIds||[];var smSecs2=Array.from(new Set(smAreas2.map(function(aid){var a=db.areas.find(function(x){return x.id===aid;});return a?a.sectorId:null;}).filter(Boolean)));selectedSectorId=smSecs2[0]||u.sectorId;}
+    else{selectedSectorId=u.role==="admin"?"prevenzione":u.sectorId;}
     selectedAreaFilter="all";
     selectedPlanArea="all";
+    if(typeof selectedDate==="undefined"||!selectedDate) selectedDate=todayStr();
     if(!page) page="calendar";
     return true;
   }catch(e){

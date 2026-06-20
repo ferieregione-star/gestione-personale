@@ -3,6 +3,7 @@
    ========================================================= */
 
 let calendarView = "settore";
+var selectedDate = todayStr ? todayStr() : new Date().toISOString().slice(0,10);
 
 /* ---- Tema ---- */
 function applyTheme(){
@@ -106,30 +107,41 @@ function renderRegister(){
 }
 function refreshRegRole(){
   var role=document.getElementById("rRole").value;
-  var sOpts=db.sectors.map(s=>'<option value="'+s.id+'">'+s.name+'</option>').join("");
   var html="";
   if(role==="employee"){
+    // Settore: select singola. Area: select singola
+    var sOpts=db.sectors.map(s=>'<option value="'+s.id+'">'+s.name+'</option>').join("");
     html='<div class="form-row"><label>Settore</label><select id="rSector" onchange="refreshRegAreas()">'+sOpts+'</select></div>'+
          '<div class="form-row"><label>Area</label><select id="rArea"></select></div>';
   } else if(role==="sector_manager"){
-    html='<div class="form-row"><label>Settore</label><select id="rSector" onchange="refreshRegAreas()">'+sOpts+'</select></div>'+
-         '<div class="form-row"><label>Aree gestite</label><div class="check-list" id="rAreaChecks"></div></div>';
+    // Settore: radio (uno solo). Poi aree del settore come checkbox
+    html='<div class="form-row"><label>Settore <small style="color:var(--c-muted)">(uno solo)</small></label><div class="check-list">'+
+      db.sectors.map((s,i)=>'<label class="check-row"><input type="radio" name="r_sector_radio" class="r_sec_radio" value="'+s.id+'"'+(i===0?' checked':'')+' onchange="refreshRegAreas()">'+s.name+'</label>').join("")+'</div></div>'+
+      '<div class="form-row" id="rAreaWrap"><label>Aree gestite <small style="color:var(--c-muted)">(una o più)</small></label><div class="check-list" id="rAreaChecks"></div></div>';
   } else if(role==="viewer"){
-    html='<div class="form-row"><label>Settori da visualizzare</label><div class="check-list">'+
+    // Settori: checkbox multipli
+    html='<div class="form-row"><label>Settori visibili <small style="color:var(--c-muted)">(uno o più)</small></label><div class="check-list">'+
       db.sectors.map(s=>'<label class="check-row"><input type="checkbox" class="r_vs" value="'+s.id+'">'+s.name+'</label>').join("")+'</div></div>';
   }
   document.getElementById("rRoleFields").innerHTML=html;
-  if(role==="employee"||role==="sector_manager") refreshRegAreas();
+  refreshRegAreas();
 }
 function refreshRegAreas(){
-  var role=document.getElementById("rRole")?document.getElementById("rRole").value:"employee";
-  var secEl=document.getElementById("rSector");
-  if(!secEl) return;
-  var areas=areasOfSector(secEl.value);
+  var roleEl=document.getElementById("rRole");
+  if(!roleEl) return;
+  var role=roleEl.value;
   if(role==="employee"){
+    var secEl=document.getElementById("rSector");
+    if(!secEl) return;
+    var areas=areasOfSector(secEl.value);
     var sel=document.getElementById("rArea");
     if(sel) sel.innerHTML=areas.map(a=>'<option value="'+a.id+'">'+a.name+'</option>').join("");
   } else if(role==="sector_manager"){
+    var radios=document.querySelectorAll(".r_sec_radio");
+    var checked=[...radios].find(r=>r.checked);
+    if(!checked&&radios.length) checked=radios[0];
+    var secId=checked?checked.value:"";
+    var areas=areasOfSector(secId);
     var checks=document.getElementById("rAreaChecks");
     if(checks) checks.innerHTML=areas.map(a=>'<label class="check-row"><input type="checkbox" class="r_ea" value="'+a.id+'">'+a.name+'</label>').join("");
   }
@@ -146,9 +158,10 @@ async function registerUser(){
     areaId=document.getElementById("rArea").value;
     visibleSectorIds=[sectorId];
   } else if(role==="sector_manager"){
-    sectorId=document.getElementById("rSector").value;
+    var radioChecked=document.querySelector(".r_sec_radio:checked");
+    sectorId=radioChecked?radioChecked.value:(db.sectors[0]?db.sectors[0].id:"");
     editableAreaIds=[...document.querySelectorAll(".r_ea:checked")].map(x=>x.value);
-    areaId=editableAreaIds[0]||areasOfSector(sectorId)[0]?.id||"";
+    areaId=editableAreaIds[0]||(areasOfSector(sectorId)[0]?areasOfSector(sectorId)[0].id:"");
     visibleSectorIds=[sectorId];
     if(!editableAreaIds.length){document.getElementById("rErr").textContent="Seleziona almeno un'area da gestire.";return;}
   } else if(role==="viewer"){
@@ -213,7 +226,9 @@ function startImpersonation(userId){
   if(u.role==="viewer"){selectedSectorId=(u.visibleSectorIds||[])[0]||u.sectorId;}
   else if(u.role==="sector_manager"){var smAreas=u.editableAreaIds||[];var smSecs=Array.from(new Set(smAreas.map(aid=>{var a=db.areas.find(x=>x.id===aid);return a?a.sectorId:null;}).filter(Boolean)));selectedSectorId=smSecs[0]||u.sectorId;}
   else{selectedSectorId=u.sectorId;}
-  selectedAreaFilter="all";selectedPlanArea="all";page="calendar";render();
+  selectedAreaFilter="all";selectedPlanArea="all";
+  selectedDate=todayStr();
+  page="calendar";render();
 }
 function stopImpersonation(){if(!adminUser)return;currentUser=adminUser;adminUser=null;selectedSectorId="prevenzione";selectedAreaFilter="all";selectedPlanArea="all";page="admin";render();}
 function toggleMobileMenu(){mobileMenuOpen=!mobileMenuOpen;render();}
@@ -231,10 +246,30 @@ function selectorControls(){
     var aOpts='<option value="all"'+(selectedAreaFilter==="all"?" selected":"")+'>Tutte</option>'+areasOfSector(selectedSectorId).map(a=>'<option value="'+a.id+'"'+(selectedAreaFilter===a.id?" selected":"")+'>'+a.name+'</option>').join("");
     return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';selectedPlanArea=\'all\';render()">'+sOpts+'</select><label style="margin:0">Area</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedAreaFilter=this.value;selectedPlanArea=this.value;render()">'+aOpts+'</select></div>';
   }
-  if(currentUser.role==="viewer"){var ss=db.sectors.filter(s=>(currentUser.visibleSectorIds||[]).includes(s.id));var o=ss.map(s=>'<option value="'+s.id+'"'+(selectedSectorId===s.id?" selected":"")+'>'+s.name+'</option>').join("");return '<div style="display:flex;gap:8px;align-items:center"><label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';selectedPlanArea=\'all\';render()">'+o+'</select></div>';}
+  if(currentUser.role==="viewer"){
+    var mySecIds=currentUser.visibleSectorIds||[];
+    var sOpts=db.sectors.filter(s=>mySecIds.includes(s.id)).map(s=>'<option value="'+s.id+'"'+(selectedSectorId===s.id?" selected":"")+'>'+s.name+'</option>').join("");
+    var aOpts='<option value="all"'+(selectedAreaFilter==="all"?" selected":"")+'>Tutto il settore</option>'+areasOfSector(selectedSectorId).map(a=>'<option value="'+a.id+'"'+(selectedAreaFilter===a.id?" selected":"")+'>'+a.name+'</option>').join("");
+    var secSel=mySecIds.length>1?'<label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';render()">'+sOpts+'</select>':'';
+    return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+secSel+'<label style="margin:0">Area</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedAreaFilter=this.value;render()">'+aOpts+'</select></div>';
+  }
+  if(currentUser.role==="sector_manager"){
+    var eas=currentUser.editableAreaIds||[];
+    var mySmSecs=Array.from(new Set(eas.map(aid=>{var a=db.areas.find(x=>x.id===aid);return a?a.sectorId:null;}).filter(Boolean)));
+    var parts='';
+    if(mySmSecs.length>1){
+      var sOpts=mySmSecs.map(sid=>'<option value="'+sid+'"'+(selectedSectorId===sid?" selected":"")+'>'+sectorName(sid)+'</option>').join("");
+      parts+='<label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';render()">'+sOpts+'</select>';
+    }
+    var myAreas=areasOfSector(selectedSectorId).filter(a=>eas.includes(a.id));
+    if(myAreas.length>1){
+      var aOpts='<option value="all"'+(selectedAreaFilter==="all"?" selected":"")+'>Tutte le mie aree</option>'+myAreas.map(a=>'<option value="'+a.id+'"'+(selectedAreaFilter===a.id?" selected":"")+'>'+a.name+'</option>').join("");
+      parts+='<label style="margin:0">Area</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedAreaFilter=this.value;render()">'+aOpts+'</select>';
+    }
+    return parts?'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+parts+'</div>':'';
+  }
   return "";
 }
-
 function bellBtn(){
   if(!currentUser||(currentUser.role!=="sector_manager"&&currentUser.role!=="employee"))return"";
   var n=unreadCount();
@@ -304,12 +339,23 @@ function layout(content){
    CALENDARIO
    ========================================================= */
 function visibleUsersForCalendar(){
+  // Personale (solo io) — solo employee e sector_manager
   if(calendarView==="personale"&&currentUser&&(currentUser.role==="employee"||currentUser.role==="sector_manager"))
     return [currentUser].filter(u=>u.approved&&isWorker(u));
+  // Viewer: filtra per area se selezionata
+  if(currentUser.role==="viewer"){
+    var base=visibleUsers(true).filter(u=>isWorker(u));
+    if(selectedAreaFilter&&selectedAreaFilter!=="all") return base.filter(u=>u.areaId===selectedAreaFilter);
+    return base;
+  }
+  // Area chip (admin/sector_manager)
   if(calendarView==="area"&&currentUser){
     var aid=currentUser.role==="admin"?selectedAreaFilter:currentUser.areaId;
     if(aid&&aid!=="all"&&aid!=="*")return visibleUsers().filter(u=>u.areaId===aid);
   }
+  // Sector_manager: se ha filtro area attivo, mostralo
+  if(currentUser.role==="sector_manager"&&selectedAreaFilter&&selectedAreaFilter!=="all")
+    return visibleUsers().filter(u=>u.areaId===selectedAreaFilter);
   return visibleUsers();
 }
 function changeMonth(delta){
@@ -362,14 +408,13 @@ function renderCalendar(){
     '</button>';
   }
   var modal=insertOpen?renderInsertSheet():(modalOpen?renderDayModal():"");
-  var showFilter=currentUser.role==="employee"||currentUser.role==="sector_manager"||currentUser.role==="admin";
   var chips="";
-  if(showFilter){
+  if(currentUser.role==="admin"||currentUser.role==="sector_manager"||currentUser.role==="employee"){
     var isSm=currentUser.role==="sector_manager";
     var isEmp=currentUser.role==="employee";
     chips='<div class="cal-chips">'+
       '<button class="cal-chip'+(calendarView==="settore"?" active":"")+'" onclick="calendarView=\'settore\';render()">Settore</button>'+
-      (isSm||currentUser.role==="admin"?'<button class="cal-chip'+(calendarView==="area"?" active":"")+'" onclick="calendarView=\'area\';render()">Area</button>':"")+
+      (!isEmp?'<button class="cal-chip'+(calendarView==="area"?" active":"")+'" onclick="calendarView=\'area\';render()">Area</button>':"")+
       '<button class="cal-chip'+(calendarView==="personale"?" active":"")+'" onclick="calendarView=\'personale\';render()">'+(isEmp?"Solo io":"Personale")+'</button>'+
     '</div>';
   }
@@ -596,7 +641,7 @@ async function saveColleague(){
   var btn=document.querySelector("[onclick='saveColleague()']");
   if(btn){if(btn.disabled)return;btn.disabled=true;btn.textContent="Registrazione...";}
   var nu={id:uid("user"),email,password:pw,name,surname,role:"employee",sectorId,areaId,visibleSectorIds:[sectorId],editableAreaIds:[],c01,c02,f14,approved:true,initials:createInitialsForUser(name,surname),color:userColorByArea(areaId)};
-  try{await writeUser(nu);addIfAbsent(db.users,nu);db.lastRead[nu.id]=Date.now();queueMetaWrite();addAudit("Registrato collega "+fullName(nu));msg.textContent="Collega registrato.";}
+  var nowC=Date.now();try{await writeUser(nu);addIfAbsent(db.users,nu);db.lastRead[nu.id]=nowC;db.lastRead[nu.id+'_joined']=nowC;queueMetaWrite();addAudit("Registrato collega "+fullName(nu));msg.textContent="Collega registrato.";}
   catch(e){msg.textContent="Errore di connessione, riprova.";}
   if(btn){btn.disabled=false;btn.textContent="Registra";}
 }
@@ -799,6 +844,21 @@ function renderNotifications(){
 /* =========================================================
    ADMIN
    ========================================================= */
+
+async function clearAllNotifications(){
+  if(!confirm("Eliminare tutte le notifiche? L'operazione non è reversibile.")) return;
+  var ids=db.notifications.map(n=>n.id);
+  db.notifications=[];
+  persistLocal();
+  if(cloudEnabled&&cloudDb){
+    for(var i=0;i<ids.length;i++){
+      try{ await cloudDb.collection("notifications").doc(ids[i]).delete(); }catch(e){}
+    }
+  }
+  addAudit("Azzerate "+ids.length+" notifiche");
+  alert("Notifiche eliminate: "+ids.length+".");
+  render();
+}
 function renderAdmin(){
   var pending=pendingRegistrations();
   var newUsers=pending.map(u=>'<div class="person-row">'+avatarEl(u)+'<div class="person-meta"><strong>'+fullName(u)+'</strong><small>'+u.email+' · '+personSectorAreaLabel(u)+'</small></div>'+
@@ -822,6 +882,10 @@ function renderAdmin(){
     '</div>'+
     renderSwitchUserPanel()+renderSectorAdminPanel()+
     '<div class="card"><div class="sec-title">Backup</div><button class="btn btn-secondary" onclick="exportData()">'+ico("chart")+'  Esporta JSON</button></div>'+
+    '<div class="card"><div class="sec-title">Manutenzione</div>'+
+    '<p style="font-size:13px;color:var(--c-muted);margin-bottom:10px">Le notifiche si accumulano nel tempo. Azzerandole liberi spazio su Firestore senza perdere dati importanti.</p>'+
+    '<button class="btn btn-danger" onclick="clearAllNotifications()">🗑️  Azzera tutte le notifiche</button>'+
+    '</div>'+
     '<div class="card"><div class="sec-title">Storico</div>'+audit+'</div>'
   );
 }
@@ -839,7 +903,7 @@ function renderSectorAdminPanel(){
 }
 async function addSector(){var nm=document.getElementById("nSec").value.trim(),an=document.getElementById("nSecA").value.trim();if(!nm){alert("Inserisci il nome.");return;}var id=slugifyId(nm),b=id,n=2;while(db.sectors.some(s=>s.id===id))id=b+"-"+(n++);var s={id,name:nm,hasAreas:!!an};db.sectors.push(s);try{await writeSector(s);}catch(e){}if(an){var a={id:slugifyId(id+"-"+an),sectorId:id,name:an,color:"#64748B"};db.areas.push(a);try{await writeArea(a);}catch(e){}}addAudit("Creato settore "+nm);render();}
 async function addAreaToSector(sId){var inp=document.getElementById("ar_"+sId),nm=inp.value.trim();if(!nm){alert("Inserisci il nome.");return;}var id=slugifyId(sId+"-"+nm),b=id,n=2;while(db.areas.some(a=>a.id===id))id=b+"-"+(n++);var a={id,sectorId:sId,name:nm,color:"#64748B"};db.areas.push(a);var s=db.sectors.find(x=>x.id===sId);if(s&&!s.hasAreas){s.hasAreas=true;try{await writeSector(s);}catch(e){}}try{await writeArea(a);}catch(e){}addAudit("Creata area "+nm);render();}
-async function approveRegistration(uId){var u=db.users.find(x=>x.id===uId);if(!u)return;u.approved=true;if(!u.visibleSectorIds?.length)u.visibleSectorIds=[u.sectorId];if(!u.editableAreaIds)u.editableAreaIds=[];db.lastRead[u.id]=Date.now();queueMetaWrite();addAudit("Approvata registrazione di "+fullName(u));try{await writeUser(u);}catch(e){}render();}
+async function approveRegistration(uId){var u=db.users.find(x=>x.id===uId);if(!u)return;u.approved=true;if(!u.visibleSectorIds?.length)u.visibleSectorIds=[u.sectorId];if(!u.editableAreaIds)u.editableAreaIds=[];var now=Date.now();db.lastRead[u.id]=now;db.lastRead[u.id+'_joined']=now;queueMetaWrite();addAudit("Approvata registrazione di "+fullName(u));try{await writeUser(u);}catch(e){}render();}
 async function approvePasswordRequest(id){var r=db.requests.find(x=>x.id===id);var u=r&&db.users.find(x=>x.id===r.userId);if(!r||!u)return;u.password=r.newPassword;r.status="approved";addAudit("Cambio password per "+fullName(u));try{await writeUser(u);await writeRequest(r);}catch(e){}render();}
 async function approveForgotPassword(id){var r=db.requests.find(x=>x.id===id);var u=r&&db.users.find(x=>x.id===r.userId);if(!r||!u)return;var inp=document.getElementById("rs_"+id);var pw=(inp&&inp.value.trim())||"1234";u.password=pw;r.status="approved";addAudit("Reset password per "+fullName(u));try{await writeUser(u);await writeRequest(r);}catch(e){}render();}
 async function rejectPwdRequest(id){var r=db.requests.find(x=>x.id===id);if(!r)return;r.status="rejected";addAudit("Rifiutata richiesta password");try{await writeRequest(r);}catch(e){}render();}
@@ -873,8 +937,8 @@ function planPeople(sId,aId){return db.users.filter(u=>u.approved&&isWorker(u)&&
 
 function renderPlan(){
   var periods=planPeriods();var months=periods[selectedPlanPeriod]||periods.estate;
-  var sId=currentUser.role==="admin"?selectedSectorId:currentUser.sectorId;
-  if(!sId||sId==="all"||sId==="*")sId="prevenzione";
+  var sId=(currentUser.role==="admin"||currentUser.role==="viewer")?selectedSectorId:currentUser.sectorId;
+  if(!sId||sId==="all"||sId==="*")sId=db.sectors[0]?db.sectors[0].id:"prevenzione";
   var areas=areasOfSector(sId);if(!areas.length)areas=[{id:sId,sectorId:sId,name:sectorName(sId),color:"#64748B"}];
   if(!selectedPlanArea)selectedPlanArea="all";
   var aOpts='<option value="all"'+(selectedPlanArea==="all"?" selected":"")+'>'+sectorName(sId)+'</option>'+areas.map(a=>'<option value="'+a.id+'"'+(selectedPlanArea===a.id?" selected":"")+'>Solo '+a.name+'</option>').join("");
