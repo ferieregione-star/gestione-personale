@@ -1,4 +1,4 @@
-# Gestione Personale — v103
+# Gestione Personale — v104
 
 Versione aggiornata con due modifiche richieste:
 
@@ -31,11 +31,11 @@ Le notifiche di settore generate da inserimento/rimozione assenze non vengono pi
 
 ## Versione e cache
 
-- `core.js`: `v103`
-- `app.js`: `v103`
-- `firestore-sync.js`: `v103`
-- `sw.js`: cache `gestione-personale-v103`
-- `index.html`: riferimenti aggiornati con `?v=103`
+- `core.js`: `v104`
+- `app.js`: `v104`
+- `firestore-sync.js`: `v104`
+- `sw.js`: cache `gestione-personale-v104`
+- `index.html`: riferimenti aggiornati con `?v=104`
 
 ## Deploy GitHub Pages
 
@@ -54,3 +54,11 @@ La root deve contenere direttamente:
 - cartella `icons/`
 
 Dopo il caricamento, fai refresh forzato. Se usi la PWA installata sul telefono, chiudila e riaprila; se continua a caricare la vecchia versione, disinstalla e reinstalla la PWA.
+
+
+## Modifiche v104
+
+- Sistemata visualizzazione dei radio button nella registrazione Referente.
+- Aggiunta legenda compatta nel Calendario.
+- Aggiunta legenda compatta nel Riepilogo.
+- Aggiornati cache, riferimenti e query string asset a v104.

@@ -1,5 +1,5 @@
 /* =========================================================
-   FIRESTORE SYNC - v103
+   FIRESTORE SYNC - v104
    Collezioni:
      sectors/{id}, areas/{id}            -> piccoli, ascoltati per intero
      users/{id}                          -> ascoltati per intero (poche decine)

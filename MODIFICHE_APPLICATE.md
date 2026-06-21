@@ -1,4 +1,4 @@
-# Modifiche applicate — v103
+# Modifiche applicate — v104
 
 ## 1. Calendario dirigente
 
@@ -33,8 +33,14 @@ Restano notifiche admin per:
 
 ## 3. Versione
 
-Tutti i riferimenti sono stati aggiornati a `v103`.
+Tutti i riferimenti sono stati aggiornati a `v104`.
 
-- Cache service worker: `gestione-personale-v103`
-- Query string asset: `?v=103`
-- Local storage: `gestione_personale_v103`
+- Cache service worker: `gestione-personale-v104`
+- Query string asset: `?v=104`
+- Local storage: `gestione_personale_v104`
+
+
+## v104
+- Fix grafico selezione Referente in registrazione.
+- Legenda stati in Calendario e Riepilogo.
+- Versione aggiornata a v104.

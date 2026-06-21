@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v103
+   Gestione Personale v104
    ========================================================= */
 
 let calendarView = "settore";
@@ -341,6 +341,24 @@ function layout(content){
     '</div>'+bottomNav;
 }
 
+
+function renderStatusLegend(extraClass){
+  extraClass=extraClass||"";
+  var items=[
+    {dot:'<span class="legend-dot legend-dot-sw-blue">SW</span>', label:'Smart working — Prevenzione / Territorio'},
+    {dot:'<span class="legend-dot legend-dot-sw-green">SW</span>', label:'Smart working — Veterinaria / Convenzionata'},
+    {dot:'<span class="legend-dot legend-dot-c01">C01</span>', label:'Ferie anno attuale'},
+    {dot:'<span class="legend-dot legend-dot-c02">C02</span>', label:'Ferie anno precedente'},
+    {dot:'<span class="legend-dot legend-dot-f14">F14</span>', label:'Festività soppresse'},
+    {dot:'<span class="legend-dot legend-dot-a01">A01</span>', label:'Malattia'},
+    {dot:'<span class="legend-dot legend-dot-altro">ALT</span>', label:'Altro'}
+  ];
+  return '<div class="status-legend no-print '+extraClass+'">'+
+    '<div class="status-legend-title">Legenda</div>'+ 
+    '<div class="status-legend-items">'+items.map(function(it){return '<div class="status-legend-item">'+it.dot+'<span>'+it.label+'</span></div>';}).join('')+'</div>'+ 
+  '</div>';
+}
+
 /* =========================================================
    CALENDARIO
    ========================================================= */
@@ -349,7 +367,7 @@ function visibleUsersForCalendar(){
   if(calendarView==="personale"&&currentUser&&(currentUser.role==="employee"||currentUser.role==="sector_manager"))
     return [currentUser].filter(function(u){return u.approved&&isWorker(u);});
 
-  // v103 — Dirigente: stessa logica del piano ferie.
+  // v104 — Dirigente: stessa logica del piano ferie.
   // Usa selectedSectorId + selectedAreaFilter, cioè i due menu a tendina.
   // Niente chip area per il dirigente, così calendario e piano ferie restano coerenti.
   if(currentUser.role==="viewer"){
@@ -454,6 +472,7 @@ function renderCalendar(){
     '<div class="cal-head"><div class="cal-head-cell">LUN</div><div class="cal-head-cell">MAR</div><div class="cal-head-cell">MER</div><div class="cal-head-cell">GIO</div><div class="cal-head-cell">VEN</div></div>'+
     '<div class="cal-grid">'+days+'</div>'+
     '</div>'+
+    renderStatusLegend('calendar-legend')+
     renderDaySummary()+modal
   );
 }
@@ -848,7 +867,7 @@ function renderReports(){
       '<div class="report-stat"><strong>'+r.altro+'</strong><span>Altro</span></div>'+
       '</div></div>';
   }).join("");
-  layout('<div class="page-header"><h1>Riepilogo</h1>'+selectorControls()+'</div><div class="report-grid">'+cards+'</div>');
+  layout('<div class="page-header"><h1>Riepilogo</h1>'+selectorControls()+'</div>'+renderStatusLegend('report-legend')+'<div class="report-grid">'+cards+'</div>');
 }
 
 /* =========================================================
