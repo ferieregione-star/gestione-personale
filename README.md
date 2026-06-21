@@ -1,23 +1,19 @@
-# Gestione Personale — v105
+# Gestione Personale — v106 no malattia
 
-Versione aggiornata della web app PWA per gestione personale, ferie, smart working, malattia, riepiloghi e piano ferie.
+Versione aggiornata della web app PWA per gestione personale, ferie, smart working, riepiloghi e piano ferie.
 
-## Modifiche v105
+## Modifiche v106
 
-- Legenda di Calendario e Riepilogo resa contestuale al settore selezionato.
-- Se è selezionato **Settore 4**, la legenda mostra solo:
-  - Smart working — Prevenzione
-  - Smart working — Veterinaria
-- Se è selezionato **Settore 7**, la legenda mostra solo:
-  - Smart working — Territorio
-  - Smart working — Convenzionata
-- Le icone della legenda sono state rese tonde, compatte e con testo più piccolo.
-- Nessuna modifica alla logica dati principale rispetto alla v104.
-- Aggiornati cache, localStorage e riferimenti asset a `v105`.
+- Rimosso completamente il codice relativo alla malattia dall'app.
+- Codici disponibili: `SW`, `C01`, `C02`, `F14`, `ALTRO`.
+- Riepiloghi aggiornati senza conteggio malattia.
+- Legende aggiornate senza voce malattia.
+- Eventuali vecchi eventi `a01`/`malattia` vengono letti come `ALTRO`, così l'app non si rompe con dati precedenti.
+- Versione, cache e riferimenti aggiornati a `v106`.
 
-## File da pubblicare su GitHub Pages
+## File da caricare nella root GitHub Pages
 
-Carica nella root del repository:
+Carica direttamente questi file nella root del repository:
 
 - `index.html`
 - `styles.css`
@@ -27,10 +23,6 @@ Carica nella root del repository:
 - `manifest.json`
 - `sw.js`
 - `firestore.rules`
-- cartella `icons/` con `icon-192.png` e `icon-512.png`
+- cartella `icons/`
 
-Non caricare una cartella contenitore: `index.html` deve stare direttamente nella root.
-
-## Dopo il deploy
-
-Se vedi ancora la vecchia versione, fai refresh forzato o reinstalla la PWA.
+Dopo il deploy fai refresh forzato o reinstalla la PWA se continua a mostrare file vecchi.

@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v105
+   Gestione Personale v106
    ========================================================= */
 
 let calendarView = "settore";
@@ -345,7 +345,7 @@ function layout(content){
 function renderStatusLegend(extraClass){
   extraClass=extraClass||"";
 
-  // v105 — Legenda contestuale al settore selezionato.
+  // v106 — Legenda contestuale al settore selezionato, senza codice malattia.
   // Le voci Smart Working non mischiano più aree di settori diversi:
   // Settore 4 -> Prevenzione/Veterinaria; Settore 7 -> Territorio/Convenzionata.
   var sectorId=selectedSectorId||currentUser?.sectorId||"prevenzione";
@@ -359,7 +359,6 @@ function renderStatusLegend(extraClass){
     {dot:'<span class="legend-dot legend-dot-c01">C01</span>', label:'Ferie anno attuale'},
     {dot:'<span class="legend-dot legend-dot-c02">C02</span>', label:'Ferie anno precedente'},
     {dot:'<span class="legend-dot legend-dot-f14">F14</span>', label:'Festività soppresse'},
-    {dot:'<span class="legend-dot legend-dot-a01">A01</span>', label:'Malattia'},
     {dot:'<span class="legend-dot legend-dot-altro">ALT</span>', label:'Altro'}
   ]);
 
@@ -377,7 +376,7 @@ function visibleUsersForCalendar(){
   if(calendarView==="personale"&&currentUser&&(currentUser.role==="employee"||currentUser.role==="sector_manager"))
     return [currentUser].filter(function(u){return u.approved&&isWorker(u);});
 
-  // v105 — Dirigente: stessa logica del piano ferie.
+  // v106 — Dirigente: stessa logica del piano ferie.
   // Usa selectedSectorId + selectedAreaFilter, cioè i due menu a tendina.
   // Niente chip area per il dirigente, così calendario e piano ferie restano coerenti.
   if(currentUser.role==="viewer"){
@@ -854,7 +853,7 @@ async function deleteUser(id){
    RIEPILOGO
    ========================================================= */
 function userReport(u){
-  var r={c01:0,c02:0,f14:0,smart:0,a01:0,altro:0};
+  var r={c01:0,c02:0,f14:0,smart:0,altro:0};
   Object.keys(db.events).forEach(d=>{if(!isBlockedDay(d)){var st=normalizeEventCode(db.events[d][u.id]);if(r[st]!==undefined)r[st]++;}});
   r.c01T=+u.c01||0;r.c02T=+u.c02||0;r.f14T=+u.f14||0;
   r.c01R=r.c01T-r.c01;r.c02R=r.c02T-r.c02;r.f14R=r.f14T-r.f14;
@@ -872,7 +871,6 @@ function renderReports(){
       '<div class="report-stat"><strong>'+r.c01R+'</strong><span>C01 residue</span></div>'+
       '<div class="report-stat"><strong>'+r.c02R+'</strong><span>C02 residue</span></div>'+
       '<div class="report-stat"><strong>'+r.f14R+'</strong><span>F14 residue</span></div>'+
-      '<div class="report-stat"><strong>'+r.a01+'</strong><span>A01 malattia</span></div>'+
       '<div class="report-stat"><strong>'+r.smart+'</strong><span>Smart working</span></div>'+
       '<div class="report-stat"><strong>'+r.altro+'</strong><span>Altro</span></div>'+
       '</div></div>';

@@ -1,31 +1,9 @@
-# Modifiche applicate — v105
+# Modifiche applicate — v106
 
-## Legenda contestuale
-
-La legenda di Calendario e Riepilogo ora segue il settore selezionato:
-
-- Settore 4: Prevenzione e Veterinaria.
-- Settore 7: Territorio e Convenzionata.
-
-Le voci Smart Working non mischiano più aree di settori diversi.
-
-## Icone legenda
-
-Le icone della legenda sono state rese:
-
-- tonde;
-- più compatte;
-- con carattere più piccolo;
-- più armoniose su desktop e mobile.
+## Privacy
+- Eliminato il codice malattia da stati, inserimento, legenda e riepiloghi.
+- I vecchi valori `a01` o `malattia` vengono normalizzati come `altro`.
 
 ## Versione
-
-Aggiornato tutto a `v105`:
-
-- `core.js`
-- `app.js`
-- `firestore-sync.js`
-- `styles.css`
-- `manifest.json`
-- `index.html`
-- `sw.js`
+- Aggiornati riferimenti a v106.
+- Aggiornata cache service worker a `gestione-personale-v106`.

@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v105 - core dati
+   Gestione Personale v106 - core dati
    Architettura: Firestore con collezioni separate
      sectors/{id}, areas/{id}, users/{id}, events/{YYYY-MM-DD},
      notifications/{id} (solo admin), requests/{id}, audit/{id}, meta/config
@@ -7,10 +7,10 @@
    Local cache in localStorage per avvio offline/veloce.
    ========================================================= */
 
-const VERSION = "v105";
-const STORE = "gestione_personale_v105";
-const SESSION_STORE = "gestione_personale_session_v105";
-const DATA_SCHEMA_VERSION = 105;
+const VERSION = "v106";
+const STORE = "gestione_personale_v106";
+const SESSION_STORE = "gestione_personale_session_v106";
+const DATA_SCHEMA_VERSION = 106;
 
 const STATUS = {
   present:{label:"In servizio", short:"S", cls:"present", color:"#16a34a"},
@@ -18,7 +18,6 @@ const STATUS = {
   c01:{label:"C01 - Ferie anno attuale", short:"C01", cls:"ferie", color:"#f97316"},
   c02:{label:"C02 - Ferie anno precedente", short:"C02", cls:"ferie", color:"#ca8a04"},
   f14:{label:"F14 - Festività soppresse", short:"F14", cls:"permesso", color:"#7c3aed"},
-  a01:{label:"A01 - Malattia", short:"A01", cls:"malattia", color:"#6b7280"},
   altro:{label:"ALTRO", short:"ALT", cls:"altro", color:"#ffffff"}
 };
 /* Colore dell'icona SW in base all'area della persona:
@@ -84,7 +83,7 @@ let insertOpen = false;
 let insertUserId = null;
 let insertCode = null;
 let insertError = "";
-const INSERT_CODES = ["c01","c02","f14","smart","a01","altro"];
+const INSERT_CODES = ["c01","c02","f14","smart","altro"];
 /* ---------- Icone SVG minimali ---------- */
 const ICONS = {
   calendar:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16"/><path d="M8 3v4M16 3v4"/>',
@@ -169,13 +168,13 @@ function ferieCodes(){ return ["c01","c02","f14"]; }
 function isFerieCode(st){ return ferieCodes().indexOf(st)>=0; }
 function normalizeEventCode(st){
   if(st==="ferie") return "c01";
-  if(st==="malattia") return "a01";
+  if(st==="malattia"||st==="a01") return "altro";
   if(st==="permesso") return "f14";
   return st;
 }
 function eventFor(date,userId){
   if(isBlockedDay(date)) return "blocked";
-  return (db.events[date] && db.events[date][userId]) || "present";
+  return normalizeEventCode((db.events[date] && db.events[date][userId]) || "present");
 }
 function isAbsent(st){ return st!=="present" && st!=="blocked"; }
 function statusTag(st){
@@ -228,7 +227,7 @@ function addAudit(text){
   queueAuditWrite(entry);
 }
 function pushNotification(opts){
-  // v105: le notifiche sono riservate al Super Admin.
+  // v106: le notifiche sono riservate al Super Admin.
   // Le notifiche di settore non vengono più salvate né in locale né su Firestore.
   if(!opts || opts.scope!=="admin") return;
   var entry={id:uid("note"), text:opts.text, scope:"admin", sectorId:opts.sectorId||null, areaId:opts.areaId||null, type:opts.type||"info", actorId:opts.actorId||(currentUser?currentUser.id:"system"), at:Date.now(), displayAt:new Date().toLocaleString("it-IT")};

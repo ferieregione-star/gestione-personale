@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v105 — Design System
+   Gestione Personale v106 — Design System
    ========================================================= */
 
 /* ---- Token ---- */
@@ -63,7 +63,6 @@ h1, h2, h3 { font-weight: 800; }
 .tag-present  { background: var(--c-green-lt); color: var(--c-green); }
 .tag-smart    { background: #DBEAFE; color: #1D4ED8; }
 .tag-ferie    { background: #FFEDD5; color: #C2410C; }
-.tag-malattia { background: var(--c-red-lt); color: #B91C1C; }
 .tag-permesso { background: var(--c-purple-lt); color: #6D28D9; }
 .tag-altro    { background: #F3F4F6; color: #374151; }
 .tag-blocked  { background: #F3F4F6; color: var(--c-muted); }
@@ -427,7 +426,7 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
 
 
 /* ====================================================
-   FIX REGISTRAZIONE + LEGENDA v105
+   FIX REGISTRAZIONE + LEGENDA v106
    ==================================================== */
 .check-row {
   justify-content: flex-start;
@@ -504,7 +503,6 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
 .legend-dot-c01 { background: #f97316; }
 .legend-dot-c02 { background: #ca8a04; }
 .legend-dot-f14 { background: #7c3aed; }
-.legend-dot-a01 { background: #6b7280; }
 .legend-dot-altro { background: #fff; color: #374151; border: 1px solid var(--c-border); box-shadow: none; }
 
 @media (max-width: 760px) {
