@@ -635,8 +635,17 @@ async function requestPasswordChange(){
   var pw=document.getElementById("reqPw").value;
   var el=document.getElementById("profileMsg");
   if(!pw){el.textContent="Inserisci la nuova password.";return;}
+  if(pw.length<6){el.textContent="La nuova password deve avere almeno 6 caratteri.";return;}
   var req={id:uid("req"),type:"password",userId:currentUser.id,newPassword:pw,status:"pending",at:new Date().toLocaleString("it-IT"),createdAt:Date.now()};
-  try{await writeRequest(req);addIfAbsent(db.requests,req,true);pushNotification({text:fullName(currentUser)+" ha richiesto cambio password",scope:"admin",actorId:"system",type:"password",sectorId:currentUser.sectorId,areaId:currentUser.areaId});el.textContent="Richiesta inviata.";}
+  try{
+    await writeRequest(req);
+    addIfAbsent(db.requests,req,true);
+    pushNotification({text:fullName(currentUser)+" ha richiesto cambio password",scope:"admin",actorId:"system",type:"password",sectorId:currentUser.sectorId,areaId:currentUser.areaId});
+    currentUser=null;
+    adminUser=null;
+    clearSession();
+    renderLogin("Richiesta cambio password inviata. Dopo l'approvazione, accedi di nuovo con la nuova password.");
+  }
   catch(e){el.textContent="Errore di connessione, riprova.";}
 }
 

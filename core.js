@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v106 - core dati
+   Gestione Personale v107 - core dati
    Architettura: Firestore con collezioni separate
      sectors/{id}, areas/{id}, users/{id}, events/{YYYY-MM-DD},
      notifications/{id} (solo admin), requests/{id}, audit/{id}, meta/config
@@ -7,10 +7,10 @@
    Local cache in localStorage per avvio offline/veloce.
    ========================================================= */
 
-const VERSION = "v106";
-const STORE = "gestione_personale_v106";
-const SESSION_STORE = "gestione_personale_session_v106";
-const DATA_SCHEMA_VERSION = 106;
+const VERSION = "v107";
+const STORE = "gestione_personale_v107";
+const SESSION_STORE = "gestione_personale_session_v107";
+const DATA_SCHEMA_VERSION = 107;
 
 const STATUS = {
   present:{label:"In servizio", short:"S", cls:"present", color:"#16a34a"},
@@ -227,7 +227,7 @@ function addAudit(text){
   queueAuditWrite(entry);
 }
 function pushNotification(opts){
-  // v106: le notifiche sono riservate al Super Admin.
+  // v107: le notifiche sono riservate al Super Admin.
   // Le notifiche di settore non vengono più salvate né in locale né su Firestore.
   if(!opts || opts.scope!=="admin") return;
   var entry={id:uid("note"), text:opts.text, scope:"admin", sectorId:opts.sectorId||null, areaId:opts.areaId||null, type:opts.type||"info", actorId:opts.actorId||(currentUser?currentUser.id:"system"), at:Date.now(), displayAt:new Date().toLocaleString("it-IT")};
