@@ -1,10 +1,10 @@
 /* =========================================================
-   FIRESTORE SYNC - v102
+   FIRESTORE SYNC - v103
    Collezioni:
      sectors/{id}, areas/{id}            -> piccoli, ascoltati per intero
      users/{id}                          -> ascoltati per intero (poche decine)
      events/{YYYY-MM-DD}                 -> ascoltati: mese corrente + mese visualizzato
-     notifications/{id}                  -> ultimi 80, ordinati per "at" desc
+     notifications/{id}                  -> solo notifiche admin, ultimi 80
      requests/{id}                       -> ultimi 50
      audit/{id}                          -> ultimi 40
      meta/config                         -> {schema, lastRead:{}}

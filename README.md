@@ -1,19 +1,47 @@
-# Gestione Personale — v102 dirigente fix reale
+# Gestione Personale — v103
 
-Questa versione contiene una modifica effettiva al calendario del ruolo **Dirigente**.
+Versione aggiornata con due modifiche richieste:
 
-## Fix applicato
+## Calendario dirigente
 
-- In `core.js`, `visibleUsers()` ora filtra il dirigente anche per `selectedSectorId`.
-- In `app.js`, `visibleUsersForCalendar()` ora usa le chip area per filtrare davvero una sola area.
-- Se il dirigente seleziona **Settore 4**, non vede più i dati del **Settore 7**.
-- Se il dirigente seleziona **Convenzionata**, vede solo Convenzionata.
-- Cache service worker aggiornata a `gestione-personale-v102`.
-- `index.html` carica `core.js`, `firestore-sync.js`, `app.js`, `styles.css` con `?v=102` per evitare vecchia cache GitHub/browser.
+Il calendario del ruolo **Dirigente** ora usa la stessa logica del **Piano ferie**:
 
-## File da caricare nella root GitHub Pages
+- menu a tendina per il settore;
+- menu a tendina per l'area;
+- opzione "Tutto il settore";
+- filtro coerente su `selectedSectorId` e `selectedAreaFilter`;
+- rimosse le chip area dal calendario del dirigente per evitare conflitti.
 
-Carica direttamente questi file nella root del repository, non dentro una sottocartella:
+Esempi:
+
+- se il dirigente seleziona **Settore 4**, vede solo il Settore 4;
+- se seleziona **Veterinaria**, vede solo Veterinaria;
+- se seleziona **Settore 7 → Convenzionata**, vede solo Convenzionata.
+
+## Notifiche
+
+Le notifiche sono state limitate al solo **Super Admin**.
+
+- Dipendenti: nessuna campanella, nessuna notifica.
+- Referenti: nessuna campanella, nessuna notifica.
+- Dirigenti: nessuna campanella, nessuna notifica.
+- Super Admin: mantiene le notifiche admin, per esempio nuove registrazioni e richieste password.
+
+Le notifiche di settore generate da inserimento/rimozione assenze non vengono più salvate su Firestore.
+
+## Versione e cache
+
+- `core.js`: `v103`
+- `app.js`: `v103`
+- `firestore-sync.js`: `v103`
+- `sw.js`: cache `gestione-personale-v103`
+- `index.html`: riferimenti aggiornati con `?v=103`
+
+## Deploy GitHub Pages
+
+Carica tutto il contenuto di questa cartella nella root del repository GitHub Pages.
+
+La root deve contenere direttamente:
 
 - `index.html`
 - `styles.css`
@@ -25,6 +53,4 @@ Carica direttamente questi file nella root del repository, non dentro una sottoc
 - `firestore.rules`
 - cartella `icons/`
 
-## Dopo il caricamento
-
-Sul telefono/computer fai un refresh forzato. Se usi PWA installata, chiudila e riaprila. Se continua a mostrare la vecchia versione, rimuovi la PWA e reinstallala.
+Dopo il caricamento, fai refresh forzato. Se usi la PWA installata sul telefono, chiudila e riaprila; se continua a caricare la vecchia versione, disinstalla e reinstalla la PWA.

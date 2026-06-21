@@ -1,15 +1,15 @@
 /* =========================================================
-   Gestione Personale v102 - core dati
+   Gestione Personale v103 - core dati
    Architettura: Firestore con collezioni separate
      sectors/{id}, areas/{id}, users/{id}, events/{YYYY-MM-DD},
-     notifications/{id}, requests/{id}, audit/{id}, meta/config
+     notifications/{id} (solo admin), requests/{id}, audit/{id}, meta/config
    Ogni "Salva" scrive SOLO il documento interessato.
    Local cache in localStorage per avvio offline/veloce.
    ========================================================= */
 
-const VERSION = "v102";
-const STORE = "gestione_personale_v102";
-const SESSION_STORE = "gestione_personale_session_v102";
+const VERSION = "v103";
+const STORE = "gestione_personale_v103";
+const SESSION_STORE = "gestione_personale_session_v103";
 const DATA_SCHEMA_VERSION = 102;
 
 const STATUS = {
@@ -228,7 +228,10 @@ function addAudit(text){
   queueAuditWrite(entry);
 }
 function pushNotification(opts){
-  var entry={id:uid("note"), text:opts.text, scope:opts.scope, sectorId:opts.sectorId||null, areaId:opts.areaId||null, type:opts.type||"info", actorId:opts.actorId||(currentUser?currentUser.id:"system"), at:Date.now(), displayAt:new Date().toLocaleString("it-IT")};
+  // v103: le notifiche sono riservate al Super Admin.
+  // Le notifiche di settore non vengono più salvate né in locale né su Firestore.
+  if(!opts || opts.scope!=="admin") return;
+  var entry={id:uid("note"), text:opts.text, scope:"admin", sectorId:opts.sectorId||null, areaId:opts.areaId||null, type:opts.type||"info", actorId:opts.actorId||(currentUser?currentUser.id:"system"), at:Date.now(), displayAt:new Date().toLocaleString("it-IT")};
   db.notifications.unshift(entry);
   db.notifications=db.notifications.slice(0,120);
   queueNotificationWrite(entry);
@@ -257,30 +260,11 @@ function myVisibleSectorIds(){
   return [currentUser.sectorId];
 }
 function visibleNotifications(){
-  if(!currentUser) return [];
-  // Calcola la data di approvazione/creazione dell'utente corrente
-  // per non mostrare notifiche precedenti al suo ingresso nel sistema
-  var userJoinedAt=db.lastRead[currentUser.id+'_joined']||0;
-  return db.notifications.filter(function(n){
-    // Notifiche troppo vecchie rispetto all'ingresso dell'utente: nascondi
-    if(userJoinedAt && n.at < userJoinedAt) return false;
-    if(currentUser.role==="admin") return n.scope==="admin";
-    if(currentUser.role==="viewer") return false;
-    if(currentUser.role!=="sector_manager" && currentUser.role!=="employee") return false;
-    if(n.scope!=="sector") return false;
-    // Non mostrare le proprie azioni
-    if(n.actorId===currentUser.id) return false;
-    // Filtro settore: referente multi-settore vede tutti i suoi settori
-    var mySecs=myVisibleSectorIds();
-    if(mySecs.length && n.sectorId && mySecs.indexOf(n.sectorId)<0) return false;
-    if(!n.areaId) return true;
-    if(currentUser.role==="employee") return n.areaId===currentUser.areaId;
-    if(managesWholeSector(currentUser,n.sectorId)) return true;
-    return (currentUser.editableAreaIds||[]).indexOf(n.areaId)>=0;
-  });
+  if(!currentUser || currentUser.role!=="admin") return [];
+  return db.notifications.filter(function(n){ return n.scope==="admin"; });
 }
 function unreadCount(){
-  if(!currentUser||(currentUser.role!=="sector_manager"&&currentUser.role!=="employee")) return 0;
+  if(!currentUser||currentUser.role!=="admin") return 0;
   var last=db.lastRead[currentUser.id]||0;
   return visibleNotifications().filter(function(n){return n.at>last;}).length;
 }

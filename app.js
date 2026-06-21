@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v102
+   Gestione Personale v103
    ========================================================= */
 
 let calendarView = "settore";
@@ -239,19 +239,13 @@ function selectorControls(){
   if(currentUser.role==="admin"){
     var sOpts=db.sectors.map(s=>'<option value="'+s.id+'"'+(selectedSectorId===s.id?" selected":"")+'>'+s.name+'</option>').join("");
     var aOpts='<option value="all"'+(selectedAreaFilter==="all"?" selected":"")+'>Tutte</option>'+areasOfSector(selectedSectorId).map(a=>'<option value="'+a.id+'"'+(selectedAreaFilter===a.id?" selected":"")+'>'+a.name+'</option>').join("");
-    return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';selectedPlanArea=\'all\';render()">'+sOpts+'</select><label style="margin:0">Area</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedAreaFilter=this.value;selectedPlanArea=this.value;render()">'+aOpts+'</select></div>';
+    return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';selectedPlanArea=\'all\';calendarView=\'settore\';render()">'+sOpts+'</select><label style="margin:0">Area</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedAreaFilter=this.value;selectedPlanArea=this.value;calendarView=\'settore\';render()">'+aOpts+'</select></div>';
   }
   if(currentUser.role==="viewer"){
-    // Dirigente: solo selettore settore se ne ha più di uno. Niente menu area (usa chips)
-    var mySecIds=currentUser.visibleSectorIds||[];
-    if(mySecIds.length>1){
-      var sOpts=db.sectors.filter(function(s){return mySecIds.includes(s.id);}).map(function(s){return'<option value="'+s.id+'"'+(selectedSectorId===s.id?" selected":"")+'>'+s.name+'</option>';}).join("");
-      return '<div style="display:flex;gap:8px;align-items:center"><label style="margin:0">Settore</label><select style="width:auto;min-width:110px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';calendarView=\'settore\';render()">'+sOpts+'</select></div>';
-    }
-    return "";
+    return viewerCalendarControls();
   }
   if(currentUser.role==="sector_manager"){
-    // Referente: solo selettore settore se gestisce aree in più settori. Niente menu area (usa chips)
+    // Referente: solo selettore settore se gestisce aree in più settori. Le aree restano tramite chip.
     var eas=currentUser.editableAreaIds||[];
     var mySmSecs=Array.from(new Set(eas.map(function(aid){var a=db.areas.find(function(x){return x.id===aid;});return a?a.sectorId:null;}).filter(Boolean)));
     if(mySmSecs.length>1){
@@ -262,10 +256,29 @@ function selectorControls(){
   }
   return "";
 }
+
+function viewerCalendarControls(){
+  var mySecIds=currentUser.visibleSectorIds||[];
+  var currentSec=selectedSectorId;
+  if(!currentSec || currentSec==="*" || currentSec==="all" || mySecIds.indexOf(currentSec)<0){
+    currentSec=mySecIds[0]||currentUser.sectorId||"prevenzione";
+    selectedSectorId=currentSec;
+  }
+  var sSelect="";
+  if(mySecIds.length>1){
+    var sOpts=db.sectors.filter(function(s){return mySecIds.includes(s.id);}).map(function(s){return'<option value="'+s.id+'"'+(selectedSectorId===s.id?" selected":"")+'>'+s.name+'</option>';}).join("");
+    sSelect='<label style="margin:0">Settore</label><select style="width:auto;min-width:130px;margin:0" onchange="selectedSectorId=this.value;selectedAreaFilter=\'all\';selectedPlanArea=\'all\';calendarView=\'settore\';render()">'+sOpts+'</select>';
+  }
+  var areas=areasOfSector(selectedSectorId);
+  if(selectedAreaFilter!=="all" && !areas.some(function(a){return a.id===selectedAreaFilter;})) selectedAreaFilter="all";
+  var aOpts='<option value="all"'+(selectedAreaFilter==="all"?" selected":"")+'>Tutto il settore</option>'+areas.map(function(a){return'<option value="'+a.id+'"'+(selectedAreaFilter===a.id?" selected":"")+'>'+a.name+'</option>';}).join("");
+  return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+sSelect+'<label style="margin:0">Area</label><select style="width:auto;min-width:150px;margin:0" onchange="selectedAreaFilter=this.value;selectedPlanArea=this.value;calendarView=\'settore\';render()">'+aOpts+'</select></div>';
+}
+
 function bellBtn(){
-  if(!currentUser||(currentUser.role!=="sector_manager"&&currentUser.role!=="employee"))return"";
+  if(!currentUser||currentUser.role!=="admin")return"";
   var n=unreadCount();
-  return '<button class="bell-btn" onclick="nav(\'notifications\')" title="Notifiche">'+ico("bell")+(n?'<span class="bell-badge">'+n+'</span>':'')+' </button>';
+  return '<button class="bell-btn" onclick="nav(\'notifications\')" title="Notifiche admin">'+ico("bell")+(n?'<span class="bell-badge">'+n+'</span>':'')+' </button>';
 }
 
 function layout(content){
@@ -282,6 +295,7 @@ function layout(content){
     ...(canManageUsers()?[{id:"people",label:"Dipendenti",icon:"users"}]:[]),
     ...(canRegisterColleagues()?[{id:"registercolleague",label:"Registra collega",icon:"plus"}]:[]),
     {id:"reports",label:"Riepilogo",icon:"chart"},
+    ...(currentUser.role==="admin"?[{id:"notifications",label:"Notifiche",icon:"bell"}]:[]),
     ...(canManageUsers()?[{id:"admin",label:"Admin",icon:"settings"}]:[]),
   ];
   var navHtml=navItems.map(item=>{
@@ -318,8 +332,8 @@ function layout(content){
 
   var impBar=adminUser?'<div class="impersonation-bar no-print">Visualizzando come <strong>'+fullName(currentUser)+'</strong> <button class="btn btn-secondary btn-sm" onclick="stopImpersonation()">Torna admin</button></div>':"";
 
-  var globalBell=(currentUser.role==="sector_manager"||currentUser.role==="employee")?
-    '<div class="global-bell no-print"><button class="global-bell-btn" onclick="nav(\'notifications\')" title="Notifiche">'+ico("bell")+(unreadCount()?'<span class="global-bell-badge">'+unreadCount()+'</span>':'')+' </button></div>':"";
+  var globalBell=(currentUser.role==="admin")?
+    '<div class="global-bell no-print"><button class="global-bell-btn" onclick="nav(\'notifications\')" title="Notifiche admin">'+ico("bell")+(unreadCount()?'<span class="global-bell-badge">'+unreadCount()+'</span>':'')+' </button></div>':"";
 
   app.innerHTML=topbar+
     '<div class="app-shell">'+sidebar+
@@ -335,25 +349,14 @@ function visibleUsersForCalendar(){
   if(calendarView==="personale"&&currentUser&&(currentUser.role==="employee"||currentUser.role==="sector_manager"))
     return [currentUser].filter(function(u){return u.approved&&isWorker(u);});
 
-  // PATCH v102 — DIRIGENTE:
-  // 1) visibleUsers(true) ora rispetta selectedSectorId;
-  // 2) se clicchi una chip area (Prevenzione/Veterinaria/Territorio/Convenzionata)
-  //    il calendario mostra SOLO quell'area.
+  // v103 — Dirigente: stessa logica del piano ferie.
+  // Usa selectedSectorId + selectedAreaFilter, cioè i due menu a tendina.
+  // Niente chip area per il dirigente, così calendario e piano ferie restano coerenti.
   if(currentUser.role==="viewer"){
-    var base=visibleUsers(true).filter(function(u){return isWorker(u);});
-
-    if(calendarView && calendarView!=="settore" && calendarView!=="area" && calendarView!=="personale"){
-      return base.filter(function(u){return u.areaId===calendarView;});
-    }
-
-    if(selectedAreaFilter&&selectedAreaFilter!=="all"&&selectedAreaFilter!=="*"){
-      return base.filter(function(u){return u.areaId===selectedAreaFilter;});
-    }
-
-    return base;
+    return visibleUsers(true).filter(function(u){return isWorker(u);});
   }
 
-  // calendarView è un areaId (chip area specifica)
+  // calendarView è un areaId (chip area specifica per dipendente/referente)
   if(calendarView!=="settore"&&calendarView!=="area"&&calendarView!=="personale"){
     return visibleUsers().filter(function(u){return u.areaId===calendarView;});
   }
@@ -415,7 +418,7 @@ function renderCalendar(){
   }
   var modal=insertOpen?renderInsertSheet():(modalOpen?renderDayModal():"");
   var chips="";
-  if(currentUser.role!=="admin"){
+  if(currentUser.role!=="admin" && currentUser.role!=="viewer"){
     var isEmp=currentUser.role==="employee";
     var isSm=currentUser.role==="sector_manager";
     var isViewer=currentUser.role==="viewer";
@@ -556,7 +559,6 @@ async function saveInsertedEvent(){
   if(!db.events[date])db.events[date]={};
   db.events[date][userId]=st;refreshRuleViolations(date);
   addAudit(STATUS[st].label+" per "+fullName(u)+" il "+fmt(date));
-  pushNotification({text:notificationText(currentUser,u,st,date),scope:"sector",sectorId:u.sectorId,areaId:u.areaId,actorId:currentUser.id,type:"event"});
   try{await writeEventDay(date,db.events[date]);}catch(e){}
   closeInsertSheet();
 }
@@ -565,7 +567,6 @@ async function removeEvent(date,userId){
   var u=db.users.find(x=>x.id===userId);
   if(db.events[date])delete db.events[date][userId];
   refreshRuleViolations(date);
-  pushNotification({text:notificationText(currentUser,u,"present",date),scope:"sector",sectorId:u.sectorId,areaId:u.areaId,actorId:currentUser.id,type:"event"});
   addAudit("Rimossa assenza di "+fullName(u)+" il "+fmt(date));
   try{await writeEventDay(date,db.events[date]||{});}catch(e){}
   modalOpen=false;render();
@@ -854,6 +855,7 @@ function renderReports(){
    NOTIFICHE
    ========================================================= */
 function renderNotifications(){
+  if(!currentUser || currentUser.role!=="admin"){ page="calendar"; return renderCalendar(); }
   markNotificationsRead();
   var notes=visibleNotifications();
   var list=notes.length?notes.map(n=>'<div class="notif-item"><strong>'+n.text+'</strong><time>'+n.displayAt+'</time></div>').join(""):'<p style="color:var(--c-muted);font-size:13px">Nessuna notifica.</p>';
