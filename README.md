@@ -1,47 +1,23 @@
-# Gestione Personale — v104
+# Gestione Personale — v105
 
-Versione aggiornata con due modifiche richieste:
+Versione aggiornata della web app PWA per gestione personale, ferie, smart working, malattia, riepiloghi e piano ferie.
 
-## Calendario dirigente
+## Modifiche v105
 
-Il calendario del ruolo **Dirigente** ora usa la stessa logica del **Piano ferie**:
+- Legenda di Calendario e Riepilogo resa contestuale al settore selezionato.
+- Se è selezionato **Settore 4**, la legenda mostra solo:
+  - Smart working — Prevenzione
+  - Smart working — Veterinaria
+- Se è selezionato **Settore 7**, la legenda mostra solo:
+  - Smart working — Territorio
+  - Smart working — Convenzionata
+- Le icone della legenda sono state rese tonde, compatte e con testo più piccolo.
+- Nessuna modifica alla logica dati principale rispetto alla v104.
+- Aggiornati cache, localStorage e riferimenti asset a `v105`.
 
-- menu a tendina per il settore;
-- menu a tendina per l'area;
-- opzione "Tutto il settore";
-- filtro coerente su `selectedSectorId` e `selectedAreaFilter`;
-- rimosse le chip area dal calendario del dirigente per evitare conflitti.
+## File da pubblicare su GitHub Pages
 
-Esempi:
-
-- se il dirigente seleziona **Settore 4**, vede solo il Settore 4;
-- se seleziona **Veterinaria**, vede solo Veterinaria;
-- se seleziona **Settore 7 → Convenzionata**, vede solo Convenzionata.
-
-## Notifiche
-
-Le notifiche sono state limitate al solo **Super Admin**.
-
-- Dipendenti: nessuna campanella, nessuna notifica.
-- Referenti: nessuna campanella, nessuna notifica.
-- Dirigenti: nessuna campanella, nessuna notifica.
-- Super Admin: mantiene le notifiche admin, per esempio nuove registrazioni e richieste password.
-
-Le notifiche di settore generate da inserimento/rimozione assenze non vengono più salvate su Firestore.
-
-## Versione e cache
-
-- `core.js`: `v104`
-- `app.js`: `v104`
-- `firestore-sync.js`: `v104`
-- `sw.js`: cache `gestione-personale-v104`
-- `index.html`: riferimenti aggiornati con `?v=104`
-
-## Deploy GitHub Pages
-
-Carica tutto il contenuto di questa cartella nella root del repository GitHub Pages.
-
-La root deve contenere direttamente:
+Carica nella root del repository:
 
 - `index.html`
 - `styles.css`
@@ -51,14 +27,10 @@ La root deve contenere direttamente:
 - `manifest.json`
 - `sw.js`
 - `firestore.rules`
-- cartella `icons/`
+- cartella `icons/` con `icon-192.png` e `icon-512.png`
 
-Dopo il caricamento, fai refresh forzato. Se usi la PWA installata sul telefono, chiudila e riaprila; se continua a caricare la vecchia versione, disinstalla e reinstalla la PWA.
+Non caricare una cartella contenitore: `index.html` deve stare direttamente nella root.
 
+## Dopo il deploy
 
-## Modifiche v104
-
-- Sistemata visualizzazione dei radio button nella registrazione Referente.
-- Aggiunta legenda compatta nel Calendario.
-- Aggiunta legenda compatta nel Riepilogo.
-- Aggiornati cache, riferimenti e query string asset a v104.
+Se vedi ancora la vecchia versione, fai refresh forzato o reinstalla la PWA.

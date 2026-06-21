@@ -1,46 +1,31 @@
-# Modifiche applicate — v104
+# Modifiche applicate — v105
 
-## 1. Calendario dirigente
+## Legenda contestuale
 
-Il calendario dirigente è stato allineato alla logica del Piano ferie.
+La legenda di Calendario e Riepilogo ora segue il settore selezionato:
 
-Prima il calendario usava una logica mista:
+- Settore 4: Prevenzione e Veterinaria.
+- Settore 7: Territorio e Convenzionata.
 
-- settore da menu;
-- area da chip;
-- `calendarView`;
-- `selectedAreaFilter`.
+Le voci Smart Working non mischiano più aree di settori diversi.
 
-Questa combinazione poteva mostrare dati del settore sbagliato o tutte le aree insieme.
+## Icone legenda
 
-Ora il dirigente usa solo:
+Le icone della legenda sono state rese:
 
-- `selectedSectorId` per il settore;
-- `selectedAreaFilter` per l'area.
+- tonde;
+- più compatte;
+- con carattere più piccolo;
+- più armoniose su desktop e mobile.
 
-Le chip area sono state rimosse solo per il dirigente.
+## Versione
 
-## 2. Notifiche
+Aggiornato tutto a `v105`:
 
-Le notifiche sono state mantenute solo per il Super Admin.
-
-Sono state eliminate le scritture Firestore per le notifiche di settore create quando qualcuno inserisce o rimuove assenze.
-
-Restano notifiche admin per:
-
-- nuova registrazione utente;
-- richiesta reset/cambio password.
-
-## 3. Versione
-
-Tutti i riferimenti sono stati aggiornati a `v104`.
-
-- Cache service worker: `gestione-personale-v104`
-- Query string asset: `?v=104`
-- Local storage: `gestione_personale_v104`
-
-
-## v104
-- Fix grafico selezione Referente in registrazione.
-- Legenda stati in Calendario e Riepilogo.
-- Versione aggiornata a v104.
+- `core.js`
+- `app.js`
+- `firestore-sync.js`
+- `styles.css`
+- `manifest.json`
+- `index.html`
+- `sw.js`

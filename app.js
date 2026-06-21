@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v104
+   Gestione Personale v105
    ========================================================= */
 
 let calendarView = "settore";
@@ -344,15 +344,25 @@ function layout(content){
 
 function renderStatusLegend(extraClass){
   extraClass=extraClass||"";
-  var items=[
-    {dot:'<span class="legend-dot legend-dot-sw-blue">SW</span>', label:'Smart working — Prevenzione / Territorio'},
-    {dot:'<span class="legend-dot legend-dot-sw-green">SW</span>', label:'Smart working — Veterinaria / Convenzionata'},
+
+  // v105 — Legenda contestuale al settore selezionato.
+  // Le voci Smart Working non mischiano più aree di settori diversi:
+  // Settore 4 -> Prevenzione/Veterinaria; Settore 7 -> Territorio/Convenzionata.
+  var sectorId=selectedSectorId||currentUser?.sectorId||"prevenzione";
+  var swAreas=areasOfSector(sectorId);
+  if(!swAreas.length) swAreas=db.areas||[];
+
+  var items=swAreas.map(function(a){
+    var cls=smartColorForArea(a.id)==="#16a34a"?"legend-dot-sw-green":"legend-dot-sw-blue";
+    return {dot:'<span class="legend-dot '+cls+'">SW</span>', label:'Smart working — '+a.name};
+  }).concat([
     {dot:'<span class="legend-dot legend-dot-c01">C01</span>', label:'Ferie anno attuale'},
     {dot:'<span class="legend-dot legend-dot-c02">C02</span>', label:'Ferie anno precedente'},
     {dot:'<span class="legend-dot legend-dot-f14">F14</span>', label:'Festività soppresse'},
     {dot:'<span class="legend-dot legend-dot-a01">A01</span>', label:'Malattia'},
     {dot:'<span class="legend-dot legend-dot-altro">ALT</span>', label:'Altro'}
-  ];
+  ]);
+
   return '<div class="status-legend no-print '+extraClass+'">'+
     '<div class="status-legend-title">Legenda</div>'+ 
     '<div class="status-legend-items">'+items.map(function(it){return '<div class="status-legend-item">'+it.dot+'<span>'+it.label+'</span></div>';}).join('')+'</div>'+ 
@@ -367,7 +377,7 @@ function visibleUsersForCalendar(){
   if(calendarView==="personale"&&currentUser&&(currentUser.role==="employee"||currentUser.role==="sector_manager"))
     return [currentUser].filter(function(u){return u.approved&&isWorker(u);});
 
-  // v104 — Dirigente: stessa logica del piano ferie.
+  // v105 — Dirigente: stessa logica del piano ferie.
   // Usa selectedSectorId + selectedAreaFilter, cioè i due menu a tendina.
   // Niente chip area per il dirigente, così calendario e piano ferie restano coerenti.
   if(currentUser.role==="viewer"){

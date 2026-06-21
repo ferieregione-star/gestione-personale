@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v104 — Design System
+   Gestione Personale v105 — Design System
    ========================================================= */
 
 /* ---- Token ---- */
@@ -427,7 +427,7 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
 
 
 /* ====================================================
-   FIX REGISTRAZIONE + LEGENDA v104
+   FIX REGISTRAZIONE + LEGENDA v105
    ==================================================== */
 .check-row {
   justify-content: flex-start;
@@ -484,17 +484,20 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
   min-width: 0;
 }
 .legend-dot {
-  width: 30px;
-  height: 20px;
-  border-radius: 999px;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
-  font-weight: 800;
+  font-size: 7px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -.03em;
   color: #fff;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
-  flex: 0 0 auto;
+  flex: 0 0 23px;
+  white-space: nowrap;
 }
 .legend-dot-sw-blue { background: #2563eb; }
 .legend-dot-sw-green { background: #16a34a; }
@@ -516,8 +519,9 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
     font-size: 11px;
   }
   .legend-dot {
-    width: 28px;
-    height: 18px;
-    font-size: 8px;
+    width: 21px;
+    height: 21px;
+    flex-basis: 21px;
+    font-size: 6.5px;
   }
 }
