@@ -1,6 +1,8 @@
-# Modifiche applicate
+# Modifiche applicate v108
 
-- Cambio password da profilo: dopo l’invio della richiesta l’utente viene riportato al login.
-- Aggiunto controllo minimo password da 6 caratteri anche nella richiesta dal profilo.
-- Rimosso il numero versione dal titolo visibile della pagina.
-- Aggiornati cache e riferimenti interni.
+- Aggiunti nel Calendario dirigente i filtri Settore e Area visibili anche su mobile.
+- La logica di filtro del Calendario dirigente è allineata al Piano ferie.
+- Nessuna modifica a Firestore o alla struttura dati.
+- C01, C02 e F14 restano gestibili solo dal Super Admin come nella versione precedente.
+- Versione interna aggiornata a v108.
+- Titolo browser senza numero versione.

@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v106 — Design System
+   Gestione Personale v108 — Design System
    ========================================================= */
 
 /* ---- Token ---- */
@@ -521,5 +521,37 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
     height: 21px;
     flex-basis: 21px;
     font-size: 6.5px;
+  }
+}
+
+/* ====================================================
+   CALENDARIO DIRIGENTE - FILTRI MOBILE v108
+   ==================================================== */
+.calendar-inline-controls { display: none; }
+@media (max-width: 760px) {
+  .calendar-inline-controls {
+    display: block;
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid var(--c-border);
+    border-radius: 14px;
+    background: var(--c-surface);
+  }
+  .calendar-inline-controls > div {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px !important;
+    align-items: end !important;
+  }
+  .calendar-inline-controls label {
+    display: none;
+  }
+  .calendar-inline-controls select {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 10px 11px;
   }
 }

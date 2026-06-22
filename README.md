@@ -1,15 +1,15 @@
-# Gestione Personale — aggiornamento reset password
+# Gestione Personale — v108 dirigente calendario
 
-Versione interna aggiornata.
+Versione aggiornata dalla v107 con una sola modifica funzionale: nel calendario del dirigente sono visibili anche su mobile i filtri Settore e Area, con la stessa logica del Piano ferie.
 
-## Modifiche
+## Dati
 
-- Dopo la richiesta di cambio password dal profilo, l’utente viene disconnesso.
-- L’app torna subito alla pagina di login con messaggio informativo.
-- Il titolo visibile nel browser resta solo `Gestione Personale`, senza numero versione.
-- Cache e riferimenti interni aggiornati.
-- Restano tutte le modifiche precedenti: niente malattia, calendario dirigente corretto, notifiche solo admin, legende sistemate.
+L'aggiornamento dei file GitHub non cancella i dati già inseriti in Firestore.
 
-## Deploy GitHub Pages
+## File da pubblicare
 
-Carica il contenuto nella root del repository. Dopo il deploy fai refresh forzato o reinstalla la PWA se vedi ancora asset vecchi.
+Carica tutto il contenuto nella root del repository GitHub Pages.
+
+## Nota
+
+Il titolo visibile agli utenti resta solo: Gestione Personale.

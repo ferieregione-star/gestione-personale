@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v107 - core dati
+   Gestione Personale v108 - core dati
    Architettura: Firestore con collezioni separate
      sectors/{id}, areas/{id}, users/{id}, events/{YYYY-MM-DD},
      notifications/{id} (solo admin), requests/{id}, audit/{id}, meta/config
@@ -7,10 +7,10 @@
    Local cache in localStorage per avvio offline/veloce.
    ========================================================= */
 
-const VERSION = "v107";
-const STORE = "gestione_personale_v107";
-const SESSION_STORE = "gestione_personale_session_v107";
-const DATA_SCHEMA_VERSION = 107;
+const VERSION = "v108";
+const STORE = "gestione_personale_v108";
+const SESSION_STORE = "gestione_personale_session_v108";
+const DATA_SCHEMA_VERSION = 108;
 
 const STATUS = {
   present:{label:"In servizio", short:"S", cls:"present", color:"#16a34a"},

@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v106
+   Gestione Personale v108
    ========================================================= */
 
 let calendarView = "settore";
@@ -275,6 +275,13 @@ function viewerCalendarControls(){
   return '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'+sSelect+'<label style="margin:0">Area</label><select style="width:auto;min-width:150px;margin:0" onchange="selectedAreaFilter=this.value;selectedPlanArea=this.value;calendarView=\'settore\';render()">'+aOpts+'</select></div>';
 }
 
+function calendarInlineControls(){
+  // Mobile: la page-header è nascosta, quindi per il dirigente mostriamo
+  // gli stessi filtri Settore/Area del Piano ferie direttamente nel calendario.
+  if(!currentUser || currentUser.role!=="viewer") return "";
+  return '<div class="calendar-inline-controls no-print">'+viewerCalendarControls()+'</div>';
+}
+
 function bellBtn(){
   if(!currentUser||currentUser.role!=="admin")return"";
   var n=unreadCount();
@@ -471,6 +478,7 @@ function renderCalendar(){
   layout(
     '<div class="page-header no-print"><h1>'+contextTitle()+'</h1>'+selectorHtml+'</div>'+
     '<div class="cal-wrap">'+
+    calendarInlineControls()+
     '<div class="cal-toolbar">'+
     '<div class="cal-month-nav">'+
     '<button class="cal-nav-btn month-nav prev" onclick="changeMonth(-1)">←</button>'+
