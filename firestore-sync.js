@@ -1,5 +1,5 @@
 /* =========================================================
-   FIRESTORE SYNC - v109
+   FIRESTORE SYNC - v110
    Collezioni:
      sectors/{id}, areas/{id}            -> piccoli, ascoltati per intero
      users/{id}                          -> ascoltati per intero (poche decine)
@@ -128,14 +128,24 @@ function loadEventsForMonth(monthKey){
   var endD=new Date(startD.getFullYear(), startD.getMonth()+1, 1);
   var end=endD.toISOString().slice(0,10);
   unsubscribers.push(cloudDb.collection("events").where("__name__",">=",start).where("__name__","<",end).onSnapshot(function(snap){
+    // Ricostruisce il mese dal contenuto reale di Firestore. In questo modo
+    // inserimenti, modifiche e cancellazioni fatti da altri dispositivi
+    // vengono riflessi subito anche nel browser già aperto.
+    Object.keys(db.events).forEach(function(dateKey){
+      if(dateKey>=start && dateKey<end) delete db.events[dateKey];
+    });
     snap.forEach(function(doc){
       var data=doc.data()||{};
       var map={};
       Object.keys(data).forEach(function(uidKey){ map[uidKey]=normalizeEventCode(data[uidKey]); });
       db.events[doc.id]=map;
     });
+    console.log("Firestore eventi sincronizzati:", monthKey, snap.size);
     afterRemoteChange();
-  }, handleSnapError("events:"+monthKey)));
+  }, function(err){
+    loadedEventMonths.delete(monthKey);
+    handleSnapError("events:"+monthKey)(err);
+  }));
 }
 
 function isUserEditingForm(){
