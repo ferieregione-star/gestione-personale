@@ -124,9 +124,14 @@ function loadEventsForMonth(monthKey){
   if(loadedEventMonths.has(monthKey)) return;
   loadedEventMonths.add(monthKey);
   var start=monthKey+"-01";
-  var startD=new Date(start+"T00:00:00");
-  var endD=new Date(startD.getFullYear(), startD.getMonth()+1, 1);
-  var end=endD.toISOString().slice(0,10);
+  var parts=monthKey.split("-");
+var year=Number(parts[0]);
+var month=Number(parts[1]);
+
+var nextYear=month===12 ? year+1 : year;
+var nextMonth=month===12 ? 1 : month+1;
+
+var end=nextYear+"-"+String(nextMonth).padStart(2,"0")+"-01";
   unsubscribers.push(cloudDb.collection("events").where("__name__",">=",start).where("__name__","<",end).onSnapshot(function(snap){
     // Ricostruisce il mese dal contenuto reale di Firestore. In questo modo
     // inserimenti, modifiche e cancellazioni fatti da altri dispositivi
