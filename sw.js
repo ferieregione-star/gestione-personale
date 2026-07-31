@@ -1,4 +1,4 @@
-const CACHE = "gestione-personale-v110";
+const CACHE = "gestione-personale-v111";
 const SHELL = [
   "./",
   "./index.html",
