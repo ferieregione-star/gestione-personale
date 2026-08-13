@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v108 - core dati
+   Gestione Personale v200 - core dati sicuro
    Architettura: Firestore con collezioni separate
      sectors/{id}, areas/{id}, users/{id}, events/{YYYY-MM-DD},
      notifications/{id} (solo admin), requests/{id}, audit/{id}, meta/config
@@ -7,10 +7,9 @@
    Local cache in localStorage per avvio offline/veloce.
    ========================================================= */
 
-const VERSION = "v108";
-const STORE = "gestione_personale_v108";
-const SESSION_STORE = "gestione_personale_session_v108";
-const DATA_SCHEMA_VERSION = 108;
+const VERSION = "v200";
+const STORE = "gestione_personale_v200";
+const DATA_SCHEMA_VERSION = 200;
 
 const STATUS = {
   present:{label:"In servizio", short:"S", cls:"present", color:"#16a34a"},
@@ -38,21 +37,12 @@ const INITIAL_AREAS = [
   {id:"terr", sectorId:"territorio", name:"Territorio", color:"#2563eb"},
   {id:"conv", sectorId:"territorio", name:"Convenzionata", color:"#dc2626"}
 ];
-const SEED_ADMIN = {
-  id:"admin", email:"jackfrosties@hotmail.it", password:"admin",
-  name:"Super", surname:"Admin", role:"admin",
-  sectorId:"*", areaId:"*",
-  visibleSectorIds:["prevenzione","territorio"],
-  editableAreaIds:["prev","vet","terr","conv"],
-  c01:0, c02:0, f14:0, approved:true, initials:"SA", color:"#0b1f3a"
-};
-
 /* ---------- Stato applicativo in memoria ---------- */
 let db = {
   meta:{version:VERSION, schema:DATA_SCHEMA_VERSION},
   sectors:[...INITIAL_SECTORS],
   areas:[...INITIAL_AREAS],
-  users:[SEED_ADMIN],
+  users:[],
   events:{},
   notifications:[],
   requests:[],
@@ -112,11 +102,12 @@ function addIfAbsent(arr,item,prepend){
   if(prepend) arr.unshift(item); else arr.push(item);
 }
 function fmt(date){ return date.split("-").reverse().join("/"); }
-function fullName(u){ return (u.name + " " + (u.surname||"")).trim(); }
+function htmlEscape(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
+function fullName(u){ return htmlEscape((u.name + " " + (u.surname||"")).trim()); }
 function sortByName(a,b){ return fullName(a).localeCompare(fullName(b),"it",{sensitivity:"base"}); }
 function roleLabel(r){ return ROLE_LABELS[r]||r; }
-function sectorName(id){ return id==="*" ? "Tutti" : ((db.sectors.find(function(s){return s.id===id;})||{}).name || id); }
-function areaName(id){ return (id==="all"||id==="*") ? "Tutte" : ((db.areas.find(function(a){return a.id===id;})||{}).name || id); }
+function sectorName(id){ return htmlEscape(id==="*" ? "Tutti" : ((db.sectors.find(function(s){return s.id===id;})||{}).name || id)); }
+function areaName(id){ return htmlEscape((id==="all"||id==="*") ? "Tutte" : ((db.areas.find(function(a){return a.id===id;})||{}).name || id)); }
 function areaColor(id){ var a=db.areas.find(function(x){return x.id===id;}); return a ? a.color : "#64748b"; }
 function sectorById(id){ return db.sectors.find(function(s){return s.id===id;}); }
 function areasOfSector(sectorId){ return db.areas.filter(function(a){return a.sectorId===sectorId;}); }
@@ -150,6 +141,9 @@ function holidaysFor(y){
    ["11-01","Tutti i Santi"],["12-08","Immacolata"],["12-25","Natale"],["12-26","Santo Stefano"]
   ].forEach(function(pair){h[y+"-"+pair[0]]=pair[1];});
   h[y+"-07-16"]="Festa patronale San Vitaliano";
+  var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),hh=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-hh-k)%7,m=Math.floor((a+11*hh+22*l)/451),em=Math.floor((hh+l-7*m+114)/31),ed=((hh+l-7*m+114)%31)+1;
+  var easter=new Date(y,em-1,ed+1);
+  h[easter.getFullYear()+"-"+String(easter.getMonth()+1).padStart(2,"0")+"-"+String(easter.getDate()).padStart(2,"0")]="Lunedì dell’Angelo";
   return h;
 }
 function isWeekend(date){ var d=new Date(date+"T00:00:00").getDay(); return d===0||d===6; }
@@ -186,7 +180,7 @@ function statusTag(st){
 /* ---------- Permessi ---------- */
 function isWorker(u){ return u.role==="employee" || u.role==="sector_manager"; }
 function canManageUsers(){ return currentUser && currentUser.role==="admin"; }
-function canRegisterColleagues(){ return currentUser && (currentUser.role==="admin" || currentUser.role==="sector_manager"); }
+function canRegisterColleagues(){ return false; }
 function canModifyUserEvents(userId){
   var u=db.users.find(function(x){return x.id===userId;});
   if(!u||!isWorker(u)) return false;
@@ -227,7 +221,7 @@ function addAudit(text){
   queueAuditWrite(entry);
 }
 function pushNotification(opts){
-  // v107: le notifiche sono riservate al Super Admin.
+  // v200: le notifiche sono riservate al Super Admin.
   // Le notifiche di settore non vengono più salvate né in locale né su Firestore.
   if(!opts || opts.scope!=="admin") return;
   var entry={id:uid("note"), text:opts.text, scope:"admin", sectorId:opts.sectorId||null, areaId:opts.areaId||null, type:opts.type||"info", actorId:opts.actorId||(currentUser?currentUser.id:"system"), at:Date.now(), displayAt:new Date().toLocaleString("it-IT")};

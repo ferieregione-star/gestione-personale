@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v108 — Design System
+   Gestione Personale v200 — Design System
    ========================================================= */
 
 /* ---- Token ---- */
@@ -426,7 +426,7 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
 
 
 /* ====================================================
-   FIX REGISTRAZIONE + LEGENDA v106
+   FIX REGISTRAZIONE + LEGENDA v200
    ==================================================== */
 .check-row {
   justify-content: flex-start;
@@ -525,7 +525,7 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
 }
 
 /* ====================================================
-   CALENDARIO DIRIGENTE - FILTRI MOBILE v108
+   CALENDARIO DIRIGENTE - FILTRI MOBILE v200
    ==================================================== */
 .calendar-inline-controls { display: none; }
 @media (max-width: 760px) {

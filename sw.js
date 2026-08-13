@@ -1,4 +1,4 @@
-const CACHE = "gestione-personale-v112";
+const CACHE = "gestione-personale-v200";
 
 const SHELL = [
   "./",
@@ -6,11 +6,16 @@ const SHELL = [
   "./styles.css",
   "./core.js",
   "./firestore-sync.js",
+  "./auth.js",
   "./app.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
 ];
+
+self.addEventListener("message", event => {
+  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
+});
 
 self.addEventListener("install", event => {
   event.waitUntil(
