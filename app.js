@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v200
+   Gestione Personale v202
    ========================================================= */
 
 let calendarView = "settore";
@@ -344,7 +344,7 @@ function layout(content){
 function renderStatusLegend(extraClass){
   extraClass=extraClass||"";
 
-  // v200 — Legenda contestuale al settore selezionato, senza codice malattia.
+  // v202 — Legenda contestuale al settore selezionato, senza codice malattia.
   // Le voci Smart Working non mischiano più aree di settori diversi:
   // Settore 4 -> Prevenzione/Veterinaria; Settore 7 -> Territorio/Convenzionata.
   var sectorId=selectedSectorId||currentUser?.sectorId||"prevenzione";
@@ -375,7 +375,7 @@ function visibleUsersForCalendar(){
   if(calendarView==="personale"&&currentUser&&(currentUser.role==="employee"||currentUser.role==="sector_manager"))
     return [currentUser].filter(function(u){return u.approved&&isWorker(u);});
 
-  // v200 — Dirigente: stessa logica del piano ferie.
+  // v202 — Dirigente: stessa logica del piano ferie.
   // Usa selectedSectorId + selectedAreaFilter, cioè i due menu a tendina.
   // Niente chip area per il dirigente, così calendario e piano ferie restano coerenti.
   if(currentUser.role==="viewer"){
@@ -487,19 +487,33 @@ function renderCalendar(){
 }
 function contextTitle(){return "GESTIONALE — "+sectorName(selectedSectorId)+(selectedAreaFilter!=="all"?" / "+areaName(selectedAreaFilter):"");}
 
+function renderPresenceSections(date, people, allowRemove){
+  var sorted=(people||[]).slice().sort(sortByName);
+  var present=sorted.filter(function(u){return eventFor(date,u.id)==="present";});
+  var smart=sorted.filter(function(u){return eventFor(date,u.id)==="smart";});
+  var otherAbsent=sorted.filter(function(u){var st=eventFor(date,u.id);return isAbsent(st)&&st!=="smart";});
+  var absent=smart.concat(otherAbsent);
+  function row(u,isAway){
+    var st=eventFor(date,u.id);
+    var reason=isAway?'<span class="presence-reason">'+((STATUS[st]||{}).short||htmlEscape(st))+'</span>':"";
+    var remove=allowRemove&&isAway&&canModifyUserEvents(u.id)?'<button class="presence-remove" onclick="removeEvent(\''+date+'\',\''+u.id+'\')">Rimuovi</button>':"";
+    var awayClass=isAway?(st==="smart"?' absence-smart':' absence-other'):"";
+    return '<div class="presence-row '+(isAway?'presence-absent':'presence-present')+awayClass+'">'+
+      '<span class="presence-dot" aria-hidden="true"></span><div class="presence-person"><span class="presence-name">'+fullName(u)+'</span>'+reason+'</div>'+remove+'</div>';
+  }
+  return '<div class="presence-columns"><div class="presence-section presence-column-present">'+
+    '<div class="presence-heading presence-heading-present">Presenti <span>'+present.length+'</span></div>'+
+    (present.length?present.map(function(u){return row(u,false);}).join(""):'<div class="presence-empty">Nessun presente</div>')+
+    '</div><div class="presence-section presence-column-absent">'+
+    '<div class="presence-heading presence-heading-absent">Assenti <span>'+absent.length+'</span></div>'+
+    (absent.length?absent.map(function(u){return row(u,true);}).join(""):'<div class="presence-empty">Nessun assente</div>')+
+    '</div></div>';
+}
+
 function renderDaySummary(){
   if(!selectedDate)return"";
-  var people=isBlockedDay(selectedDate)?[]:visibleUsersForCalendar().filter(u=>isAbsent(eventFor(selectedDate,u.id)));
-  var inner="";
-  if(people.length){
-    inner=people.map(u=>{
-      var st=eventFor(selectedDate,u.id);
-      return '<div class="day-summary-row">'+
-        '<div class="day-summary-info"><strong>'+fullName(u)+'</strong><span>'+areaName(u.areaId)+'</span></div>'+
-        statusTag(st)+'</div>';
-    }).join("");
-  }else if(isBlockedDay(selectedDate)){inner='<p style="color:var(--c-muted);font-size:13px;padding:8px 0">Giorno non lavorativo</p>';}
-  else{inner='<div class="all-present">'+ico("users","ico-lg")+' Tutti in servizio</div>';}
+  var people=isBlockedDay(selectedDate)?[]:visibleUsersForCalendar();
+  var inner=isBlockedDay(selectedDate)?'<p style="color:var(--c-muted);font-size:13px;padding:8px 0">Giorno non lavorativo</p>':renderPresenceSections(selectedDate,people,false);
   return '<div class="day-summary"><div class="day-summary-header"><span class="day-summary-date">'+fmt(selectedDate)+'</span></div>'+inner+'</div>';
 }
 
@@ -508,17 +522,12 @@ function renderDayModal(){
   var errs=smartRuleErrorsForDay(selectedDate);
   var displayP=isBlockedDay(selectedDate)?[]:visibleUsersForCalendar();
   var allP=isBlockedDay(selectedDate)?[]:visibleUsers();
-  var absent=displayP.filter(u=>isAbsent(eventFor(selectedDate,u.id)));
   var canAdd=!isBlockedDay(selectedDate)&&allP.some(u=>canModifyUserEvents(u.id));
   var body="";
   if(hol){body='<div class="warning">Giorno non lavorativo. Non puoi inserire nulla.</div>';}
-  else if(!absent.length){body='<div class="all-present">'+ico("users","ico-lg")+' Tutti in servizio</div>';}
-  else{body=absent.map(u=>{var st=eventFor(selectedDate,u.id);var ce=canModifyUserEvents(u.id);
-    var rb=ce&&isAbsent(st)?'<div class="person-action-row"><button class="btn btn-danger btn-sm" onclick="removeEvent(\''+selectedDate+'\',\''+u.id+'\')">Rimuovi</button></div>':'';
-    return '<div class="person-row">'+avatarEl(u)+'<div class="person-meta"><strong>'+fullName(u)+'</strong><small>'+areaName(u.areaId)+'</small><div class="person-badge-row">'+statusTag(st)+'</div>'+rb+'</div></div>';
-  }).join("");}
+  else{body=renderPresenceSections(selectedDate,displayP,true);}
   return '<div class="modal-backdrop" onclick="if(event.target.className===\'modal-backdrop\')closeModal()">'+
-    '<div class="modal-sheet">'+
+    '<div class="modal-sheet day-presence-sheet">'+
     '<div class="modal-handle no-print"></div>'+
     '<div class="modal-head">'+
     '<div><div style="font-size:17px;font-weight:800">'+fmt(selectedDate)+'</div><div style="font-size:12px;color:var(--c-muted)">'+(hol?"Non lavorativo":"Presenze")+'</div></div>'+

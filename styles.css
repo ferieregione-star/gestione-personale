@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v200 — Design System
+   Gestione Personale v202 — Design System
    ========================================================= */
 
 /* ---- Token ---- */
@@ -240,9 +240,41 @@ h1, h2, h3 { font-weight: 800; }
 .day-summary-info { flex: 1; min-width: 0; }
 .day-summary-info strong { font-size: 13px; display: block; }
 .day-summary-info span { font-size: 11px; color: var(--c-muted); }
+
+/* Presenti / assenti — v202 */
+.presence-columns { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 18px; align-items: start; }
+.presence-section { min-width: 0; }
+.presence-heading { display: flex; align-items: center; justify-content: space-between; min-height: 30px; margin-bottom: 4px; padding-bottom: 6px; border-bottom: 2px solid var(--c-border); font-size: 12px; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; }
+.presence-heading span { min-width: 24px; padding: 2px 7px; border-radius: 999px; color: #fff; text-align: center; }
+.presence-heading-absent { color: #b91c1c; border-color: #fecaca; }
+.presence-heading-absent span { background: #dc2626; }
+.presence-heading-present { color: #15803d; border-color: #bbf7d0; }
+.presence-heading-present span { background: #16a34a; }
+.presence-row { display: flex; align-items: flex-start; gap: 7px; min-height: 38px; padding: 8px 2px; border-bottom: 1px solid var(--c-border); background: transparent; }
+.presence-row:last-child { border-bottom: 0; }
+.presence-dot { flex: 0 0 auto; width: 9px; height: 9px; margin-top: 4px; border-radius: 50%; box-shadow: 0 0 0 2px rgba(100,116,139,.1); }
+.presence-present .presence-dot { background: #16a34a; }
+.presence-absent .presence-dot { background: #dc2626; }
+.presence-person { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 5px; row-gap: 1px; font-size: 13px; line-height: 1.28; color: var(--c-text); }
+.presence-name { min-width: 0; overflow-wrap: anywhere; font-weight: 750; color: var(--c-text); }
+.absence-smart .presence-name { color: #2563eb; }
+.absence-other .presence-name { color: #dc2626; }
+.presence-reason { flex: 0 0 auto; color: var(--c-text); font-size: 11px; font-weight: 800; white-space: nowrap; }
+.presence-remove { flex: 0 0 auto; align-self: center; padding: 4px 6px; border: 1px solid #fecaca; border-radius: 6px; background: #fff; color: #b91c1c; font-size: 9px; font-weight: 800; cursor: pointer; }
+.presence-remove:hover { background: #fef2f2; }
+.presence-empty { padding: 10px 2px; color: var(--c-muted); font-size: 11px; font-style: italic; }
 .all-present { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 20px; color: var(--c-green); font-weight: 700; font-size: 15px; background: var(--c-green-lt); border-radius: 10px; }
 
 @media (max-width: 760px) {
+  .presence-columns { gap: 10px; }
+  .presence-heading { min-height: 28px; font-size: 10px; }
+  .presence-heading span { min-width: 20px; padding: 1px 6px; }
+  .presence-row { gap: 5px; min-height: 35px; padding: 7px 0; }
+  .presence-dot { width: 8px; height: 8px; }
+  .presence-person { display: block; font-size: 11px; line-height: 1.22; }
+  .presence-name { display: block; }
+  .presence-reason { display: block; margin-top: 2px; font-size: 9px; }
+  .presence-remove { margin-left: 1px; padding: 3px 4px; font-size: 8px; }
   .cal-wrap { border-radius: 14px; padding: 10px; }
   .cal-month-label { font-size: 15px; min-width: 120px; }
   .day-cell { min-height: 62px; padding: 5px 4px 4px; border-radius: 8px; }
@@ -255,6 +287,7 @@ h1, h2, h3 { font-weight: 800; }
    ==================================================== */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 16px; }
 .modal-sheet { background: var(--c-surface); border-radius: 20px; width: 100%; max-width: 480px; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
+.modal-sheet.day-presence-sheet { max-width: 700px; }
 .modal-handle { width: 36px; height: 4px; background: var(--c-border); border-radius: 2px; margin: 12px auto 0; }
 .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 12px; border-bottom: 1px solid var(--c-border); }
 .modal-head h2 { font-size: 17px; font-weight: 800; }
@@ -426,7 +459,7 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
 
 
 /* ====================================================
-   FIX REGISTRAZIONE + LEGENDA v200
+   FIX REGISTRAZIONE + LEGENDA v202
    ==================================================== */
 .check-row {
   justify-content: flex-start;
@@ -525,7 +558,7 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
 }
 
 /* ====================================================
-   CALENDARIO DIRIGENTE - FILTRI MOBILE v200
+   CALENDARIO DIRIGENTE - FILTRI MOBILE v202
    ==================================================== */
 .calendar-inline-controls { display: none; }
 @media (max-width: 760px) {

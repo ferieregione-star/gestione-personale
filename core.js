@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v200 - core dati sicuro
+   Gestione Personale v202 - core dati sicuro
    Architettura: Firestore con collezioni separate
      sectors/{id}, areas/{id}, users/{id}, events/{YYYY-MM-DD},
      notifications/{id} (solo admin), requests/{id}, audit/{id}, meta/config
@@ -7,7 +7,7 @@
    Local cache in localStorage per avvio offline/veloce.
    ========================================================= */
 
-const VERSION = "v200";
+const VERSION = "v202";
 const STORE = "gestione_personale_v200";
 const DATA_SCHEMA_VERSION = 200;
 
@@ -221,7 +221,7 @@ function addAudit(text){
   queueAuditWrite(entry);
 }
 function pushNotification(opts){
-  // v200: le notifiche sono riservate al Super Admin.
+  // v202: le notifiche sono riservate al Super Admin.
   // Le notifiche di settore non vengono più salvate né in locale né su Firestore.
   if(!opts || opts.scope!=="admin") return;
   var entry={id:uid("note"), text:opts.text, scope:"admin", sectorId:opts.sectorId||null, areaId:opts.areaId||null, type:opts.type||"info", actorId:opts.actorId||(currentUser?currentUser.id:"system"), at:Date.now(), displayAt:new Date().toLocaleString("it-IT")};
