@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v202 - core dati sicuro
+   Gestione Personale v203 - core dati sicuro
    Architettura: Firestore con collezioni separate
      sectors/{id}, areas/{id}, users/{id}, events/{YYYY-MM-DD},
      notifications/{id} (solo admin), requests/{id}, audit/{id}, meta/config
@@ -7,7 +7,7 @@
    Local cache in localStorage per avvio offline/veloce.
    ========================================================= */
 
-const VERSION = "v202";
+const VERSION = "v203";
 const STORE = "gestione_personale_v200";
 const DATA_SCHEMA_VERSION = 200;
 
@@ -44,6 +44,7 @@ let db = {
   areas:[...INITIAL_AREAS],
   users:[],
   events:{},
+  eventMeta:{},
   notifications:[],
   requests:[],
   audit:[],
@@ -278,50 +279,38 @@ function notificationText(actor,target,status,date){
   return fullName(actor)+" "+action+" di "+fullName(target)+" per il giorno "+fmt(date);
 }
 
-/* ---------- Regole smart working ----------
-   1) Ogni dipendente: massimo 1 giorno di SW a settimana (bloccante)
-   2) Stessa area: massimo 2 persone in SW lo stesso giorno
-   3) Stesso settore: massimo 3 persone in SW lo stesso giorno (totale)
-   Le regole 2 e 3 vengono segnalate con un triangolo di avviso sul
-   giorno e un elenco di errori nel popup, ma non bloccano il salvataggio
-   (può essere comunque necessario per urgenze); la regola 1 blocca.
----------------------------------------------- */
+/* Regole SW: una volta a settimana per persona (bloccante); per area
+   massimo due nello stesso giorno e una sola giornata doppia per settimana
+   (segnalazioni non bloccanti). Aree diverse non si influenzano. */
 function validateSmartRule(date,userId){
-  if(isBlockedDay(date)) return {ok:false, message:"Non puoi inserire smart working su sabato, domenica o festivo."};
+  if(isBlockedDay(date)) return {ok:false,message:"Non puoi inserire smart working su sabato, domenica o festivo."};
   var u=db.users.find(function(x){return x.id===userId;});
-  if(!u) return {ok:false, message:"Utente non trovato."};
-  var wk=weekDates(date);
-  var already=wk.filter(function(d){return d!==date && eventFor(d,userId)==="smart";});
-  if(already.length) return {ok:false, message:fullName(u)+" ha già uno smart working questa settimana ("+fmt(already[0])+"). Massimo 1 a settimana per persona."};
+  if(!u)return {ok:false,message:"Utente non trovato."};
+  var already=weekDates(date).filter(function(d){return d!==date&&eventFor(d,userId)==="smart";});
+  if(already.length)return {ok:false,message:fullName(u)+" ha già uno smart working questa settimana ("+fmt(already[0])+"). Massimo 1 a settimana per persona."};
   return {ok:true};
 }
-function countSmartArea(date,areaId,excludeUserId){
-  return db.users.filter(function(x){return x.approved&&isWorker(x)&&x.areaId===areaId&&x.id!==excludeUserId&&eventFor(date,x.id)==="smart";}).length;
-}
-function countSmartSector(date,sectorId,excludeUserId){
-  return db.users.filter(function(x){return x.approved&&isWorker(x)&&x.sectorId===sectorId&&x.id!==excludeUserId&&eventFor(date,x.id)==="smart";}).length;
+function countSmartArea(date,areaId){
+  return db.users.filter(function(u){return u.approved&&isWorker(u)&&u.areaId===areaId&&eventFor(date,u.id)==="smart";}).length;
 }
 function computedSmartRuleErrors(date){
-  if(isBlockedDay(date)) return [];
-  var errors=[];
+  if(isBlockedDay(date))return [];
+  var errors=[],week=weekDates(date);
+  // Il calendario mostra solo le anomalie delle aree che l'utente può vedere.
+  var visibleAreas=new Set(visibleUsersForCalendar().map(function(u){return u.areaId;}));
   db.areas.forEach(function(a){
-    var c=countSmartArea(date,a.id,null);
-    if(c>2) errors.push("Area "+a.name+": "+c+" persone in smart working lo stesso giorno (massimo 2).");
-  });
-  db.sectors.forEach(function(s){
-    var c=countSmartSector(date,s.id,null);
-    if(c>3) errors.push("Settore "+s.name+": "+c+" persone in smart working lo stesso giorno (massimo 3 in totale).");
+    if(!visibleAreas.has(a.id))return;
+    var n=countSmartArea(date,a.id);
+    if(n>2)errors.push("Area "+a.name+": "+n+" persone in SW il "+fmt(date)+" (massimo 2 nello stesso giorno).");
+    var doubles=week.filter(function(d){return countSmartArea(d,a.id)>=2;});
+    if(n>=2&&doubles.length>1)errors.push("Area "+a.name+": SW contemporaneo in più di un giorno della settimana ("+doubles.map(fmt).join(", ")+"). Massimo una giornata doppia.");
   });
   return errors;
 }
-function smartRuleErrorsForDay(date){
-  return computedSmartRuleErrors(date);
-}
+function smartRuleErrorsForDay(date){return computedSmartRuleErrors(date);}
 function refreshRuleViolations(date){
-  if(!db.ruleViolations) db.ruleViolations={};
-  var errs=smartRuleErrorsForDay(date);
-  if(errs.length) db.ruleViolations[date]=errs;
-  else delete db.ruleViolations[date];
+  if(!db.ruleViolations)db.ruleViolations={};
+  weekDates(date).forEach(function(d){var errs=smartRuleErrorsForDay(d);if(errs.length)db.ruleViolations[d]=errs;else delete db.ruleViolations[d];});
 }
 
 function planPeriods(){

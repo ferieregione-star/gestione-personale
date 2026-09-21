@@ -39,7 +39,13 @@ function loadEventsForMonth(m){
   else if(accessProfile.role==="sector_manager")q=q.where("areaId","in",(accessProfile.editableAreaIds||[accessProfile.areaId]).slice(0,10));
   else if(accessProfile.role!=="admin")q=q.where("sectorId","==",accessProfile.sectorId);
   q=q.where("date",">=",start).where("date","<",end);
-  unsubscribers.push(q.onSnapshot(function(s){Object.keys(db.events).forEach(function(k){if(k>=start&&k<end)delete db.events[k];});s.forEach(function(d){var e=d.data();if(!db.events[e.date])db.events[e.date]={};db.events[e.date][e.userId]=normalizeEventCode(e.type);});afterRemoteChange();},function(e){loadedEventMonths.delete(m);handleSnapError("events:"+m)(e);}));
+  unsubscribers.push(q.onSnapshot(function(s){Object.keys(db.events).forEach(function(k){if(k>=start&&k<end)delete db.events[k];});
+    if(!db.eventMeta)db.eventMeta={};
+    Object.keys(db.eventMeta).forEach(function(k){if(k>=start&&k<end)delete db.eventMeta[k];});
+    s.forEach(function(d){var e=d.data();if(!db.events[e.date])db.events[e.date]={};db.events[e.date][e.userId]=normalizeEventCode(e.type);
+      if(!db.eventMeta[e.date])db.eventMeta[e.date]={};
+      db.eventMeta[e.date][e.userId]={createdAt:e.createdAt||null,updatedAt:e.updatedAt||null,legacy:!e.createdAt};
+    });afterRemoteChange();},function(e){loadedEventMonths.delete(m);handleSnapError("events:"+m)(e);}));
 }
 function isUserEditingForm(){var e=document.activeElement,t=e&&(e.tagName||"").toUpperCase();return !!e&&(t==="INPUT"||t==="TEXTAREA"||t==="SELECT"||e.isContentEditable);}
 var afterRemoteChangeTimer=null;
@@ -61,7 +67,11 @@ async function writeEvent(date,userId,type){
       if(lock.exists&&lock.data().date!==date)throw new Error("È già presente uno smart working nella stessa settimana.");
       tx.set(lockRef,{userId:userId,date:date,week:weekDates(date)[0],sectorId:u.sectorId,areaId:u.areaId,updatedBy:firebaseAuth.currentUser.uid});
     }
-    tx.set(ref,{date:date,userId:userId,type:type,sectorId:u.sectorId,areaId:u.areaId,updatedBy:firebaseAuth.currentUser.uid,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    var fields={date:date,userId:userId,type:type,sectorId:u.sectorId,areaId:u.areaId,updatedBy:firebaseAuth.currentUser.uid,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    // La prima selezione SW conserva la sua data anche in caso di successiva modifica.
+    if(type==="smart")fields.createdAt=oldData&&oldData.type==="smart"?(oldData.createdAt||oldData.updatedAt||firebase.firestore.FieldValue.serverTimestamp()):firebase.firestore.FieldValue.serverTimestamp();
+    else if(oldData&&oldData.createdAt)fields.createdAt=oldData.createdAt;
+    tx.set(ref,fields);
   });
 }
 async function deleteEvent(date,userId){

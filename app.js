@@ -413,6 +413,9 @@ function closeModal(){
 
 function renderCalendar(){
   loadEventsForMonth(monthKeyOf(dateKey(1)));
+  // Le settimane a cavallo del mese richiedono anche i mesi adiacenti.
+  var firstWeek=weekDates(dateKey(1)),lastWeek=weekDates(dateKey(daysInMonth()));
+  [firstWeek[0],lastWeek[4]].forEach(function(d){loadEventsForMonth(monthKeyOf(d));});
   var hmap=holidaysFor(viewYear);
   var blanks=(new Date(viewYear,viewMonth,1).getDay()+6)%7;
   var days="";
@@ -437,7 +440,7 @@ function renderCalendar(){
     var selCls=isSel?(isMob?"day-selected-mob":"day-selected-desk"):"";
     days+='<button class="day-cell'+(hol?" day-holiday":"")+(errs.length?" day-rule-err":"")+(isToday?" day-today":"")+(selCls?" "+selCls:"")+ '" onclick="openDay(\''+date+'\')">'+
       '<div class="day-num">'+d+'</div>'+
-      (errs.length?'<div class="day-err-dot"></div>':"")+
+      (errs.length?'<span class="day-err-symbol" title="Anomalia smart working" aria-label="Anomalia smart working">❗</span>':"")+
       (hol?'<div class="day-hol-name">'+hol+'</div>':"")+
       '<div class="dot-row">'+dots+'</div>'+
     '</button>';
@@ -495,11 +498,16 @@ function renderPresenceSections(date, people, allowRemove){
   var absent=smart.concat(otherAbsent);
   function row(u,isAway){
     var st=eventFor(date,u.id);
+    var meta=db.eventMeta&&db.eventMeta[date]&&db.eventMeta[date][u.id];
+    var stamp=meta&&(meta.createdAt||meta.updatedAt);
+    var when=stamp&&(typeof stamp.toDate==="function"?stamp.toDate():stamp.seconds?new Date(stamp.seconds*1000):new Date(stamp));
+    var timeLabel=when&&!isNaN(when.getTime())?when.toLocaleString("it-IT",{day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+    var smartTime=st==="smart"&&timeLabel?'<span class="presence-sw-time" title="'+(meta.legacy?'Ultima modifica registrata (dato storico)':'Data e ora di inserimento SW')+'">'+(meta.legacy?'Registrato/modificato: ':'Inserito: ')+timeLabel+'</span>':"";
     var reason=isAway?'<span class="presence-reason">'+((STATUS[st]||{}).short||htmlEscape(st))+'</span>':"";
     var remove=allowRemove&&isAway&&canModifyUserEvents(u.id)?'<button class="presence-remove" onclick="removeEvent(\''+date+'\',\''+u.id+'\')">Rimuovi</button>':"";
     var awayClass=isAway?(st==="smart"?' absence-smart':' absence-other'):"";
     return '<div class="presence-row '+(isAway?'presence-absent':'presence-present')+awayClass+'">'+
-      '<span class="presence-dot" aria-hidden="true"></span><div class="presence-person"><span class="presence-name">'+fullName(u)+'</span>'+reason+'</div>'+remove+'</div>';
+      '<span class="presence-dot" aria-hidden="true"></span><div class="presence-person"><span class="presence-name">'+fullName(u)+'</span>'+reason+smartTime+'</div>'+remove+'</div>';
   }
   return '<div class="presence-columns"><div class="presence-section presence-column-present">'+
     '<div class="presence-heading presence-heading-present">Presenti <span>'+present.length+'</span></div>'+
@@ -534,7 +542,7 @@ function renderDayModal(){
     '<button class="modal-close" onclick="closeModal()">−</button>'+
     '</div>'+
     '<div class="modal-body">'+
-    (errs.length?'<div class="warning">'+ico("warning")+'  '+errs[0]+'</div>':"")+
+    (errs.length?'<div class="warning">'+ico("warning")+'  '+errs.map(htmlEscape).join('<br>')+'</div>':"")+
     body+
     '</div>'+
     (canAdd?'<div class="modal-footer"><button class="btn btn-primary btn-full" onclick="openInsertSheet()">'+ico("plus")+'  Inserisci assenza</button></div>':"")+

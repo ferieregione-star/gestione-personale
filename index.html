@@ -22,10 +22,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Gestione Personale">
 
-  <link rel="stylesheet" href="./styles.css?v=202">
-  <link rel="manifest" href="./manifest.json?v=202">
-  <link rel="apple-touch-icon" href="./icons/icon-192.png?v=202">
-  <link rel="icon" href="./icons/icon-192.png?v=202">
+  <link rel="stylesheet" href="./styles.css?v=203">
+  <link rel="manifest" href="./manifest.json?v=203">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png?v=203">
+  <link rel="icon" href="./icons/icon-192.png?v=203">
 </head>
 
 <body>
@@ -51,17 +51,17 @@
     };
   </script>
 
-  <script src="./core.js?v=202"></script>
-  <script src="./firestore-sync.js?v=202"></script>
-  <script src="./auth.js?v=202"></script>
-  <script src="./app.js?v=202"></script>
+  <script src="./core.js?v=203"></script>
+  <script src="./firestore-sync.js?v=203"></script>
+  <script src="./auth.js?v=203"></script>
+  <script src="./app.js?v=203"></script>
 
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", async function () {
         try {
           const registration = await navigator.serviceWorker.register(
-            "./sw.js?v=202",
+            "./sw.js?v=203",
             { updateViaCache: "none" }
           );
 

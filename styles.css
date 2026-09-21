@@ -588,3 +588,8 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
     padding: 10px 11px;
   }
 }
+
+/* v203 — SW: orario sotto il nome e allerta evidente nel calendario */
+.presence-sw-time {display:block;flex-basis:100%;font-size:10px;line-height:1.35;color:var(--c-muted);margin-top:3px;}
+.day-err-symbol {display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1;margin-left:auto;}
+@media(max-width:760px){.presence-sw-time{font-size:9px}.day-err-symbol{font-size:15px}}
