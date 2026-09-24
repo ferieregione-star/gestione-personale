@@ -13,3 +13,4 @@ Carica tutto il contenuto nella root del repository GitHub Pages.
 ## Nota
 
 Il titolo visibile agli utenti resta solo: Gestione Personale.
+Ripubblicazione del sito
