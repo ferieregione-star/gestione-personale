@@ -57,29 +57,46 @@ async function writeArea(a){var x=Object.assign({},a);delete x.id;await cloudDb.
 function eventDocId(date,userId){return date+"_"+userId;}
 function smartWeekId(date,userId){return userId+"_"+weekDates(date)[0];}
 async function writeEvent(date,userId,type){
-  var u=db.users.find(function(x){return x.id===userId;});if(!u)throw new Error("Utente non trovato");
-  var ref=cloudDb.collection("events").doc(eventDocId(date,userId));
+  var u=db.users.find(function(x){return x.id===userId;});
+  if(!u||!firebaseAuth||!firebaseAuth.currentUser)throw new Error("Utente non disponibile");
+  var actor=firebaseAuth.currentUser.uid,ref=cloudDb.collection("events").doc(eventDocId(date,userId));
+  var changeRef=cloudDb.collection("eventChanges").doc();
   await cloudDb.runTransaction(async function(tx){
-    var old=await tx.get(ref),oldData=old.exists?old.data():null;
-    if(oldData&&oldData.type==="smart"&&type!=="smart")tx.delete(cloudDb.collection("smartWeeks").doc(smartWeekId(oldData.date,userId)));
+    var old=await tx.get(ref),prev=old.exists?old.data():null;
+    var lockRef=null,lock=null;
     if(type==="smart"){
-      var lockRef=cloudDb.collection("smartWeeks").doc(smartWeekId(date,userId)),lock=await tx.get(lockRef);
+      lockRef=cloudDb.collection("smartWeeks").doc(smartWeekId(date,userId));
+      lock=await tx.get(lockRef);
       if(lock.exists&&lock.data().date!==date)throw new Error("È già presente uno smart working nella stessa settimana.");
-      tx.set(lockRef,{userId:userId,date:date,week:weekDates(date)[0],sectorId:u.sectorId,areaId:u.areaId,updatedBy:firebaseAuth.currentUser.uid});
     }
-    var fields={date:date,userId:userId,type:type,sectorId:u.sectorId,areaId:u.areaId,updatedBy:firebaseAuth.currentUser.uid,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-    // La prima selezione SW conserva la sua data anche in caso di successiva modifica.
-    if(type==="smart")fields.createdAt=oldData&&oldData.type==="smart"?(oldData.createdAt||oldData.updatedAt||firebase.firestore.FieldValue.serverTimestamp()):firebase.firestore.FieldValue.serverTimestamp();
-    else if(oldData&&oldData.createdAt)fields.createdAt=oldData.createdAt;
+    if(prev&&prev.type==="smart"&&type!=="smart")tx.delete(cloudDb.collection("smartWeeks").doc(smartWeekId(date,userId)));
+    if(type==="smart")tx.set(lockRef,{userId:userId,date:date,week:weekDates(date)[0],sectorId:u.sectorId,areaId:u.areaId,updatedBy:actor});
+    var ts=firebase.firestore.FieldValue.serverTimestamp();
+    var fields={date:date,userId:userId,type:type,sectorId:u.sectorId,areaId:u.areaId,updatedBy:actor,updatedAt:ts};
+    if(type==="smart")fields.createdAt=prev&&prev.type==="smart"?(prev.createdAt||prev.updatedAt||ts):ts;
+    else if(prev&&prev.createdAt)fields.createdAt=prev.createdAt;
     tx.set(ref,fields);
+    // Log immutabile: anche le cancellazioni vengono notificate.
+    tx.set(changeRef,{action:old.exists?"updated":"created",eventId:eventDocId(date,userId),date:date,userId:userId,areaId:u.areaId,sectorId:u.sectorId,oldType:prev?prev.type:null,newType:type,actorUid:actor,at:ts});
   });
 }
 async function deleteEvent(date,userId){
-  var ref=cloudDb.collection("events").doc(eventDocId(date,userId));
-  await cloudDb.runTransaction(async function(tx){var old=await tx.get(ref);if(old.exists&&old.data().type==="smart")tx.delete(cloudDb.collection("smartWeeks").doc(smartWeekId(date,userId)));tx.delete(ref);});
+  if(!firebaseAuth||!firebaseAuth.currentUser)throw new Error("Accesso necessario");
+  var actor=firebaseAuth.currentUser.uid,ref=cloudDb.collection("events").doc(eventDocId(date,userId));
+  var changeRef=cloudDb.collection("eventChanges").doc();
+  await cloudDb.runTransaction(async function(tx){
+    var old=await tx.get(ref);if(!old.exists)return;
+    var prev=old.data();
+    if(prev.type==="smart")tx.delete(cloudDb.collection("smartWeeks").doc(smartWeekId(date,userId)));
+    tx.delete(ref);
+    tx.set(changeRef,{action:"deleted",eventId:eventDocId(date,userId),date:date,userId:userId,areaId:prev.areaId,sectorId:prev.sectorId,oldType:prev.type,newType:null,actorUid:actor,at:firebase.firestore.FieldValue.serverTimestamp()});
+  });
 }
 async function deleteAllUserEvents(userId){
-  for(var c of ["events","smartWeeks"]){var s=await cloudDb.collection(c).where("userId","==",userId).get();while(!s.empty){var b=cloudDb.batch();s.docs.slice(0,450).forEach(function(d){b.delete(d.ref);});await b.commit();if(s.size<=450)break;s=await cloudDb.collection(c).where("userId","==",userId).get();}}
+  var docs=await cloudDb.collection("events").where("userId","==",userId).get();
+  for(var d of docs.docs){await deleteEvent(d.data().date,userId);}
+  var locks=await cloudDb.collection("smartWeeks").where("userId","==",userId).get();
+  for(var l of locks.docs){await l.ref.delete();}
 }
 function queueNotificationWrite(e){if(currentUser&&currentUser.role==="admin")cloudDb.collection("notifications").doc(e.id).set(e).catch(console.error);}
 function queueAuditWrite(e){if(firebaseAuth&&firebaseAuth.currentUser){e.byUid=firebaseAuth.currentUser.uid;cloudDb.collection("audit").doc(e.id).set(e).catch(console.error);}}

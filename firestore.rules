@@ -1,20 +1,48 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Compatibilità con la versione legacy senza Firebase Authentication.
-    // ATTENZIONE: queste regole permettono lettura/scrittura alle collezioni dell'app.
-    // Per produzione reale serve migrare a Firebase Authentication e regole basate su request.auth.
-
-    match /sectors/{sectorId} { allow read, write: if true; }
-    match /areas/{areaId} { allow read, write: if true; }
-    match /users/{userId} { allow read, write: if true; }
-    match /events/{date} { allow read, write: if true; }
-    match /notifications/{noteId} { allow read, write: if true; }
-    match /requests/{reqId} { allow read, write: if true; }
-    match /audit/{auditId} { allow read, write: if true; }
-    match /meta/{docId} { allow read, write: if true; }
-
+    function signedIn() { return request.auth != null; }
+    function profile() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function approved() { return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && profile().approved == true; }
+    function admin() { return approved() && profile().role == 'admin'; }
+    function canEdit(targetUid) {
+      return approved() && exists(/databases/$(database)/documents/users/$(targetUid)) &&
+        (admin() ||
+         (profile().role == 'employee' && request.auth.uid == targetUid) ||
+         (profile().role == 'sector_manager' &&
+          get(/databases/$(database)/documents/users/$(targetUid)).data.areaId in profile().editableAreaIds));
+    }
+    function worker(targetUid) {
+      return get(/databases/$(database)/documents/users/$(targetUid)).data.role in ['employee','sector_manager'];
+    }
+    function matchesTarget(data) {
+      return data.userId is string && data.date is string &&
+        exists(/databases/$(database)/documents/users/$(data.userId)) &&
+        data.areaId == get(/databases/$(database)/documents/users/$(data.userId)).data.areaId &&
+        data.sectorId == get(/databases/$(database)/documents/users/$(data.userId)).data.sectorId;
+    }
+    match /sectors/{id} { allow read: if signedIn(); allow write: if admin(); }
+    match /areas/{id} { allow read: if signedIn(); allow write: if admin(); }
+    match /users/{id} {
+      allow create: if signedIn() && request.auth.uid == id && request.resource.data.approved == false && request.resource.data.role in ['employee','sector_manager','viewer'];
+      allow read: if approved() || (signedIn() && request.auth.uid == id);
+      allow update: if admin() || (approved() && request.auth.uid == id && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','surname','initials'])) || (approved() && profile().role == 'sector_manager' && resource.data.areaId in profile().editableAreaIds && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','surname','initials']));
+      allow delete: if admin();
+    }
+    match /events/{id} {
+      allow read: if approved();
+      allow create, update: if canEdit(request.resource.data.userId) && worker(request.resource.data.userId) && matchesTarget(request.resource.data) && id == request.resource.data.date + '_' + request.resource.data.userId && request.resource.data.updatedBy == request.auth.uid && request.resource.data.updatedAt == request.time;
+      allow delete: if canEdit(resource.data.userId) && worker(resource.data.userId);
+    }
+    match /eventChanges/{id} {
+      allow read, update, delete: if false;
+      allow create: if approved() && request.resource.data.keys().hasAll(['action','eventId','date','userId','areaId','sectorId','oldType','newType','actorUid','at']) && request.resource.data.keys().hasOnly(['action','eventId','date','userId','areaId','sectorId','oldType','newType','actorUid','at']) && request.resource.data.action in ['created','updated','deleted'] && request.resource.data.actorUid == request.auth.uid && request.resource.data.at == request.time && matchesTarget(request.resource.data) && canEdit(request.resource.data.userId) && worker(request.resource.data.userId) && request.resource.data.eventId == request.resource.data.date + '_' + request.resource.data.userId && ((request.resource.data.action == 'deleted' && !existsAfter(/databases/$(database)/documents/events/$(request.resource.data.eventId))) || (request.resource.data.action in ['created','updated'] && existsAfter(/databases/$(database)/documents/events/$(request.resource.data.eventId)) && getAfter(/databases/$(database)/documents/events/$(request.resource.data.eventId)).data.type == request.resource.data.newType && getAfter(/databases/$(database)/documents/events/$(request.resource.data.eventId)).data.updatedBy == request.auth.uid && getAfter(/databases/$(database)/documents/events/$(request.resource.data.eventId)).data.updatedAt == request.time));
+    }
+    match /smartWeeks/{id} { allow read: if approved(); allow create, update: if canEdit(request.resource.data.userId); allow delete: if canEdit(resource.data.userId); }
+    match /notifications/{id} { allow read, write: if admin(); }
+    match /requests/{id} { allow read: if admin() || (approved() && resource.data.userId == request.auth.uid); allow create: if approved() && request.resource.data.userId == request.auth.uid; allow update, delete: if admin(); }
+    match /audit/{id} { allow read: if admin(); allow create: if approved() && request.resource.data.byUid == request.auth.uid; allow update, delete: if false; }
+    match /meta/{id} { allow read, write: if admin(); }
     match /{document=**} { allow read, write: if false; }
   }
 }
