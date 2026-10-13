@@ -1,17 +1,32 @@
-name: Verifica configurazione notifiche
+
+name: Verifica collegamento Google Cloud
 
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   verifica:
     runs-on: ubuntu-latest
+
     steps:
       - name: Controlla presenza Secrets
         env:
           WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
         run: |
-          test -n "$WIF_PROVIDER" || { echo 'Manca GCP_WORKLOAD_IDENTITY_PROVIDER'; exit 1; }
-          test -n "$SERVICE_ACCOUNT" || { echo 'Manca GCP_SERVICE_ACCOUNT'; exit 1; }
-          echo 'Secrets Google Cloud presenti.'
+          test -n "$WIF_PROVIDER" || exit 1
+          test -n "$SERVICE_ACCOUNT" || exit 1
+          echo "Secrets presenti."
+
+      - name: Autenticazione Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Conferma autenticazione
+        run: echo "Autenticazione Google Cloud completata."
