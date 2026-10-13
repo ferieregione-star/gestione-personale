@@ -349,7 +349,7 @@ function renderStatusLegend(extraClass){
   // Settore 4 -> Prevenzione/Veterinaria; Settore 7 -> Territorio/Convenzionata.
   var sectorId=selectedSectorId||currentUser?.sectorId||"prevenzione";
   var swAreas=areasOfSector(sectorId);
-  if(!swAreas.length) swAreas=db.areas||[];
+  if(!swAreas.length) swAreas=(db.areas||[]).filter(function(a){return isAreaVisible(a.id);});
 
   var items=swAreas.map(function(a){
     var cls=smartColorForArea(a.id)==="#16a34a"?"legend-dot-sw-green":"legend-dot-sw-blue";
@@ -670,7 +670,7 @@ function renderRegisterColleague(){
    ========================================================= */
 function usersForPeople(){
   if(currentUser.role!=="admin")return visibleUsers(true);
-  return db.users.filter(u=>u.role!=="admin"&&(selectedSectorId==="all"||u.sectorId===selectedSectorId||(u.visibleSectorIds||[]).includes(selectedSectorId)||(u.editableAreaIds||[]).some(aid=>{var a=db.areas.find(x=>x.id===aid);return a&&a.sectorId===selectedSectorId;})));
+  return db.users.filter(u=>u.role!=="admin"&&isAreaVisible(u.areaId)&&(selectedSectorId==="all"||u.sectorId===selectedSectorId||(u.visibleSectorIds||[]).includes(selectedSectorId)||(u.editableAreaIds||[]).some(aid=>{var a=db.areas.find(x=>x.id===aid);return a&&a.sectorId===selectedSectorId;})));
 }
 function personRowClickable(u){
   var sel=selectedEmployeeId===u.id;
@@ -682,7 +682,7 @@ function renderPeopleList(){
   if(currentUser.role!=="admin")return usersForPeople().sort(sortByName).map(personRowClickable).join("");
   var sId=selectedSectorId;
   var areas=areasOfSector(sId);
-  var sectorUsers=db.users.filter(u=>u.role!=="admin"&&u.approved);
+  var sectorUsers=db.users.filter(u=>u.role!=="admin"&&u.approved&&isAreaVisible(u.areaId));
   // Dirigenti: hanno sId nei visibleSectorIds
   var viewers=sectorUsers.filter(u=>u.role==="viewer"&&(u.visibleSectorIds||[]).includes(sId)).sort(sortByName);
   // Referenti: hanno almeno un'area del settore sId in editableAreaIds
@@ -910,9 +910,30 @@ function renderSwitchUserPanel(){
 function slugifyId(t){return(t||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||uid("s");}
 function renderSectorAdminPanel(){
   if(currentUser.role!=="admin")return"";
-  var s=db.sectors.map(s=>{var areas=areasOfSector(s.id).map(a=>'<span class="tag tag-smart" style="margin-right:4px">'+htmlEscape(a.name)+'</span>').join("");return'<div class="person-row"><div class="person-meta"><strong>'+htmlEscape(s.name)+'</strong><small>'+(areas||"Nessuna area")+'</small></div><div style="display:flex;gap:6px"><input id="ar_'+s.id+'" placeholder="Nuova area" style="width:130px;margin:0"><button class="btn btn-secondary btn-sm" onclick="addAreaToSector(\''+s.id+'\')">Aggiungi</button></div></div>';}).join("");
-  return'<div class="card"><div class="sec-title">Settori e aree</div>'+s+'<div class="form-grid-2" style="margin-top:14px"><div class="form-row"><label>Nuovo settore</label><input id="nSec"></div><div class="form-row"><label>Prima area</label><input id="nSecA"></div></div><button class="btn btn-primary btn-sm" onclick="addSector()">Crea settore</button></div>';
+  var sectors=db.sectors.map(function(sec){
+    var areaRows=db.areas.filter(function(a){return a.sectorId===sec.id;}).map(function(a){
+      var hidden=a.hidden===true;
+      return '<div class="person-row" style="align-items:center;gap:10px"><div class="person-meta"><strong>'+htmlEscape(a.name)+'</strong><small>'+(hidden?'Nascosta ai colleghi':'Visibile ai colleghi')+'</small></div>'+
+        '<button class="btn '+(hidden?'btn-primary':'btn-secondary')+' btn-sm" onclick="toggleAreaVisibility(\''+a.id+'\')">'+(hidden?'Riattiva':'Nascondi')+'</button></div>';
+    }).join('');
+    return '<div class="card"><div class="sec-title">'+htmlEscape(sec.name)+'</div>'+areaRows+
+      '<div style="display:flex;gap:6px;margin-top:10px"><input id="ar_'+sec.id+'" placeholder="Nuova area" style="width:160px;margin:0"><button class="btn btn-secondary btn-sm" onclick="addAreaToSector(\''+sec.id+'\')">Aggiungi</button></div></div>';
+  }).join('');
+  return '<div class="card"><div class="sec-title">Visibilità aree — solo Super Gestore</div><p style="font-size:13px;color:var(--c-muted)">Le aree nascoste scompaiono da calendari, riepiloghi e filtri degli altri utenti. I dati non vengono cancellati.</p></div>'+
+    sectors+'<div class="card"><div class="sec-title">Nuovo settore</div><div class="form-grid-2"><div class="form-row"><label>Nome settore</label><input id="nSec"></div><div class="form-row"><label>Prima area</label><input id="nSecA"></div></div><button class="btn btn-primary btn-sm" onclick="addSector()">Crea settore</button></div>';
 }
+async function toggleAreaVisibility(areaId){
+  if(!currentUser||currentUser.role!=="admin"||adminUser){alert('Operazione riservata al Super Gestore.');return;}
+  var a=db.areas.find(function(x){return x.id===areaId;});if(!a)return;
+  var nextHidden=a.hidden!==true;
+  if(!confirm((nextHidden?'Nascondere':'Riattivare')+' l’area '+a.name+'? Nessun dato verrà cancellato.'))return;
+  if(!cloudEnabled||!cloudDb){alert('Connessione Firebase non disponibile.');return;}
+  var previous=a.hidden;
+  a.hidden=nextHidden;
+  try{await writeArea(a);addAudit((nextHidden?'Nascosta':'Riattivata')+' area '+a.name);render();}
+  catch(e){a.hidden=previous;render();alert('Salvataggio non riuscito: '+(e.message||e));}
+}
+
 async function addSector(){var nm=document.getElementById("nSec").value.trim(),an=document.getElementById("nSecA").value.trim();if(!nm){alert("Inserisci il nome.");return;}var id=slugifyId(nm),b=id,n=2;while(db.sectors.some(s=>s.id===id))id=b+"-"+(n++);var s={id,name:nm,hasAreas:!!an};db.sectors.push(s);try{await writeSector(s);}catch(e){}if(an){var a={id:slugifyId(id+"-"+an),sectorId:id,name:an,color:"#64748B"};db.areas.push(a);try{await writeArea(a);}catch(e){}}addAudit("Creato settore "+nm);render();}
 async function addAreaToSector(sId){var inp=document.getElementById("ar_"+sId),nm=inp.value.trim();if(!nm){alert("Inserisci il nome.");return;}var id=slugifyId(sId+"-"+nm),b=id,n=2;while(db.areas.some(a=>a.id===id))id=b+"-"+(n++);var a={id,sectorId:sId,name:nm,color:"#64748B"};db.areas.push(a);var s=db.sectors.find(x=>x.id===sId);if(s&&!s.hasAreas){s.hasAreas=true;try{await writeSector(s);}catch(e){}}try{await writeArea(a);}catch(e){}addAudit("Creata area "+nm);render();}
 async function approveRegistration(uId){var u=db.users.find(x=>x.id===uId);if(!u)return;u.approved=true;if(!u.visibleSectorIds?.length)u.visibleSectorIds=[u.sectorId];if(!u.editableAreaIds)u.editableAreaIds=[];var now=Date.now();db.lastRead[u.id]=now;db.lastRead[u.id+'_joined']=now;queueMetaWrite();addAudit("Approvata registrazione di "+fullName(u));try{await writeUser(u);}catch(e){}render();}

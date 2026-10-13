@@ -1,5 +1,5 @@
 /* =========================================================
-   Gestione Personale v203 - core dati sicuro
+   Gestione Personale v204 - core dati sicuro
    Architettura: Firestore con collezioni separate
      sectors/{id}, areas/{id}, users/{id}, events/{YYYY-MM-DD},
      notifications/{id} (solo admin), requests/{id}, audit/{id}, meta/config
@@ -7,7 +7,7 @@
    Local cache in localStorage per avvio offline/veloce.
    ========================================================= */
 
-const VERSION = "v203";
+const VERSION = "v204";
 const STORE = "gestione_personale_v200";
 const DATA_SCHEMA_VERSION = 200;
 
@@ -111,7 +111,14 @@ function sectorName(id){ return htmlEscape(id==="*" ? "Tutti" : ((db.sectors.fin
 function areaName(id){ return htmlEscape((id==="all"||id==="*") ? "Tutte" : ((db.areas.find(function(a){return a.id===id;})||{}).name || id)); }
 function areaColor(id){ var a=db.areas.find(function(x){return x.id===id;}); return a ? a.color : "#64748b"; }
 function sectorById(id){ return db.sectors.find(function(s){return s.id===id;}); }
-function areasOfSector(sectorId){ return db.areas.filter(function(a){return a.sectorId===sectorId;}); }
+function isAreaVisible(areaId){
+  if(!areaId || areaId==="*" || areaId==="all")return true;
+  if(currentUser && currentUser.role==="admin")return true;
+  var area=db.areas.find(function(a){return a.id===areaId;});
+  return !!area && area.hidden!==true;
+}
+function areasOfSector(sectorId){ return db.areas.filter(function(a){return a.sectorId===sectorId && isAreaVisible(a.id);}); }
+function visibleAreaUsers(users){return users.filter(function(u){return isAreaVisible(u.areaId);});}
 
 function abbreviatePart(part){
   part=(part||"").trim();
@@ -201,7 +208,7 @@ function canEditProtectedData(){ return currentUser.role==="admin"; }
 
 function visibleUsers(includeViewers){
   return db.users.filter(function(u){
-    if(!u.approved||u.role==="admin") return false;
+    if(!u.approved||u.role==="admin"||!isAreaVisible(u.areaId)) return false;
     if(!includeViewers && !isWorker(u)) return false;
     if(currentUser.role==="admin") return (selectedSectorId==="all"||u.sectorId===selectedSectorId) && (selectedAreaFilter==="all"||u.areaId===selectedAreaFilter||u.areaId==="*");
     if(currentUser.role==="viewer"){
