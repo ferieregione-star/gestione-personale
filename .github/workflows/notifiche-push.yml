@@ -1,43 +1,37 @@
 
-name: Verifica lettura Firestore
+name: Notifiche push automatiche
 
 on:
+  schedule:
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: read
   id-token: write
 
-jobs:
-  verifica:
-    runs-on: ubuntu-latest
+concurrency:
+  group: notifiche-push
+  cancel-in-progress: false
 
+jobs:
+  notifiche:
+    runs-on: ubuntu-latest
     steps:
-      - name: Autenticazione Google Cloud
-        uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v4
+
+      - uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      - name: Installa Python e Firestore
-        run: |
-          python -m pip install google-cloud-firestore
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-      - name: Verifica lettura Firestore
+      - run: python -m pip install google-cloud-firestore
+
+      - name: Invia notifiche OneSignal
         env:
-          GOOGLE_CLOUD_PROJECT: gestione-personale-e2fd0
-        run: |
-          python - <<'PY'
-          from google.cloud import firestore
-
-          db = firestore.Client(
-              project="gestione-personale-e2fd0"
-          )
-
-          # Legge al massimo un documento.
-          # Non stampa dati personali.
-          docs = db.collection("events").limit(1).get()
-
-          print("Connessione Firestore riuscita.")
-          print("Lettura autorizzata.")
-          PY
+          ONESIGNAL_API_KEY: ${{ secrets.ONESIGNAL_API_KEY }}
+        run: python scripts/send_push.py
