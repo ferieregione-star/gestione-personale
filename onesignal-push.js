@@ -52,3 +52,61 @@
     return true;
   };
 })();
+
+
+/* Pulsante per attivare le notifiche */
+(function () {
+  function createPushButton() {
+    if (document.getElementById("gp-push-button")) return;
+
+    var button = document.createElement("button");
+    button.id = "gp-push-button";
+    button.type = "button";
+    button.textContent = "🔔 Attiva notifiche";
+
+    button.style.cssText =
+      "position:fixed;bottom:20px;right:16px;" +
+      "z-index:9999;padding:12px 16px;" +
+      "background:#2563eb;color:white;" +
+      "border:0;border-radius:12px;" +
+      "font-size:14px;font-weight:bold;" +
+      "box-shadow:0 3px 12px #0003;cursor:pointer;";
+
+    button.addEventListener("click", async function () {
+      if (!window.gpPushRequestPermission) {
+        alert("Le notifiche non sono ancora disponibili.");
+        return;
+      }
+
+      try {
+        var result = await window.gpPushRequestPermission();
+
+        if (!result) {
+          alert(
+            "Accedi all'app e riprova ad attivare le notifiche."
+          );
+          return;
+        }
+
+        if (Notification.permission === "granted") {
+          button.textContent = "✓ Notifiche autorizzate";
+        } else {
+          alert(
+            "Per ricevere gli avvisi devi consentire le notifiche nel browser."
+          );
+        }
+      } catch (error) {
+        console.error("Errore notifiche:", error);
+        alert("Impossibile attivare le notifiche.");
+      }
+    });
+
+    document.body.appendChild(button);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", createPushButton);
+  } else {
+    createPushButton();
+  }
+})();
