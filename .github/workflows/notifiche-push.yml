@@ -1,5 +1,5 @@
 
-name: Verifica collegamento Google Cloud
+name: Verifica lettura Firestore
 
 on:
   workflow_dispatch:
@@ -13,20 +13,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Controlla presenza Secrets
-        env:
-          WIF_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-        run: |
-          test -n "$WIF_PROVIDER" || exit 1
-          test -n "$SERVICE_ACCOUNT" || exit 1
-          echo "Secrets presenti."
-
       - name: Autenticazione Google Cloud
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-      - name: Conferma autenticazione
-        run: echo "Autenticazione Google Cloud completata."
+      - name: Installa Python e Firestore
+        run: |
+          python -m pip install google-cloud-firestore
+
+      - name: Verifica lettura Firestore
+        env:
+          GOOGLE_CLOUD_PROJECT: gestione-personale-e2fd0
+        run: |
+          python - <<'PY'
+          from google.cloud import firestore
+
+          db = firestore.Client(
+              project="gestione-personale-e2fd0"
+          )
+
+          # Legge al massimo un documento.
+          # Non stampa dati personali.
+          docs = db.collection("events").limit(1).get()
+
+          print("Connessione Firestore riuscita.")
+          print("Lettura autorizzata.")
+          PY
