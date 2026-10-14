@@ -8,57 +8,56 @@
   let resolveReady;
   const sdkReady = new Promise(function (resolve) { resolveReady = resolve; });
 
-  function updateButton() {
-    const btn = document.getElementById("gp-push-button");
-    if (!btn) return;
-    btn.style.display = approvedUid ? "flex" : "none";
-    const granted = typeof Notification !== "undefined" && Notification.permission === "granted";
-    btn.textContent = granted ? "🔔" : "🔔";
-    btn.title = granted ? "Notifiche autorizzate" : "Attiva notifiche";
-    btn.setAttribute("aria-label", btn.title);
-    btn.style.background = "transparent";
-    btn.style.color = "#1d4ed8";
-    btn.style.border = granted ? "1px solid #86cfa0" : "1px solid #cbd5e1";
-    btn.style.boxShadow = "0 1px 4px #00000014";
-    btn.style.position = "fixed";
-    btn.style.top = "12px";
-    btn.style.right = "12px";
-    btn.style.width = "38px";
-    btn.style.height = "38px";
-    btn.style.padding = "0";
-    btn.style.borderRadius = "50%";
-    btn.style.fontSize = "19px";
-    btn.style.alignItems = "center";
-    btn.style.justifyContent = "center";
-    btn.style.cursor = "pointer";
-    btn.style.zIndex = "9999";
+  const BELL_SVG = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M10 21h4"/></svg>';
+  let button = null;
+  function isSubscribed(){
+    try { return !!(sdk && sdk.User && sdk.User.PushSubscription && sdk.User.PushSubscription.optedIn && sdk.User.PushSubscription.id && typeof Notification!=="undefined" && Notification.permission==="granted"); }
+    catch(e){return false;}
   }
-
-  function createButton() {
-    if (document.getElementById("gp-push-button")) return;
-    const btn = document.createElement("button");
-    btn.id = "gp-push-button";
-    btn.type = "button";
-    btn.style.display = "none";
-    btn.addEventListener("click", async function () {
-      btn.disabled = true;
-      try {
-        const ok = await window.gpPushRequestPermission();
-        if (!ok) alert("Le notifiche non sono ancora pronte. Attendi qualche secondo e riprova.");
-        else if (Notification.permission !== "granted") alert("Consenti le notifiche nelle impostazioni del browser.");
-      } catch (error) {
-        console.error("Errore notifiche:", error);
-        alert("Impossibile attivare le notifiche. Controlla le impostazioni del browser.");
-      } finally {
-        btn.disabled = false;
-        updateButton();
-      }
-    });
-    document.body.appendChild(btn);
+  function updateButton(){
+    if(!button)return;
+    button.hidden=!approvedUid;
+    const active=isSubscribed();
+    button.innerHTML=BELL_SVG+'<span class="gp-push-status '+(active?'gp-push-on':'gp-push-off')+'" aria-hidden="true">'+(active?'✓':'×')+'</span>';
+    button.title=active?"Push OneSignal attive":"Push OneSignal non attive: premi per attivarle";
+    button.setAttribute("aria-label",button.title);
+    button.setAttribute("aria-pressed",String(active));
+  }
+  function positionButton(){
+    if(!button)return;
+    var isMobile=window.matchMedia("(max-width: 760px)").matches;
+    var selector=isMobile?'[data-gp-push-anchor="mobile"]':'[data-gp-push-anchor="desktop"]';
+    var target=document.querySelector(selector);
+    if(target&&button.parentNode!==target)target.appendChild(button);
+    else if(!target&&button.parentNode!==document.body)document.body.appendChild(button);
+    button.classList.toggle("gp-push-floating",!target);
     updateButton();
   }
-
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", createButton);
+  function createButton(){
+    if(button)return;
+    button=document.createElement("button");
+    button.id="gp-push-button";
+    button.type="button";
+    button.className="gp-push-btn";
+    button.hidden=true;
+    button.addEventListener("click",async function(){
+      if(isSubscribed()){
+        alert("Le notifiche push OneSignal sono attive su questo dispositivo.");
+        return;
+      }
+      button.disabled=true;
+      try{
+        var ok=await window.gpPushRequestPermission();
+        if(!ok)alert("OneSignal non è ancora pronto. Riprova fra qualche secondo.");
+        else if(!isSubscribed())alert("Le notifiche non risultano ancora attive. Controlla i permessi del browser e riprova.");
+      }catch(error){console.error("Errore notifiche:",error);alert("Impossibile attivare le notifiche.");}
+      finally{button.disabled=false;updateButton();}
+    });
+    positionButton();
+    window.addEventListener("resize",positionButton);
+  }
+  window.gpPushRefresh=function(){if(!button)createButton();positionButton();};
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",createButton);
   else createButton();
 
   window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -72,6 +71,9 @@
       });
       sdk = OneSignal;
       resolveReady(true);
+      try{OneSignal.User.PushSubscription.addEventListener("change",updateButton);}catch(e){}
+      try{OneSignal.Notifications.addEventListener("permissionChange",updateButton);}catch(e){}
+      updateButton();
       if (approvedUid) await sdk.login(approvedUid);
     } catch (error) {
       console.warn("OneSignal:", error);
@@ -85,7 +87,7 @@
     approvedUid = uid;
     updateButton();
     const ready = await sdkReady;
-    if (ready && sdk && approvedUid === uid && loginVersion === version) await sdk.login(uid);
+    if (ready && sdk && approvedUid === uid && loginVersion === version) { await sdk.login(uid); updateButton(); }
   };
 
   window.gpPushLogout = async function () {

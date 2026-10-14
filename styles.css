@@ -593,3 +593,16 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
 .presence-sw-time {display:block;flex-basis:100%;font-size:10px;line-height:1.35;color:var(--c-muted);margin-top:3px;}
 .day-err-symbol {display:inline-flex;align-items:center;justify-content:center;font-size:17px;line-height:1;margin-left:auto;}
 @media(max-width:760px){.presence-sw-time{font-size:9px}.day-err-symbol{font-size:15px}}
+
+/* Campanelle separate: interne e push, icone vettoriali senza cerchi */
+.global-bell { display:flex;align-items:center;gap:14px; }
+.global-bell-btn,.bell-btn { width:32px;height:36px;border:0;border-radius:0;background:transparent;box-shadow:none;color:var(--c-text);padding:4px;cursor:pointer; }
+.global-bell-btn .ico,.bell-btn .ico {width:22px;height:22px;}
+.gp-push-anchor {display:inline-flex;align-items:center;justify-content:center;}
+.gp-push-btn {display:inline-flex;position:relative;align-items:center;justify-content:center;width:32px;height:36px;padding:4px;background:transparent;border:0;border-radius:0;box-shadow:none;color:var(--c-text);cursor:pointer;}
+.gp-push-btn[hidden]{display:none!important;}
+.gp-push-btn svg{display:block;}
+.gp-push-status{position:absolute;right:-4px;bottom:-1px;font-size:14px;line-height:1;font-weight:900;text-shadow:0 1px 2px var(--c-surface);}
+.gp-push-on{color:#16803c;}.gp-push-off{color:#c62828;}
+.gp-push-floating{position:fixed;top:12px;right:12px;z-index:9999;}
+@media(max-width:760px){.global-bell{display:none}.topbar-right{gap:10px}.bell-btn{background:transparent;border-radius:0}}

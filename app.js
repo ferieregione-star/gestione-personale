@@ -319,7 +319,7 @@ function layout(content){
   var topbar='<div class="topbar no-print">'+
     '<div class="topbar-left"><button class="topbar-avatar" style="background:'+currentUser.color+'" onclick="nav(\'profile\')">'+currentUser.initials+'</button></div>'+
     '<span class="topbar-title">'+pageTitleLabel()+'</span>'+
-    '<div class="topbar-right">'+bellBtn()+'</div>'+
+    '<div class="topbar-right">'+bellBtn()+'<span class="gp-push-anchor" data-gp-push-anchor="mobile"></span></div>'+
   '</div>';
 
   /* Mobile bottom nav */
@@ -332,12 +332,13 @@ function layout(content){
   var impBar=adminUser?'<div class="impersonation-bar no-print">Visualizzando come <strong>'+fullName(currentUser)+'</strong> <button class="btn btn-secondary btn-sm" onclick="stopImpersonation()">Torna admin</button></div>':"";
 
   var globalBell=(currentUser.role==="admin")?
-    '<div class="global-bell no-print"><button class="global-bell-btn" onclick="nav(\'notifications\')" title="Notifiche admin">'+ico("bell")+(unreadCount()?'<span class="global-bell-badge">'+unreadCount()+'</span>':'')+' </button></div>':"";
+    '<div class="global-bell no-print"><button class="global-bell-btn" onclick="nav(\'notifications\')" title="Notifiche interne">'+ico("bell")+(unreadCount()?'<span class="global-bell-badge">'+unreadCount()+'</span>':'')+' </button><span class="gp-push-anchor" data-gp-push-anchor="desktop"></span></div>':"";
 
   app.innerHTML=topbar+
     '<div class="app-shell">'+sidebar+
     '<div class="main-content">'+impBar+globalBell+content+'</div>'+
     '</div>'+bottomNav;
+  if(window.gpPushRefresh) window.gpPushRefresh();
 }
 
 
@@ -635,9 +636,9 @@ function renderProfile(){
     }).join("")+
     '</div>'+
     '<div>'+
-    '<div class="card"><div class="sec-title">Cambio password</div>'+
-    '<div class="form-row"><label>Nuova password</label><input id="reqPw" type="password"></div>'+
-    '<button class="btn btn-primary btn-full" onclick="requestPasswordChange()">Cambia password</button>'+ 
+    '<div class="card"><div class="sec-title">Richiesta cambio password</div>'+
+    '<p style="font-size:13px;color:var(--c-muted)">Invia una richiesta al Super Admin. Non inserire qui la nuova password.</p>'+
+    '<button class="btn btn-primary btn-full" onclick="requestPasswordChange()">Richiedi cambio password</button>'+
     '<p id="profileMsg" class="error-msg"></p></div>'+
     (mgmt?'<div class="card"><div class="sec-title">Gestione</div>'+mgmt+'</div>':"")+
     '<div class="card">'+
@@ -647,15 +648,37 @@ function renderProfile(){
   );
 }
 async function requestPasswordChange(){
-  var pw=document.getElementById("reqPw").value;
   var el=document.getElementById("profileMsg");
-  if(!pw){el.textContent="Inserisci la nuova password.";return;}
-  if(pw.length<6){el.textContent="La nuova password deve avere almeno 6 caratteri.";return;}
-  try{
-    await firebaseAuth.currentUser.updatePassword(pw);
-    el.textContent="Password aggiornata.";
+  if(!currentUser||!currentUser.approved){el.textContent="Utente non autorizzato.";return;}
+  if(db.requests.some(function(r){return r.userId===currentUser.id&&r.type==="password"&&r.status==="pending";})){
+    el.textContent="Hai già una richiesta in attesa.";return;
   }
-  catch(e){el.textContent=e.code==="auth/requires-recent-login"?"Per sicurezza esci, accedi nuovamente e riprova.":authErrorMessage(e);}
+  var r={id:uid("request"),type:"password",userId:currentUser.id,userName:fullName(currentUser),email:currentUser.email,status:"pending",createdAt:Date.now()};
+  try{await writeRequest(r);el.textContent="Richiesta inviata al Super Admin.";}
+  catch(e){el.textContent="Invio non riuscito. Controlla la connessione.";}
+}
+async function decidePasswordRequest(id,approve){
+  if(!currentUser||currentUser.role!=="admin")return;
+  var r=db.requests.find(function(x){return x.id===id&&x.type==="password";});
+  if(!r||r.status!=="pending")return;
+  if(!confirm(approve?"Approvare la richiesta? La password NON verrà modificata automaticamente.":"Rifiutare la richiesta?"))return;
+  try{
+    await cloudDb.collection("requests").doc(id).update({status:approve?"approved":"rejected",decidedAt:Date.now(),decidedBy:currentUser.id});
+    if(approve)alert("Richiesta approvata. Per assegnare una password scelta dal Super Admin occorre configurare un servizio amministrativo Firebase sicuro. La password non è stata cambiata.");
+  }catch(e){alert("Impossibile aggiornare la richiesta.");}
+}
+function renderPasswordRequests(){
+  if(!currentUser||currentUser.role!=="admin")return"";
+  var req=db.requests.filter(function(r){return r.type==="password";}).sort(function(a,b){return (b.createdAt||0)-(a.createdAt||0);});
+  return '<div class="card"><div class="sec-title">Richieste cambio password</div>'+(
+    req.length?req.map(function(r){
+      var u=db.users.find(function(x){return x.id===r.userId;});
+      var name=u?fullName(u):(r.userName||r.email||"Utente");
+      var stato=r.status==="pending"?"In attesa":r.status==="approved"?"Approvata (password da impostare)":"Rifiutata";
+      return '<div class="person-row"><div class="person-meta"><strong>'+htmlEscape(name)+'</strong><small>'+htmlEscape(stato)+'</small></div>'+
+      (r.status==="pending"?'<div style="display:flex;gap:6px"><button class="btn btn-primary btn-sm" onclick="decidePasswordRequest(\''+r.id+'\',true)">Approva</button><button class="btn btn-secondary btn-sm" onclick="decidePasswordRequest(\''+r.id+'\',false)">Rifiuta</button></div>':'')+'</div>';
+    }).join(""):'<p style="color:var(--c-muted);font-size:13px">Nessuna richiesta.</p>')+
+    '<p style="font-size:12px;color:var(--c-muted)">L’approvazione non cambia la password Firebase. Per assegnarne una scelta dall’amministratore è necessario un backend privilegiato, non incluso in questa versione.</p></div>';
 }
 
 /* =========================================================
@@ -892,7 +915,7 @@ function renderAdmin(){
     '<div class="card"><div class="sec-title">Registrazioni in attesa</div>'+(newUsers||'<p style="color:var(--c-muted);font-size:13px">Nessuna.</p>')+'</div>'+
     '<div class="card"><div class="sec-title">Notifiche</div>'+(adminNotes||'<p style="color:var(--c-muted);font-size:13px">Nessuna notifica.</p>')+'</div>'+ 
     '</div>'+
-    renderSwitchUserPanel()+renderSectorAdminPanel()+
+    renderPasswordRequests()+renderSwitchUserPanel()+renderSectorAdminPanel()+
     '<div class="card"><div class="sec-title">Backup</div><button class="btn btn-secondary" onclick="exportData()">'+ico("chart")+'  Esporta JSON</button></div>'+
     '<div class="card"><div class="sec-title">Manutenzione</div>'+
     '<p style="font-size:13px;color:var(--c-muted);margin-bottom:10px">Le notifiche si accumulano nel tempo. Azzerandole liberi spazio su Firestore senza perdere dati importanti.</p>'+
