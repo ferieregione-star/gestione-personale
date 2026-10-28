@@ -359,6 +359,7 @@ function renderStatusLegend(extraClass){
     {dot:'<span class="legend-dot legend-dot-c01">C01</span>', label:'Ferie anno attuale'},
     {dot:'<span class="legend-dot legend-dot-c02">C02</span>', label:'Ferie anno precedente'},
     {dot:'<span class="legend-dot legend-dot-f14">F14</span>', label:'Festività soppresse'},
+    {dot:'<span class="legend-dot legend-dot-a14">A14</span>', label:'Missione'},
     {dot:'<span class="legend-dot legend-dot-altro">ALT</span>', label:'Altro'}
   ]);
 
@@ -506,7 +507,7 @@ function renderPresenceSections(date, people, allowRemove){
     var smartTime=st==="smart"&&timeLabel?'<span class="presence-sw-time" title="'+(meta.legacy?'Ultima modifica registrata (dato storico)':'Data e ora di inserimento SW')+'">'+(meta.legacy?'Registrato/modificato: ':'Inserito: ')+timeLabel+'</span>':"";
     var reason=isAway?'<span class="presence-reason">'+((STATUS[st]||{}).short||htmlEscape(st))+'</span>':"";
     var remove=allowRemove&&isAway&&canModifyUserEvents(u.id)?'<button class="presence-remove" onclick="removeEvent(\''+date+'\',\''+u.id+'\')">Rimuovi</button>':"";
-    var awayClass=isAway?(st==="smart"?' absence-smart':' absence-other'):"";
+    var awayClass=isAway?(st==="smart"?' absence-smart':st==="a14"?' absence-mission':' absence-other'):"";
     return '<div class="presence-row '+(isAway?'presence-absent':'presence-present')+awayClass+'">'+
       '<span class="presence-dot" aria-hidden="true"></span><div class="presence-person"><span class="presence-name">'+fullName(u)+'</span>'+reason+smartTime+'</div>'+remove+'</div>';
   }
@@ -806,6 +807,7 @@ function renderEmployeeDetail(u){
     '<div class="form-row"><label>C01</label><input id="dc1" type="number" value="'+(u.c01||0)+'" '+prot+'></div>'+
     '<div class="form-row"><label>C02</label><input id="dc2" type="number" value="'+(u.c02||0)+'" '+prot+'></div>'+
     '<div class="form-row"><label>F14</label><input id="df14" type="number" value="'+(u.f14||0)+'" '+prot+'></div>'+
+    (canEditProtectedData()&&isWorker(u)?'<div class="form-row"><label>Smart working consentito (giorni a settimana)</label><select id="dswlimit">'+[1,2,3,4,5].map(function(n){return '<option value="'+n+'"'+(smartWeeklyLimit(u)===n?' selected':'')+'>'+n+' giorn'+(n===1?'o':'i')+'</option>';}).join('')+'</select><small>Solo il Super Admin può modificare questo limite. Predefinito: 1 giorno.</small></div>':'')+
     '</div>'+extra+
     '<div style="display:flex;gap:8px;margin-top:8px">'+
     '<button class="btn btn-primary" onclick="saveEmployeeDetail(\''+u.id+'\')">Salva</button>'+
@@ -825,6 +827,7 @@ async function saveEmployeeDetail(id){
     u.sectorId=document.getElementById("dd").value;u.areaId=document.getElementById("da").value;
     u.role=document.getElementById("dr").value;u.approved=document.getElementById("dap").value==="true";
     u.c01=+document.getElementById("dc1").value||0;u.c02=+document.getElementById("dc2").value||0;u.f14=+document.getElementById("df14").value||0;
+    var swSelect=document.getElementById("dswlimit");if(swSelect)u.swDaysPerWeek=Number(swSelect.value);
     u.editableAreaIds=[...document.querySelectorAll(".d_ea:checked")].map(x=>x.value);
     u.visibleSectorIds=[...document.querySelectorAll(".d_vs:checked")].map(x=>x.value);
     if(u.role==="employee"){u.visibleSectorIds=[u.sectorId];u.editableAreaIds=[];}

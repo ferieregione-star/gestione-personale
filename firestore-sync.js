@@ -63,14 +63,10 @@ async function writeEvent(date,userId,type){
   var changeRef=cloudDb.collection("eventChanges").doc();
   await cloudDb.runTransaction(async function(tx){
     var old=await tx.get(ref),prev=old.exists?old.data():null;
-    var lockRef=null,lock=null;
-    if(type==="smart"){
-      lockRef=cloudDb.collection("smartWeeks").doc(smartWeekId(date,userId));
-      lock=await tx.get(lockRef);
-      if(lock.exists&&lock.data().date!==date)throw new Error("È già presente uno smart working nella stessa settimana.");
-    }
-    if(prev&&prev.type==="smart"&&type!=="smart")tx.delete(cloudDb.collection("smartWeeks").doc(smartWeekId(date,userId)));
-    if(type==="smart")tx.set(lockRef,{userId:userId,date:date,week:weekDates(date)[0],sectorId:u.sectorId,areaId:u.areaId,updatedBy:actor});
+    // Il limite personale SW è configurato sul profilo dall'amministratore.
+    // Non creiamo più il vecchio blocco unico smartWeeks per settimana:
+    // impedirebbe 2-5 giorni anche quando il Super Admin li autorizza.
+    // I documenti smartWeeks storici non vengono più usati per il controllo.
     var ts=firebase.firestore.FieldValue.serverTimestamp();
     var fields={date:date,userId:userId,type:type,sectorId:u.sectorId,areaId:u.areaId,updatedBy:actor,updatedAt:ts};
     if(type==="smart")fields.createdAt=prev&&prev.type==="smart"?(prev.createdAt||prev.updatedAt||ts):ts;
@@ -87,7 +83,7 @@ async function deleteEvent(date,userId){
   await cloudDb.runTransaction(async function(tx){
     var old=await tx.get(ref);if(!old.exists)return;
     var prev=old.data();
-    if(prev.type==="smart")tx.delete(cloudDb.collection("smartWeeks").doc(smartWeekId(date,userId)));
+    // I vecchi documenti smartWeeks non bloccano più i nuovi inserimenti.
     tx.delete(ref);
     tx.set(changeRef,{action:"deleted",eventId:eventDocId(date,userId),date:date,userId:userId,areaId:prev.areaId,sectorId:prev.sectorId,oldType:prev.type,newType:null,actorUid:actor,at:firebase.firestore.FieldValue.serverTimestamp()});
   });

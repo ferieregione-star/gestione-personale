@@ -7,7 +7,7 @@
    Local cache in localStorage per avvio offline/veloce.
    ========================================================= */
 
-const VERSION = "v204";
+const VERSION = "v211";
 const STORE = "gestione_personale_v200";
 const DATA_SCHEMA_VERSION = 200;
 
@@ -17,6 +17,7 @@ const STATUS = {
   c01:{label:"C01 - Ferie anno attuale", short:"C01", cls:"ferie", color:"#f97316"},
   c02:{label:"C02 - Ferie anno precedente", short:"C02", cls:"ferie", color:"#ca8a04"},
   f14:{label:"F14 - Festività soppresse", short:"F14", cls:"permesso", color:"#7c3aed"},
+  a14:{label:"A14 - Missione", short:"A14", cls:"missione", color:"#ff7a00"},
   altro:{label:"ALTRO", short:"ALT", cls:"altro", color:"#ffffff"}
 };
 /* Colore dell'icona SW in base all'area della persona:
@@ -74,7 +75,7 @@ let insertOpen = false;
 let insertUserId = null;
 let insertCode = null;
 let insertError = "";
-const INSERT_CODES = ["c01","c02","f14","smart","altro"];
+const INSERT_CODES = ["c01","c02","f14","a14","smart","altro"];
 /* ---------- Icone SVG minimali ---------- */
 const ICONS = {
   calendar:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16"/><path d="M8 3v4M16 3v4"/>',
@@ -286,15 +287,20 @@ function notificationText(actor,target,status,date){
   return fullName(actor)+" "+action+" di "+fullName(target)+" per il giorno "+fmt(date);
 }
 
-/* Regole SW: una volta a settimana per persona (bloccante); per area
+/* Regole SW: limite personale configurabile dal Super Admin; per area
    massimo due nello stesso giorno e una sola giornata doppia per settimana
    (segnalazioni non bloccanti). Aree diverse non si influenzano. */
+function smartWeeklyLimit(u){
+  var n=Number(u&&u.swDaysPerWeek);
+  return Number.isInteger(n)&&n>=1&&n<=5?n:1;
+}
 function validateSmartRule(date,userId){
   if(isBlockedDay(date)) return {ok:false,message:"Non puoi inserire smart working su sabato, domenica o festivo."};
   var u=db.users.find(function(x){return x.id===userId;});
   if(!u)return {ok:false,message:"Utente non trovato."};
+  var limit=smartWeeklyLimit(u);
   var already=weekDates(date).filter(function(d){return d!==date&&eventFor(d,userId)==="smart";});
-  if(already.length)return {ok:false,message:fullName(u)+" ha già uno smart working questa settimana ("+fmt(already[0])+"). Massimo 1 a settimana per persona."};
+  if(already.length>=limit)return {ok:false,message:fullName(u)+" ha già raggiunto il limite di "+limit+" giorn"+(limit===1?"o":"i")+" di smart working questa settimana. Il limite è modificabile solo dal Super Admin."};
   return {ok:true};
 }
 function countSmartArea(date,areaId){

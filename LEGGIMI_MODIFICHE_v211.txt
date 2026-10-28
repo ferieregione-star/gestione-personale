@@ -1,0 +1,11 @@
+GESTIONE PERSONALE v211 — BASE: ZIP (10) SCARICATO DA GITHUB
+
+1) Super Admin > Dipendenti > seleziona un utente > Smart working consentito: da 1 a 5 giorni alla settimana > Salva.
+   Valore predefinito per tutti gli utenti: 1 giorno.
+2) A14 - Missione disponibile tra le causali di assenza. Compare nella colonna Assenti a destra in arancione fluorescente.
+3) Rimossi i vecchi blocchi Firestore smartWeeks da nuovi inserimenti, perché impedivano più di un giorno a settimana.
+4) Nessuna modifica alle campanelle o alle notifiche push.
+
+IMPORTANTE: le verifiche del limite SW sono effettuate nell'app. Se servono vincoli contro accessi diretti a Firestore o inserimenti simultanei, occorrono regole/server di convalida aggiuntivi.
+
+PUBBLICAZIONE: caricare il CONTENUTO della cartella gestione-personale-main sul repository GitHub, preservando le cartelle nascoste .github.
