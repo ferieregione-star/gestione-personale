@@ -607,9 +607,12 @@ body.theme-dirigente .sidebar-user { border-color: #166534; }
 .gp-push-floating{position:fixed;top:12px;right:12px;z-index:9999;}
 @media(max-width:760px){.global-bell{display:none}.topbar-right{gap:10px}.bell-btn{background:transparent;border-radius:0}}
 
-/* v211 — Missione A14: arancione fluorescente nella colonna Assenti */
-.legend-dot-a14 { background: #ff7a00; color: #171717; }
+/* v212 — Missione A14: verde nella colonna Assenti e nel riepilogo */
+.legend-dot-a14 { background: #00b84a; color: #171717; }
 .absence-mission .presence-name,
-.absence-mission .presence-reason { color: #ff7900; font-weight: 900; }
-.absence-mission .presence-dot { background: #ff7900; box-shadow: 0 0 0 2px rgba(255,121,0,.25); }
-.absence-mission { background: rgba(255,121,0,.10); border-radius: 6px; }
+.absence-mission .presence-reason { color: #00a843; font-weight: 900; }
+.absence-mission .presence-dot { background: #00a843; box-shadow: 0 0 0 2px rgba(0,184,74,.25); }
+.absence-mission { background: rgba(0,184,74,.10); border-radius: 6px; }
+
+.report-stat-mission { background: rgba(0,184,74,.12); border: 1px solid rgba(0,184,74,.32); }
+.report-stat-mission strong, .report-stat-mission span { color: #008b38; }

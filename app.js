@@ -847,7 +847,7 @@ async function deleteUser(id){
    RIEPILOGO
    ========================================================= */
 function userReport(u){
-  var r={c01:0,c02:0,f14:0,smart:0,altro:0};
+  var r={c01:0,c02:0,f14:0,a14:0,smart:0,altro:0};
   var reportYear=String(new Date().getFullYear())+"-";
   Object.keys(db.events).forEach(d=>{if(d.indexOf(reportYear)===0&&!isBlockedDay(d)){var st=normalizeEventCode(db.events[d][u.id]);if(r[st]!==undefined)r[st]++;}});
   r.c01T=+u.c01||0;r.c02T=+u.c02||0;r.f14T=+u.f14||0;
@@ -866,6 +866,7 @@ function renderReports(){
       '<div class="report-stat"><strong>'+r.c01R+'</strong><span>C01 residue</span></div>'+
       '<div class="report-stat"><strong>'+r.c02R+'</strong><span>C02 residue</span></div>'+
       '<div class="report-stat"><strong>'+r.f14R+'</strong><span>F14 residue</span></div>'+
+      '<div class="report-stat report-stat-mission"><strong>'+r.a14+'</strong><span>A14 · Missioni</span></div>'+
       '<div class="report-stat"><strong>'+r.smart+'</strong><span>Smart working</span></div>'+
       '<div class="report-stat"><strong>'+r.altro+'</strong><span>Altro</span></div>'+
       '</div></div>';

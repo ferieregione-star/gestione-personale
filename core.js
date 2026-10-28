@@ -17,7 +17,7 @@ const STATUS = {
   c01:{label:"C01 - Ferie anno attuale", short:"C01", cls:"ferie", color:"#f97316"},
   c02:{label:"C02 - Ferie anno precedente", short:"C02", cls:"ferie", color:"#ca8a04"},
   f14:{label:"F14 - Festività soppresse", short:"F14", cls:"permesso", color:"#7c3aed"},
-  a14:{label:"A14 - Missione", short:"A14", cls:"missione", color:"#ff7a00"},
+  a14:{label:"A14 - Missione", short:"A14", cls:"missione", color:"#00b84a"},
   altro:{label:"ALTRO", short:"ALT", cls:"altro", color:"#ffffff"}
 };
 /* Colore dell'icona SW in base all'area della persona:
